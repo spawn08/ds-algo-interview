@@ -31,7 +31,6 @@ public class ReverseString {
         char[] chars = s.toCharArray();
         //initialize start index
         int startIndex = 0;
-        StringBuilder
         //loop through char array and perform swap
         for (int index = chars.length - 1; index>=0; index--) {
             //get the last element from the char array
