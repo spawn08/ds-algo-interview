@@ -30,7 +30,7 @@ public class TwoSumJava {
     public static int[] twoSum(int[] nums, int target) {
         //initialize Map for storing the Value and Index
         Map<Integer, Integer> map = new HashMap<>();
-        int difference = 0;
+        int difference;
 
         //Loop through the array
         for (int index = 0; index < nums.length; index++) {
