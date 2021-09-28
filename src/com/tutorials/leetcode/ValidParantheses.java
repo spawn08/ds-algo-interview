@@ -24,7 +24,8 @@ public class ValidParantheses {
 
     public static void main(String[] args) {
         String s = "()";
-        System.out.println("Valid parentheses? -> " + checkValidParenthesesUsingStack(s));
+        System.out.println("Valid parentheses using Stacks? -> " + checkValidParenthesesUsingStack(s));
+        System.out.println("Valid parentheses using Arrays? -> " + checkValidParentheses(s));
     }
 
     /**
