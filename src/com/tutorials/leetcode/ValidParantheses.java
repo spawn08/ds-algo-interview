@@ -1,5 +1,9 @@
 package com.tutorials.leetcode;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
+
 /**
  * Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
  *
@@ -20,8 +24,8 @@ package com.tutorials.leetcode;
 public class ValidParantheses {
 
     public static void main(String[] args) {
-        String s = "(){}[]";
-        System.out.println("Valid parentheses? -> " + checkValidParentheses(s));
+        String s = "()";
+        System.out.println("Valid parentheses? -> " + checkValidParenthesesUsingStack(s));
     }
 
     /**
@@ -58,5 +62,33 @@ public class ValidParantheses {
             }
         }
         return head == 0;
+    }
+
+    public static boolean checkValidParenthesesUsingStack(String s) {
+        //Check whether String length is even, if not return true
+        //Why are we doing this? If it's a valid parentheses then string's length will always be even.
+        if(s.length() % 2 != 0)
+            return false;
+        //initialize stack
+        Deque<Character> stack = new ArrayDeque<>();
+        for(char c : s.toCharArray()) {
+            switch(c) {
+                case '{':
+                case '[':
+                case '(':
+                    stack.push(c);
+                    break;
+                case '}':
+                    if(stack.isEmpty() || stack.pop() != '{') return false;
+                    break;
+                case ')':
+                    if(stack.isEmpty() || stack.pop()!= '(') return false;
+                    break;
+                case ']':
+                    if(stack.isEmpty() || stack.pop() != '[') return false;
+                    break;
+            }
+        }
+        return stack.isEmpty();
     }
 }
