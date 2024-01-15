@@ -34,7 +34,7 @@ public class TwoSumBruteForce {
             // Get the number at ith index
             int firstNumber = nums[i];
             // Inner Loop: Loop through the rest of the array
-            for (int j = i + 1; j < nums.length - 1; j++) {
+            for (int j = i + 1; j < nums.length; j++) {
                 int secondNumber = nums[j];
                 // Check if 2 number sums to the target
                 if (firstNumber + secondNumber == target) return new int[]{i, j};
@@ -45,7 +45,7 @@ public class TwoSumBruteForce {
     }
 
     public static void main(String[] args) {
-        int[] inputData = {3,5,-4,8,11,1,-1,6};
+        int[] inputData = {4, 6};
         TwoSumBruteForce twoSumBruteForce = new TwoSumBruteForce();
         int[] result = twoSumBruteForce.twoSumBruteForce(inputData, 10);
         System.out.println("Two Sum Bruteforce Result -->" + Arrays.toString(result));
