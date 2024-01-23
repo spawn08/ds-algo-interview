@@ -1,4 +1,4 @@
-package com.tutorials.leetcode;
+package com.tutorials.leetcode.contains_duplicates;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,7 @@ import java.util.Set;
  * 2. Input: nums = [1,2,3,4]
  * Output: false
  *
- * @link https://leetcode.com/problems/contains-duplicate/
+ * @link <a href="https://leetcode.com/problems/contains-duplicate/">...</a>
  */
 public class ContainsDuplicate {
 
@@ -22,7 +22,7 @@ public class ContainsDuplicate {
      *
      * @param nums integer array
      * @return true if contains duplicate else false
-     *
+     * <p>
      * Time Complexity: O(n)
      * Space Complexity: O(n)
      */

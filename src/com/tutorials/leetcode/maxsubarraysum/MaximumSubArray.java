@@ -12,6 +12,11 @@ package com.tutorials.leetcode.maxsubarraysum;
  * Output: 1
  * Explanation: The subarray [1] has the largest sum 1.
  * -------------------------------------
+ * Example 3:
+ * Input: nums = [-1,-2,-3,-4]
+ * Output: -1
+ * Explanation: Max subarray sum is -1 of element (-1)
+ * -------------------------------------
  * Constraints:
  * 1 <= nums.length <= 105
  * -104 <= nums[i] <= 104
@@ -38,9 +43,21 @@ public class MaximumSubArray {
         return maxValue;
     }
 
+    public int findMaxSubArray2(int[] array) {
+        int currentSum = array[0];
+        int maxValue = array[0];
+        for (int element : array) {
+            currentSum = Math.max(element, currentSum + element);
+            maxValue = Math.max(currentSum, maxValue);
+        }
+
+        return maxValue;
+    }
+
     public static void main(String[] args) {
         MaximumSubArray maximumSubArray = new MaximumSubArray();
+
         int[] nums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
-        System.out.println(maximumSubArray.findMaxSubArray(nums));
+        System.out.println(maximumSubArray.findMaxSubArray2(nums));
     }
 }

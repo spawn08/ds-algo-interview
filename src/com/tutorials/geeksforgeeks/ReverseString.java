@@ -1,4 +1,4 @@
-package com.tutorials.string;
+package com.tutorials.geeksforgeeks;
 
 import java.util.Stack;
 
@@ -14,7 +14,7 @@ import java.util.Stack;
  * s = for
  * Output: rof
  *
- * @link https://practice.geeksforgeeks.org/problems/reverse-a-string/
+ * @link <a href="https://practice.geeksforgeeks.org/problems/reverse-a-string/">...</a>
  */
 public class ReverseString {
 
