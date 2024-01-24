@@ -27,38 +27,32 @@ public class BucketsProblem {
      * @return minMoves integer value
      */
     public static int minMoves(String buckets) {
-        int n = buckets.length();
-        int totalBalls = 0;
-        for (int i = 0; i < n; i++) {
-            if (buckets.charAt(i) == 'B') {
-                totalBalls++;
+        int bucketsLength = buckets.length();
+        int ballCount = 0;
+        int minimumMoves;
+
+        for (int index = 0; index < bucketsLength; index++) {
+            if (buckets.charAt(index) == 'B') {
+                ballCount++;
             }
         }
 
-        // Impossible case
-        if (totalBalls > (n + 1) / 2) {
-            return -1;
+        if (ballCount > (bucketsLength + 1) / 2) return -1;
+        minimumMoves = ballCount;
+
+        int correctBallPosition = 0;
+        for (int index = 0; index < bucketsLength; index = index + 2) {
+            if (buckets.charAt(index) == 'B') {
+                correctBallPosition++;
+            }
         }
 
-        int minMoves = Integer.MAX_VALUE;
-        // Check for all starting points
-        for (int start = 0; start < n; start++) {
-            int moves = 0;
-            for (int i = start, count = 0; count < n; i = (i + 2) % n, count++) {
-                char c = buckets.charAt(i);
-                if (c == 'B' && (count % 2 != 0)) {
-                    moves++;
-                } else if (c == '.' && (count % 2 == 0)) {
-                    moves++;
-                }
-            }
-            minMoves = Math.min(minMoves, moves);
-        }
-        return minMoves;
+        minimumMoves = Math.min(minimumMoves, ballCount - correctBallPosition);
+        return minimumMoves;
     }
 
     public static void main(String[] args) {
-        String buckets = "BB.B.BBB..."; //..B....B.BB; BB.B.BBB...
+        String buckets = "BB.B.BBB..."; //..B....B.BB; BB.B.BBB...; BB.B..
         System.out.println(BucketsProblem.minMoves(buckets));
     }
 }
