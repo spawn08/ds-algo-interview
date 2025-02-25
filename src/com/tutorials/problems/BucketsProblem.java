@@ -17,6 +17,16 @@ package com.tutorials.problems;
  * ..B....B.BB
  * Sample Output 2:
  * 2
+ * <p>
+ * Sample Input 3:
+ * ..B.B..BB.
+ * Sample Output 3:
+ * 1
+ * <p>
+ * Sample Input 4:
+ * BB.B.
+ * Sample Output 4:
+ * -1
  */
 public class BucketsProblem {
 
@@ -48,11 +58,22 @@ public class BucketsProblem {
         }
 
         minimumMoves = Math.min(minimumMoves, ballCount - correctBallPosition);
+        if (minimumMoves == 0) return -1;
         return minimumMoves;
     }
 
     public static void main(String[] args) {
-        String buckets = "BB.B.BBB..."; //..B....B.BB; BB.B.BBB...; BB.B..
-        System.out.println(BucketsProblem.minMoves(buckets));
+        //..B....B.BB; BB.B.BBB...; BB.B.
+        String input1 = "BB.B.BBB...";
+        String input2 = "..B....B.BB";
+        String input3 = "..B.B..BB.";
+        String input4 = "BB.B.";
+        String input5 = "B.B.B.";
+
+        System.out.println(minMoves(input1));
+        System.out.println(minMoves(input2));
+        System.out.println(minMoves(input3));
+        System.out.println(minMoves(input4));
+        System.out.println(minMoves(input5));
     }
 }
