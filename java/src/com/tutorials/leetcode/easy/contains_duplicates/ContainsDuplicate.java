@@ -1,4 +1,4 @@
-package com.tutorials.leetcode.contains_duplicates;
+package com.tutorials.leetcode.easy.contains_duplicates;
 
 import java.util.HashSet;
 import java.util.Set;

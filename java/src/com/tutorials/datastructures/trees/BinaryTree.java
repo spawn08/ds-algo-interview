@@ -1,4 +1,4 @@
-package com.tutorials.datastructures;
+package com.tutorials.datastructures.trees;
 
 // Definition for a binary tree node
 class TreeNode {
