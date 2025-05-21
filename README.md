@@ -1,9 +1,9 @@
 # Datastructures and Algorithms Interview Questions
 
-![GitHub contributors](https://img.shields.io/github/contributors/yourusername/ds-algo-interview-java)
-![GitHub stars](https://img.shields.io/github/stars/yourusername/ds-algo-interview-java?style=social)
-![GitHub forks](https://img.shields.io/github/forks/yourusername/ds-algo-interview-java?style=social)
-![GitHub issues](https://img.shields.io/github/issues/yourusername/ds-algo-interview-java)
+![GitHub contributors](https://img.shields.io/github/contributors/spawn08/ds-algo-interview)
+![GitHub stars](https://img.shields.io/github/stars/spawn08/ds-algo-interview?style=social)
+![GitHub forks](https://img.shields.io/github/forks/spawn08/ds-algo-interview?style=social)
+![GitHub issues](https://img.shields.io/github/issues/spawn08/ds-algo-interview)
 
 <p align="center">
   <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Python_logo_and_wordmark.svg" alt="Python" width="100"/>
@@ -84,7 +84,7 @@ Solutions are implemented in the following languages:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ds-algo-interview-java.git
+   git clone https://github.com/spawn08/ds-algo-interview.git
    cd ds-algo-interview-java
    ```
 
