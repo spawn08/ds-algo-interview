@@ -23,6 +23,13 @@ package com.tutorials.leetcode.maxsubarraysum;
  */
 public class MaximumSubArray {
 
+    public static void main(String[] args) {
+        MaximumSubArray maximumSubArray = new MaximumSubArray();
+
+        int[] nums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+        System.out.println(maximumSubArray.findMaxSubArray2(nums));
+    }
+
     /**
      * Below method returns the maximum value sum for the subarray on contiguous location
      *
@@ -36,7 +43,7 @@ public class MaximumSubArray {
         for (int j : array) {
             currentSum += j;
             maxValue = Math.max(currentSum, maxValue);
-
+            // if input array contains negative numbers, handle the case
             if (currentSum < 0) currentSum = 0;
         }
 
@@ -52,12 +59,5 @@ public class MaximumSubArray {
         }
 
         return maxValue;
-    }
-
-    public static void main(String[] args) {
-        MaximumSubArray maximumSubArray = new MaximumSubArray();
-
-        int[] nums = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
-        System.out.println(maximumSubArray.findMaxSubArray2(nums));
     }
 }

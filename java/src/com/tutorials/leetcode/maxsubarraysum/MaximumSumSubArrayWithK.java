@@ -52,7 +52,7 @@ public class MaximumSumSubArrayWithK {
 
     public static void main(String[] args) {
         int[] input = {100, 200, 300, -1001, 400};
-        int n = 4;
+        int n = input.length;
         int k = 4;
         MaximumSumSubArrayWithK maximumSumSubArrayWithK = new MaximumSumSubArrayWithK();
         System.out.println(maximumSumSubArrayWithK.maximumSumSubArray(input, k, n));

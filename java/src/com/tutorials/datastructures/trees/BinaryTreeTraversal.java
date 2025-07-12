@@ -1,21 +1,10 @@
 package com.tutorials.datastructures.trees;
 
-// Definition for a binary tree node
-class TreeNode {
-    int data;
-    TreeNode left, right;
-
-    public TreeNode(int item) {
-        data = item;
-        left = right = null;
-    }
-}
-
-public class BinaryTree {
+public class BinaryTreeTraversal {
     TreeNode root;
 
     // Constructor
-    public BinaryTree() {
+    public BinaryTreeTraversal() {
         root = null;
     }
 
@@ -50,7 +39,7 @@ public class BinaryTree {
     }
 
     public static void main(String[] args) {
-        BinaryTree tree = new BinaryTree();
+        BinaryTreeTraversal tree = new BinaryTreeTraversal();
         // Sample tree construction
         tree.root = new TreeNode(1);
         tree.root.left = new TreeNode(2);
