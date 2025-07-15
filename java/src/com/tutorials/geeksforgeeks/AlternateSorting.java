@@ -22,26 +22,37 @@ public class AlternateSorting {
      * Method sorts and prints the array elements in alternate sorting order
      *
      * @param input array input
+     * @return
      */
-    public void alternateSorting(int[] input) {
+    public int[] alternateSorting(int[] input) {
+        int[] alternateSort = new int[input.length];
+        int alternateIndex = 0;
         int size = input.length;
         int firstIndex = 0;
         int lastIndex = size - 1;
         Arrays.sort(input);
 
         while (firstIndex < lastIndex) {
-            System.out.println(input[lastIndex--]);
-            System.out.println(input[firstIndex++]);
+            alternateSort[alternateIndex] = input[lastIndex--];
+            alternateIndex += 1;
+            alternateSort[alternateIndex] = input[firstIndex++];
+            alternateIndex += 1;
+            System.out.print(input[lastIndex--] + " ");
+            System.out.print(input[firstIndex++] + " ");
         }
 
         if (size % 2 != 0) {
-            System.out.println(input[firstIndex]);
+            alternateSort[alternateIndex] = input[firstIndex];
+            System.out.print(input[firstIndex] + " ");
         }
+
+        return alternateSort;
     }
 
     public static void main(String[] args) {
         int[] input = {7, 1, 2, 3, 4, 5, 6};
         AlternateSorting alternateSorting = new AlternateSorting();
         alternateSorting.alternateSorting(input);
+        System.out.println(Arrays.toString(alternateSorting.alternateSorting(input)));
     }
 }
