@@ -35,7 +35,7 @@ public class ValidParantheses {
      * @return true is parentheses occurrence is as per question
      */
     public static boolean checkValidParentheses(String s) {
-        //Check whether String length is even, if not return true
+        //Check whether String length is even, if not return false
         //Why are we doing this? If it's a valid parentheses then string's length will always be even.
         if (s.length() % 2 != 0)
             return false;
@@ -65,7 +65,7 @@ public class ValidParantheses {
     }
 
     public static boolean checkValidParenthesesUsingStack(String s) {
-        //Check whether String length is even, if not return true
+        //Check whether String length is even, if not return false
         //Why are we doing this? If it's a valid parentheses then string's length will always be even.
         if (s.length() % 2 != 0)
             return false;
