@@ -24,7 +24,7 @@ public class TwoSumUsingPointers {
             int currentSum = input[startIndex] + input[endIndex];
             if(currentSum == target) return new int[] {input[startIndex], input[endIndex]};
             else if (currentSum < target) startIndex++;
-            else endIndex++;
+            else endIndex--;
         }
 
         return new int[0];
@@ -32,7 +32,7 @@ public class TwoSumUsingPointers {
 
 
     public static void main(String[] args) {
-        int[] data = {3, 5, -4, 8, 11, 1, -1, 6};
+        int[] data = {3, 5, 6};
         TwoSumUsingPointers twoSumUsingPointers = new TwoSumUsingPointers();
         int[] result = twoSumUsingPointers.findTwoSum(data, 10);
         System.out.println("TwoSumUsingPointers --> " + Arrays.toString(result));
