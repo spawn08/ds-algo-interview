@@ -21,7 +21,12 @@ class BranchSum {
 
     }
 
-    // this method calculates the sum of all the branches in the binary tree
+    /**
+     * This method calculates the sum of all the branches in the binary tree.
+     * Time complexity: O(n) where n is number of nodes in a tree
+     * Space Complexity: O(n) due to recursion call stack
+     * 
+     */
     public void calculateBranchSums(TreeNode root, int currentSum, List<Integer> sums) {
         if (root == null) return;
 

@@ -47,7 +47,7 @@ public class LongestSubstringWithoutRepeatingCharacters {
     public static void longestSubstringMap(String s) {
         int startIndex = 0;
         int maxLength = 0;
-        HashMap<Character, Integer> charMap = new HashMap<>(256);
+        HashMap<Character, Integer> charMap = new HashMap<>();
 
         for (int endIndex = 0; endIndex < s.length(); endIndex++) {
             char currentChar = s.charAt(endIndex);
@@ -66,6 +66,7 @@ public class LongestSubstringWithoutRepeatingCharacters {
     public static void longestSubstringArray(String s) {
         int startIndex = 0;
         int maxLength = 0;
+        int maxStart = 0;
 
         int[] charIndex = new int[256];
         for (int i = 0; i < 256; i++) {
@@ -79,13 +80,19 @@ public class LongestSubstringWithoutRepeatingCharacters {
             }
 
             charIndex[currentChar] = endIndex;
-            maxLength = Math.max(maxLength, endIndex - startIndex + 1);
+            //maxLength = Math.max(maxLength, endIndex - startIndex + 1);
+            // Check if we found a longer substring
+            if (endIndex - startIndex + 1 > maxLength) {
+                maxLength = endIndex - startIndex + 1;
+                maxStart = startIndex;
+            }
         }
         System.out.println(maxLength);
+        System.out.println(s.substring(maxStart, maxStart + maxLength));
     }
 
     public static void main(String[] args) {
-        String test1 = "pwwkew";
+        String test1 = "abcabcbb";
         LongestSubstringWithoutRepeatingCharacters.longestSubstringSet(test1);
         LongestSubstringWithoutRepeatingCharacters.longestSubstringMap(test1);
         LongestSubstringWithoutRepeatingCharacters.longestSubstringArray(test1);
