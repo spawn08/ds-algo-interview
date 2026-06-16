@@ -1,6 +1,10 @@
-./out
-./.idea
-./out/*
-.idea
+# IDE
+.idea/
+.vscode/
+
+# OS
 .DS_Store
+
+# Build output
+out/
 */production
