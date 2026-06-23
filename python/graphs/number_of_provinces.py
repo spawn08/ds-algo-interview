@@ -17,6 +17,7 @@ Output: 3
 """
 from typing import List
 
+
 class Solution:
 
 	def dfs(self, city: int, size: int, isConnected: List[List[int]], visited_city: List[bool]):
@@ -43,7 +44,8 @@ class Solution:
 				provinces += 1
 		return provinces
 
+
 if __name__ == '__main__':
-	is_connected = [[1,1,0],[1,1,0],[0,0,1]]
+	is_connected = [[1, 1, 0], [1, 1, 0], [0, 0, 1]]
 	solution = Solution()
 	print(solution.findCircleNum(isConnected=is_connected))

@@ -23,14 +23,8 @@ Explanation: The optimal path is 15 -> 20 -> 7
 with a path sum of 15 + 20 + 7 = 42.
 """
 
-# Definition for a binary tree node.
-
-
-class TreeNode:
-    def __init__(self, val=0, left=None, right=None):
-        self.val = val
-        self.left = left
-        self.right = right
+from tree import TreeNode
+from typing import Optional
 
 
 class Solution:
