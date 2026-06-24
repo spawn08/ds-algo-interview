@@ -32,21 +32,33 @@ class Solution:
 
         max_sum = float('-inf')
 
-        def get_max_gain(node: TreeNode):
+        def get_max_gain(node: Optional[TreeNode]) -> int:
+            nonlocal max_sum
             if not node:
                 return 0
 
+            # Clamp negative gains to 0: a branch only helps if it adds value.
             left_gain = max(get_max_gain(node.left), 0)
             right_gain = max(get_max_gain(node.right), 0)
+
+            # Best path that "passes through" this node (can use both children).
             current_path_sum = node.val + left_gain + right_gain
+            max_sum = max(max_sum, current_path_sum)
 
-            self.max_sum = max(self.max_sum, current_path_sum)
-
+            # A parent can only extend one side, so return the better branch.
             return node.val + max(left_gain, right_gain)
+
         get_max_gain(root)
         return max_sum
 
 
 if __name__ == '__main__':
+    # root = [-10, 9, 20, null, null, 15, 7]  ->  42
+    root = TreeNode(-10)
+    root.left = TreeNode(9)
+    root.right = TreeNode(20)
+    root.right.left = TreeNode(15)
+    root.right.right = TreeNode(7)
+
     solution = Solution()
-    print(solution.maxPathSum())
+    print(solution.maxPathSum(root))

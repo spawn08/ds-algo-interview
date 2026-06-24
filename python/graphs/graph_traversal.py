@@ -3,7 +3,7 @@ from collections import deque
 
 class GraphBFS:
 
-    def bfs(self, graph: dict(int, list[int]), start_node: int) -> None:
+    def bfs(self, graph: dict[int, list[int]], start_node: int) -> list:
 
         visited_node = {start_node}
         queue = deque([start_node]) 
@@ -24,7 +24,7 @@ class GraphBFS:
             if neighbour not in visited_node:
                 self.dfs_recursive(graph, neighbour, visited_node)
 
-    def dfs_iterative(self, graph: dict[int, list[int]], start_node: int) -> None:
+    def dfs_iterative(self, graph: dict[int, list[int]], start_node: int) -> list:
         visited_node = {start_node}
         stack = [start_node]
         visit_order = []

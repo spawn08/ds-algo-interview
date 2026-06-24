@@ -24,7 +24,7 @@ Output: [1]
 """
 
 from tree import TreeNode
-from typing import Optional
+from typing import List, Optional
 
 
 class Solution:
@@ -42,7 +42,10 @@ class Solution:
 		return traversal
 
 if __name__ == '__main__':
-	root = [1,null,2,3]
+	# root = [1, null, 2, 3]  ->  [1, 3, 2]
+	root = TreeNode(1)
+	root.right = TreeNode(2)
+	root.right.left = TreeNode(3)
 
 	solution = Solution()
 	print(solution.inorderTraversal(root))

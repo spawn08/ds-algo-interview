@@ -31,7 +31,7 @@ class Solution:
 			while stack:
 				current_node, parent = stack.pop()
 
-				for neighbour in graph[start]:
+				for neighbour in graph[current_node]:
 					if not visited[neighbour]:
 						visited[neighbour] = True
 						stack.append((neighbour, current_node))
@@ -50,9 +50,9 @@ def test_cycle_detection():
 	sol = Solution()
 	# Example 1 - Has Cycle
 	adj1 = [[1,2],[0,2],[0,1,3],[2,4],[3]]
-	print("Example 1 (Has Cycle):", sol.isCycle(5, adj1))   # True
+	print("Example 1 (Has Cycle):", sol.detect_cycle(5, adj1))   # True
 	# Example 2 - No Cycle
 	adj2 = [[1],[0,2],[1,3],[2]]
-	print("Example 2 (No Cycle):", sol.isCycle(4, adj2))    # False
+	print("Example 2 (No Cycle):", sol.detect_cycle(4, adj2))    # False
 
 test_cycle_detection()

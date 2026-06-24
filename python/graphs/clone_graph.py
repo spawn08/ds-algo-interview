@@ -7,7 +7,7 @@ class Node:
 """
 
 from typing import Optional
-import deque
+from collections import deque
 
 class Solution:
     def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:

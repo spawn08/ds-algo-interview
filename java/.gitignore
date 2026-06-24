@@ -1,5 +1,6 @@
 # Build output
 bin/
+bin-test/
 out/
 build/
 target/

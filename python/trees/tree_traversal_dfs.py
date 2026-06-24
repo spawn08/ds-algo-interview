@@ -35,15 +35,14 @@ class TreeTraversal:
     def level_order_traversal(self, node: TreeNode) -> List[int]:
 
         if not node:
-            return
+            return []
 
-        queue = deque([node.val])
+        queue = deque([node])
         traversal = []
-
 
         while queue:
             current_node = queue.popleft()
-            traversal.append(current_node)
+            traversal.append(current_node.val)
 
             if current_node.left:
                 queue.append(current_node.left)
