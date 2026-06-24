@@ -30,6 +30,10 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Auto-enable Pages (source = GitHub Actions) on the first run,
+          # so no manual Settings → Pages step is required.
+          enablement: true
 
       - name: Upload static site (docs/)
         uses: actions/upload-pages-artifact@v3
