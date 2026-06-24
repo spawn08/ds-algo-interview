@@ -40,8 +40,39 @@ from typing import List
 
 
 class Solution:
+    """
+    Fixed-size sliding window + a frequency map.
+
+    Why a hash map (frequency counter)?  The window must contain k *distinct*
+    values. A counter lets us check "are all k elements distinct?" in O(1) by
+    comparing the number of unique keys to the window size, instead of
+    re-scanning the window each time (which would be O(n*k)).
+
+    Time complexity:  O(n) -- each element enters and leaves the window once.
+    Space complexity: O(k) -- the frequency map holds at most k keys.
+    """
+
     def maximumSubarraySum(self, nums: List[int], k: int) -> int:
         frequency = defaultdict(int)
+        window_sum = 0
+        max_sum = 0
+
+        for right, value in enumerate(nums):
+            # Grow the window by one element on the right.
+            frequency[value] += 1
+            window_sum += value
+
+            # Once the window is larger than k, drop the leftmost element.
+            if right >= k:
+                left_value = nums[right - k]
+                window_sum -= left_value
+                frequency[left_value] -= 1
+                if frequency[left_value] == 0:
+                    del frequency[left_value]
+
+            # A valid window has exactly k elements, all distinct.
+            if right >= k - 1 and len(frequency) == k:
+                max_sum = max(max_sum, window_sum)
 
         return max_sum
 

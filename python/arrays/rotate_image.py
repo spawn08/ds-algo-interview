@@ -19,9 +19,39 @@ Output: [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]
 
 """
 
+from typing import List
+
 
 class Solution:
+    """
+    Strategy: rotate 90° clockwise in-place using two reflections.
+      1. Transpose the matrix (swap matrix[i][j] with matrix[j][i]).
+      2. Reverse each row.
+    Transpose + horizontal reverse == 90° clockwise rotation, and both
+    steps only swap elements, so no second matrix is allocated.
+
+    Time complexity:  O(n^2) -- every cell is touched a constant number of times.
+    Space complexity: O(1)   -- rotation happens in place.
+    """
+
     def rotate(self, matrix: List[List[int]]) -> None:
         """
         Do not return anything, modify matrix in-place instead.
         """
+        n = len(matrix)
+
+        # Step 1: transpose (reflect across the main diagonal).
+        for i in range(n):
+            for j in range(i + 1, n):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+        # Step 2: reverse every row (reflect horizontally).
+        for row in matrix:
+            row.reverse()
+
+
+if __name__ == '__main__':
+    solution = Solution()
+    image = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    solution.rotate(image)
+    print(image)  # [[7, 4, 1], [8, 5, 2], [9, 6, 3]]

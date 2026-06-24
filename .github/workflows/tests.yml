@@ -1,0 +1,55 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  python:
+    name: Python solutions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pytest
+        run: python -m pip install --upgrade pip pytest
+      - name: Run pytest
+        working-directory: python
+        run: python -m pytest tests/ -q
+
+  java:
+    name: Java solutions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Compile and run test harness
+        working-directory: java
+        run: |
+          mkdir -p bin-test
+          javac -d bin-test $(find src test -name '*.java')
+          java -cp bin-test com.dsalgo.RunAllTests
+
+  site-data:
+    name: Site data is in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Regenerate problems.js and check for drift
+        run: |
+          python3 scripts/generate_site.py
+          if ! git diff --quiet -- docs/data/problems.js; then
+            echo "::error::docs/data/problems.js is out of date. Run 'python3 scripts/generate_site.py' and commit the result."
+            git --no-pager diff -- docs/data/problems.js
+            exit 1
+          fi
+          echo "problems.js is up to date."
