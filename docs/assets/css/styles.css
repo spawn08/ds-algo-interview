@@ -171,6 +171,14 @@ a:hover { text-decoration: underline; }
   padding: 1px 6px; border-radius: 5px; color: var(--cyan);
 }
 .prose strong { color: var(--text); }
+.statement p { margin: 0 0 12px; }
+.statement .example {
+  font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+  background: var(--bg-elev-2); border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+  padding: 10px 14px; margin: 0 0 12px; color: var(--text-dim); overflow-x: auto;
+}
+.statement .example strong { color: var(--accent); }
 
 /* complexity */
 .cx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }

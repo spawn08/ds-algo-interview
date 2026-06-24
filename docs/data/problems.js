@@ -101,7 +101,8 @@ window.SITE_DATA = {
           15
         ],
         "target": 9
-      }
+      },
+      "statement": "Given an array of integers nums and an integer target,\nreturn indices of the two numbers such that they add up\nto target.\nYou may assume that each input would have exactly one\nsolution, and you may not use the same element twice.\nYou can return the answer in any order.\n\nExample 1:\n\nInput: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].\nExample 2:\n\nInput: nums = [3,2,4], target = 6\nOutput: [1,2]\nExample 3:\n\nInput: nums = [3,3], target = 6\nOutput: [0,1]"
     },
     {
       "id": "two-sum-ii",
@@ -144,7 +145,8 @@ window.SITE_DATA = {
           15
         ],
         "target": 9
-      }
+      },
+      "statement": "Given a 1-indexed array of integers numbers that is already\nsorted in non-decreasing order, find two numbers such that\nthey add up to a specific target number.\nLet these two numbers be numbers[index1] and\nnumbers[index2] where 1 <= index1 < index2 <= numbers.length.\nReturn the indices of the two numbers index1 and index2,\neach incremented by one, as an integer array [index1, index2]\nof length 2.\nThe tests are generated such that there is exactly one\nsolution. You may not use the same element twice.\n\nYour solution must use only constant extra space.\nExample 1:\n\nInput: numbers = [2,7,11,15], target = 9\nOutput: [1,2]\nExplanation: The sum of 2 and 7 is 9.\nTherefore, index1 = 1, index2 = 2. We return [1, 2].\nExample 2:\n\nInput: numbers = [2,3,4], target = 6\nOutput: [1,3]\nExplanation: The sum of 2 and 4 is 6.\nTherefore index1 = 1, index2 = 3. We return [1, 3].\nExample 3:\n\nInput: numbers = [-1,0], target = -1\nOutput: [1,2]\nExplanation: The sum of -1 and 0 is -1.\nTherefore index1 = 1, index2 = 2. We return [1, 2]."
     },
     {
       "id": "max-subarray",
@@ -190,7 +192,8 @@ window.SITE_DATA = {
           -5,
           4
         ]
-      }
+      },
+      "statement": "Given an integer array nums, find the subarray with the\nlargest sum, and return its sum.\n\nExample 1:\n\nInput: nums = [-2,1,-3,4,-1,2,1,-5,4]\nOutput: 6\nExplanation: The subarray [4,-1,2,1] has the largest sum 6.\nExample 2:\n\nInput: nums = [1]\nOutput: 1\nExplanation: The subarray [1] has the largest sum 1.\nExample 3:\n\nInput: nums = [5,4,-1,7,8]\nOutput: 23\nExplanation: The subarray [5,4,-1,7,8] has the largest sum 23."
     },
     {
       "id": "max-sum-subarray-k",
@@ -225,7 +228,8 @@ window.SITE_DATA = {
           400
         ],
         "k": 2
-      }
+      },
+      "statement": "Given an array of integers Arr of size N and a number K. Return the maximum sum of a subarray of size K.\nNOTE*: A subarray is a contiguous part of any given array.\n\nExample 1:\nInput:\nN = 4, K = 2\nArr = [100, 200, 300, 400]\nOutput:\n700\nExplanation:\nArr3  + Arr4 =700, which is maximum.\n\nExample 2:\nInput:\nN = 4, K = 4\nArr = [100, 200, 300, 400]\nOutput:\n1000\nExplanation:\nArr1 + Arr2 + Arr3 + Arr4 =1000,\nwhich is maximum."
     },
     {
       "id": "max-subarray-distinct-k",
@@ -265,7 +269,8 @@ window.SITE_DATA = {
         ],
         "k": 3,
         "distinct": true
-      }
+      },
+      "statement": "You are given an integer array nums and an integer k.\nFind the maximum subarray sum of all the subarrays of nums\nthat meet the following conditions:\nThe length of the subarray is k, and\nAll the elements of the subarray are distinct.\nReturn the maximum subarray sum of all the subarrays that\nmeet the conditions. If no subarray meets the conditions,\nreturn 0.\n\nA subarray is a contiguous non-empty sequence of elements within an array.\n\nExample 1:\n\nInput: nums = [1,5,4,2,9,9,9], k = 3\nOutput: 15\nExplanation: The subarrays of nums with length 3 are:\n- [1,5,4] meets the requirements, sum of 10.\n- [5,4,2] meets the requirements, sum of 11.\n- [4,2,9] meets the requirements, sum of 15.\n- [2,9,9] does not meet the requirements\nbecause the element 9 is repeated.\n- [9,9,9] does not meet the requirements\nbecause the element 9 is repeated.\nWe return 15 because it is the maximum subarray sum\nof all the subarrays that meet the conditions\nExample 2:\n\nInput: nums = [4,4,4], k = 3\nOutput: 0\nExplanation: The subarrays of nums with length 3 are:\n- [4,4,4] does not meet the requirements\nbecause the element 4 is repeated.\nWe return 0 because no subarrays meet the conditions."
     },
     {
       "id": "longest-consecutive-sequence",
@@ -290,7 +295,8 @@ window.SITE_DATA = {
           "path": "python/arrays/longest_consecutive_sequence.py",
           "code": "\n\"\"\"\nGiven an unsorted array of integers nums, return the length of\nthe longest consecutive elements sequence.\nYou must write an algorithm that runs in O(n) time.\n\nExample 1:\n\nInput: nums = [100,4,200,1,3,2]\nOutput: 4\nExplanation: The longest consecutive elements sequence is\n[1, 2, 3, 4]. Therefore its length is 4.\nExample 2:\n\nInput: nums = [0,3,7,2,5,8,4,6,0,1]\nOutput: 9\nExample 3:\n\nInput: nums = [1,0,1,2]\nOutput: 3\n\"\"\"\n\nfrom typing import List\n\n\nclass Solution:\n\n    def longestConsecutiveSequence(self, nums: List[int]) -> int:\n        num_set = set(nums)\n        longest_streak = 0\n\n        for num in nums:\n            if num - 1 not in num_set:\n                current_num = num\n                current_streak = 1\n\n                while current_num + 1 in num_set:\n                    current_num += 1\n                    current_streak += 1\n\n                longest_streak = max(longest_streak, current_streak)\n        return longest_streak\n\n\nif __name__ == '__main__':\n    solution = Solution()\n    # print(solution.longestConsecutiveSequence([100,4,200,1,3,2]))\n    print(solution.longestConsecutiveSequence([0, 3, 7, 2, 5, 8, 4, 6, 0, 1]))\n"
         }
-      ]
+      ],
+      "statement": "Given an unsorted array of integers nums, return the length of\nthe longest consecutive elements sequence.\nYou must write an algorithm that runs in O(n) time.\n\nExample 1:\n\nInput: nums = [100,4,200,1,3,2]\nOutput: 4\nExplanation: The longest consecutive elements sequence is\n[1, 2, 3, 4]. Therefore its length is 4.\nExample 2:\n\nInput: nums = [0,3,7,2,5,8,4,6,0,1]\nOutput: 9\nExample 3:\n\nInput: nums = [1,0,1,2]\nOutput: 3"
     },
     {
       "id": "rotate-image",
@@ -336,7 +342,8 @@ window.SITE_DATA = {
             9
           ]
         ]
-      }
+      },
+      "statement": "You are given an n x n 2D matrix representing an image,\nrotate the image by 90 degrees (clockwise).\nYou have to rotate the image in-place, which means you\nhave to modify the input 2D matrix directly.\nDO NOT allocate another 2D matrix and do the rotation.\n\nExample 1:\n\nInput: matrix = [[1,2,3],[4,5,6],[7,8,9]]\nOutput: [[7,4,1],[8,5,2],[9,6,3]]\n\nExample 2:\n\nInput: matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]\nOutput: [[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]"
     },
     {
       "id": "contains-duplicate",
@@ -361,7 +368,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/arrays/ContainsDuplicate.java",
           "code": "package com.dsalgo.arrays;\n\nimport java.util.HashSet;\nimport java.util.Set;\n\n/**\n * Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.\n * <p>\n * Example:\n * 1. Input: nums = [1,2,3,1]\n * Output: true\n * <p>\n * 2. Input: nums = [1,2,3,4]\n * Output: false\n *\n * @link <a href=\"https://leetcode.com/problems/contains-duplicate/\">...</a>\n */\npublic class ContainsDuplicate {\n\n    /**\n     * The below method checks whether the integer array contains duplicate\n     *\n     * @param nums integer array\n     * @return true if contains duplicate else false\n     * <p>\n     * Time Complexity: O(n)\n     * Space Complexity: O(n)\n     */\n    public static boolean containsDuplicate(int[] nums) {\n        //Initialize set datastructure\n        Set<Integer> values = new HashSet<>();\n        boolean containsDuplicate = false;\n        //Loop through each value\n        for (int num : nums) {\n            //check whether values set contains num value.\n            // If it does, return true else add this num to set.\n            if (values.contains(num))\n                containsDuplicate = true;\n\n            else values.add(num);\n        }\n\n        return containsDuplicate;\n    }\n\n    public static void main(String[] args) {\n        int[] data = {1, 2, 3, 4};\n        boolean containsDuplicate = containsDuplicate(data);\n        System.out.println(\"Does data array contains duplicate? -> \" + containsDuplicate);\n    }\n}\n"
         }
-      ]
+      ],
+      "statement": "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.\n\nExample:\n1. Input: nums = [1,2,3,1]\nOutput: true\n\n2. Input: nums = [1,2,3,4]\nOutput: false"
     },
     {
       "id": "smallest-subarray-or",
@@ -388,7 +396,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/arrays/subarray/SubarrayOR.java",
           "code": "package com.dsalgo.arrays.subarray;\n\n/**\n * You are given an array of N positive integers and integer K. Your task is to find\n * and return the length of the smallest possible special subarray. If no special subarray is possible then return -1.\n * <p>\n * A Special subarray is one having a bitwise OR of all its elements greater than or equal to an integer K.\n * {@link - https://www.geeksforgeeks.org/smallest-subarray-such-that-its-bitwise-or-is-at-least-k/}\n */\npublic class SubarrayOR {\n\n    /**\n     * Bruteforce solution with time complexity of O(n^2)\n     *\n     * @param input input array\n     * @param k     target k\n     * @return minimum of length of subarray\n     */\n    public static int findLengthOfSmallestSubarrayBruteForce(int[] input, int k) {\n        int minLength = Integer.MAX_VALUE;\n        int n = input.length;\n\n        for (int start = 0; start < n; start++) {\n            int or = 0;\n            for (int end = start; end < n; end++) {\n                or |= input[end];\n                if (or >= k) {\n                    minLength = Math.min(minLength, end - start + 1);\n                    break;\n                }\n            }\n        }\n\n        return minLength == Integer.MAX_VALUE ? -1 : minLength;\n    }\n\n    /**\n     * Optimal solution for finding length of smallest special subarray\n     *\n     * @param input input array\n     * @param k     target k\n     */\n    public static int findLengthOfSmallestSubarrayOptimal(int[] input, int k) {\n        int size = input.length;\n        int minLength = size + 1;\n        int currentOr = 0;\n        int[] bitCount = new int[32];\n        int left = 0;\n\n        for (int right = 0; right < size; right++) {\n            currentOr |= input[right];\n            updateBitCount(bitCount, input[right], true);\n            // Try to shrink the window from the left as long as OR is valid\n            while (left <= right && currentOr >= k) {\n                // Update minimum subarray length\n                minLength = Math.min(minLength, right - left + 1);\n\n                // Remove nums[left] from the window\n                updateBitCount(bitCount, input[left], false);\n                currentOr = rebuildOR(bitCount);\n                left++;\n            }\n        }\n\n        return  minLength == size + 1 ? -1 : minLength;\n    }\n\n    private static void updateBitCount(int[] bitCount, int num, boolean add) {\n        for (int i = 0; i < 32; i++) {\n            int mask = 1 << i;\n            if ((num & mask) != 0) {\n                bitCount[i] += add ? 1 : -1;\n            }\n        }\n    }\n\n    private static int rebuildOR(int[] bitCount) {\n        int result = 0;\n        for (int i = 0; i < 32; i++) {\n            if (bitCount[i] > 0) {\n                result |= (1 << i);\n            }\n        }\n        return result;\n    }\n\n    public static void main(String[] args) {\n        int[] data = {1, 2, 1, 5, 4};\n        int k = 6;\n        System.out.println(findLengthOfSmallestSubarrayBruteForce(data, k));\n        System.out.println(findLengthOfSmallestSubarrayOptimal(data, k));\n    }\n}\n"
         }
-      ]
+      ],
+      "statement": "You are given an array of N positive integers and integer K. Your task is to find\nand return the length of the smallest possible special subarray. If no special subarray is possible then return -1.\n\nA Special subarray is one having a bitwise OR of all its elements greater than or equal to an integer K."
     },
     {
       "id": "alternate-sorting",
@@ -414,7 +423,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/arrays/AlternateSorting.java",
           "code": "package com.dsalgo.arrays;\n\nimport java.util.Arrays;\n\n/**\n * Given an array of integers, print the array in such a way\n * that the first element is first maximum and second element is first minimum and so on.\n * <p>\n * Examples :\n * <p>\n * Input : arr[] = {7, 1, 2, 3, 4, 5, 6}\n * Output : 7 1 6 2 5 3 4\n * <p>\n * Input : arr[] = {1, 6, 9, 4, 3, 7, 8, 2}\n * Output : 9 1 8 2 7 3 6 4\n *\n * @link <a href=\"https://www.geeksforgeeks.org/alternative-sorting/\">...</a>\n */\npublic class AlternateSorting {\n\n    /**\n     * Method sorts and prints the array elements in alternate sorting order\n     *\n     * @param input array input\n     * @return\n     */\n    public int[] alternateSorting(int[] input) {\n        int[] alternateSort = new int[input.length];\n        int alternateIndex = 0;\n        int size = input.length;\n        int firstIndex = 0;\n        int lastIndex = size - 1;\n        Arrays.sort(input);\n\n        while (firstIndex < lastIndex) {\n            alternateSort[alternateIndex] = input[lastIndex--];\n            alternateIndex += 1;\n            alternateSort[alternateIndex] = input[firstIndex++];\n            alternateIndex += 1;\n            System.out.print(input[lastIndex--] + \" \");\n            System.out.print(input[firstIndex++] + \" \");\n        }\n\n        if (size % 2 != 0) {\n            alternateSort[alternateIndex] = input[firstIndex];\n            System.out.print(input[firstIndex] + \" \");\n        }\n\n        return alternateSort;\n    }\n\n    public static void main(String[] args) {\n        int[] input = {7, 1, 2, 3, 4, 5, 6};\n        AlternateSorting alternateSorting = new AlternateSorting();\n        alternateSorting.alternateSorting(input);\n        System.out.println(Arrays.toString(alternateSorting.alternateSorting(input)));\n    }\n}"
         }
-      ]
+      ],
+      "statement": "Given an array of integers, print the array in such a way\nthat the first element is first maximum and second element is first minimum and so on.\n\nExamples :\n\nInput : arr[] = {7, 1, 2, 3, 4, 5, 6}\nOutput : 7 1 6 2 5 3 4\n\nInput : arr[] = {1, 6, 9, 4, 3, 7, 8, 2}\nOutput : 9 1 8 2 7 3 6 4"
     },
     {
       "id": "valid-parentheses",
@@ -449,7 +459,8 @@ window.SITE_DATA = {
       "viz": {
         "type": "stackParens",
         "s": "([]{})"
-      }
+      },
+      "statement": "Given a string s containing just the characters\n'(', ')', '{', '}', '[' and ']', determine if the\ninput string is valid.\n\nAn input string is valid if:\nOpen brackets must be closed by the same type of brackets.\nOpen brackets must be closed in the correct order.\nEvery close bracket has a corresponding open bracket of the same type.\n\nExample 1:\n\nInput: s = \"()\"\nOutput: true\n\nExample 2:\n\nInput: s = \"()[]{}\"\nOutput: true\n\nExample 3:\n\nInput: s = \"(]\"\nOutput: false\n\nExample 4:\nInput: s = \"([])\"\nOutput: true"
     },
     {
       "id": "valid-anagram",
@@ -476,7 +487,8 @@ window.SITE_DATA = {
           "path": "python/strings/valid_anagrams.py",
           "code": "from collections import Counter\n\n\"\"\"\nGiven two strings s and t, return true if t is an anagram\nof s, and false otherwise.\n\nExample 1:\n\nInput: s = \"anagram\", t = \"nagaram\"\nOutput: true\n\nExample 2:\n\nInput: s = \"rat\", t = \"car\"\nOutput: false\n\"\"\"\n\n\ndef valid_anagrams(str1: str, str2: str):\n    if len(str1) != len(str2):\n        return False\n\n    return Counter(str1) == Counter(str2)\n\n\nif __name__ == '__main__':\n    print(valid_anagrams(\"anagram\", \"nagaram\"))\n    print(valid_anagrams(\"rat\", \"car\"))\n"
         }
-      ]
+      ],
+      "statement": "Given two strings s and t, return true if t is an anagram\nof s, and false otherwise.\n\nExample 1:\n\nInput: s = \"anagram\", t = \"nagaram\"\nOutput: true\n\nExample 2:\n\nInput: s = \"rat\", t = \"car\"\nOutput: false"
     },
     {
       "id": "valid-palindrome",
@@ -507,7 +519,8 @@ window.SITE_DATA = {
       "viz": {
         "type": "stringTwoPointer",
         "s": "A man, a plan, a canal: Panama"
-      }
+      },
+      "statement": "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward.\nAlphanumeric characters include letters and numbers.\n\nGiven a string s, return true if it is a palindrome, or false otherwise.\n\nExample 1:\n\nInput: s = \"A man, a plan, a canal: Panama\"\nOutput: true\nExplanation: \"amanaplanacanalpanama\" is a palindrome.\nExample 2:\n\nInput: s = \"race a car\"\nOutput: false\nExplanation: \"raceacar\" is not a palindrome.\nExample 3:\n\nInput: s = \" \"\nOutput: true\nExplanation: s is an empty string \"\" after removing non-alphanumeric characters.\nSince an empty string reads the same forward and backward, it is a palindrome."
     },
     {
       "id": "group-anagrams",
@@ -534,7 +547,8 @@ window.SITE_DATA = {
           "path": "python/strings/group_anagrams.py",
           "code": "from collections import defaultdict\nfrom typing import List\n\n\nclass Solution:\n\n    def group_anagrams(self, strs: List[str]) -> List[List[str]]:\n        anagram_map = defaultdict(list)\n        for s in strs:\n            sorted_word = ''.join(sorted(s))\n            anagram_map[sorted_word].append(s)\n        return list(anagram_map.values())\n\n    def group_anagrams_2(self, strs: list[str]) -> list[list[str]]:\n        anagram_map = defaultdict(list)\n        for s in strs:\n            sorted_word = tuple(sorted(s))\n            anagram_map[sorted_word].append(s)\n        return list(anagram_map.values())\n\n\nif __name__ == '__main__':\n    input_list = [\"eat\", \"tea\", \"tan\", \"ate\", \"nat\", \"bat\"]\n    solution = Solution()\n    print(solution.group_anagrams(input_list))\n    print(solution.group_anagrams_2(input_list))\n"
         }
-      ]
+      ],
+      "statement": "Given an array of strings strs, group the anagrams together. You can return the answer in\nany order.\n\nAn anagram is a word or phrase formed by rearranging the letters of another, using all the\noriginal letters exactly once.\n\nExample 1:\n\nInput: strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]\nOutput: [[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]\n\nExample 2:\n\nInput: strs = [\"\"]\nOutput: [[\"\"]]"
     },
     {
       "id": "longest-substring-no-repeat",
@@ -570,7 +584,8 @@ window.SITE_DATA = {
       "viz": {
         "type": "slidingWindow",
         "s": "abcabcbb"
-      }
+      },
+      "statement": "Given a string s, find the length of the longest substring without duplicate characters.\n\nExample 1:\nInput: s = \"abcabcbb\"\nOutput: 3\nExplanation: The answer is \"abc\", with the length of 3.\n\nExample 2:\nInput: s = \"bbbbb\"\nOutput: 1\nExplanation: The answer is \"b\", with the length of 1.\nExample 3:\n\nInput: s = \"pwwkew\"\nOutput: 3\nExplanation: The answer is \"wke\", with the length of 3.\nNotice that the answer must be a substring, \"pwke\" is a subsequence and not a substring."
     },
     {
       "id": "reverse-string",
@@ -597,7 +612,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/strings/ReverseString.java",
           "code": "package com.dsalgo.strings;\n\nimport java.util.Stack;\n\n/**\n * You are given a string s. You need to reverse the string.\n * Ex. 1:\n * Input:\n * s = Geeks\n * Output: skeeG\n *\n * Ex.2:\n * Input:\n * s = for\n * Output: rof\n *\n * @link <a href=\"https://practice.geeksforgeeks.org/problems/reverse-a-string/\">...</a>\n */\npublic class ReverseString {\n\n    /**\n     * Method revers the string for given string input\n     * @param s String input\n     * @return Reversed String\n     *\n     * Time Complexity: O(n)\n     * Space Complexity: O(n) why? we are storing the string character in chars array\n     */\n    public static String reverseString(String s) {\n        //conver string to chars\n        char[] chars = s.toCharArray();\n        //initialize start index\n        int startIndex = 0;\n        //loop through char array and perform swap\n        for (int index = chars.length - 1; index>=0; index--) {\n            //get the last element from the char array\n            char c = chars[index];\n            //swap the last char with first char\n            chars[index] = chars[startIndex];\n            chars[startIndex] = c;\n\n            //increment start index\n            startIndex++;\n\n            //This is important\n            // If startIndex becomes greater than or equal to index then terminate loop.\n            // once the startIndex  becomes equal to index, it means we have traversed the entire string.\n            if (startIndex >= index)\n                break;\n        }\n\n        return new String(chars);\n    }\n\n    public static void main(String[] args) {\n        String testString = \"Hola\";\n        System.out.println(\"Reversed String -->\" + reverseString(testString));\n    }\n}\n"
         }
-      ]
+      ],
+      "statement": "You are given a string s. You need to reverse the string.\nEx. 1:\nInput:\ns = Geeks\nOutput: skeeG\n\nEx.2:\nInput:\ns = for\nOutput: rof"
     },
     {
       "id": "lcs",
@@ -637,6 +653,7 @@ window.SITE_DATA = {
         "b": "ace",
         "mode": "subsequence"
       },
+      "statement": "Given two strings text1 and text2, return the length of\ntheir longest common subsequence. If there is no common\nsubsequence, return 0.\n\nA subsequence of a string is a new string generated from\nthe original string with some characters (can be none)\ndeleted without changing the relative order of the\nremaining characters.\n\nFor example, \"ace\" is a subsequence of \"abcde\".\nA common subsequence of two strings is a subsequence\nthat is common to both strings.\n\nExample 1:\n\nInput: text1 = \"abcde\", text2 = \"ace\"\nOutput: 3\nExplanation: The longest common subsequence is \"ace\"\nand its length is 3.\nExample 2:\n\nInput: text1 = \"abc\", text2 = \"abc\"\nOutput: 3\nExplanation: The longest common subsequence is \"abc\"\nand its length is 3.\nExample 3:\n\nInput: text1 = \"abc\", text2 = \"def\"\nOutput: 0\nExplanation: There is no such common subsequence, so the result is 0.",
       "deepDive": "**Define the subproblem precisely:** `dp[i][j]` = length of the LCS of the first `i` characters\nof `text1` and the first `j` characters of `text2`. The full answer is `dp[m][n]`.\n\n**The recurrence, by cases on the last characters:**\n\n- If `text1[i-1] == text2[j-1]`, that shared character extends the best LCS of the smaller\n  prefixes: `dp[i][j] = 1 + dp[i-1][j-1]` (the diagonal).\n- Otherwise we must drop the last character of one string and take the better result:\n  `dp[i][j] = max(dp[i-1][j], dp[i][j-1])` (up vs. left).\n\nRow/column `0` represents an empty string, so it's all zeros — that's why the table is\n`(m+1) × (n+1)`.\n\n**Worked example** `\"abcde\"` vs `\"ace\"`: matches on `a`, `c`, `e` accumulate down the diagonal,\ngiving `dp[5][3] = 3` → the LCS is `\"ace\"`. Watch the visualization fill the grid cell by cell\nand you'll see the diagonal \"1+\" jumps exactly at matching characters.\n\nO(m·n) time and space; the space drops to O(min(m,n)) since each row only needs the previous\none. This grid recurrence is the template for edit distance and sequence alignment."
     },
     {
@@ -670,6 +687,7 @@ window.SITE_DATA = {
         "b": "BABCA",
         "mode": "substring"
       },
+      "statement": "Given two strings text1 and text2, return the length of their longest common substring.\n\nA substring is a contiguous sequence of characters within a string. Unlike a subsequence, it\ncannot skip characters.\n\nExample 1:\n\nInput: text1 = \"ABABC\", text2 = \"BABCA\"\nOutput: 4\nExplanation: The longest common substring is \"BABC\", with length 4.\n\nExample 2:\n\nInput: text1 = \"abcde\", text2 = \"abfce\"\nOutput: 2\nExplanation: The longest common substring is \"ab\".",
       "deepDive": "**Almost LCS — but with one decisive change.** A *substring* must be contiguous, whereas a\n*subsequence* may skip characters. That single constraint rewrites the mismatch case:\n\n- Match: `dp[i][j] = 1 + dp[i-1][j-1]` (extend the current contiguous run, same as LCS).\n- **Mismatch: `dp[i][j] = 0`** — the run is broken, so it resets. (LCS instead carries forward\n  `max(up, left)`, because a subsequence can tolerate a gap.)\n\nBecause a reset can happen anywhere, the answer is the **maximum value in the whole table**, not\nthe bottom-right corner.\n\n**Worked example** `\"ABABC\"` vs `\"BABCA\"`: the diagonal run for `B→A→B→C` climbs `1, 2, 3, 4`,\nso the longest common substring is `\"BABC\"`, length **4**. Toggle the visualization between the\ntwo modes to see \"carry forward the max\" (subsequence) versus \"reset to 0\" (substring) — it's\nthe clearest way to internalize the difference.\n\nO(m·n) time and space."
     },
     {
@@ -696,6 +714,7 @@ window.SITE_DATA = {
           "code": "\"\"\"\nYou are a professional robber planning to rob houses along a street.\nEach house has a certain amount of money stashed, the\nonly constraint stopping you from robbing each of them\nis that adjacent houses have security systems connected\nand it will automatically contact the police if two\nadjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of\nmoney of each house, return the maximum amount of money\nyou can rob tonight without alerting the police.\n\nExample 1:\n\nInput: nums = [1,2,3,1]\nOutput: 4\nExplanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).\nTotal amount you can rob = 1 + 3 = 4.\nExample 2:\n\nInput: nums = [2,7,9,3,1]\nOutput: 12\nExplanation: Rob house 1 (money = 2), rob house 3\n(money = 9) and rob house 5 (money = 1).\nTotal amount you can rob = 2 + 9 + 1 = 12.\n\"\"\"\n\nfrom typing import List\n\n# solve dp[i] = max(dp[i-1], amount[i] + dp[i-2])\n\n\nclass Solution:\n    def rob(self, nums: List[int]) -> int:\n        prev_one = 0  # dp[i-1]\n        prev_two = 0  # dp[i-2]\n\n        for amount in nums:\n            current = max(prev_one, amount + prev_two)\n            prev_two = prev_one\n            prev_one = current\n        return prev_one\n\n\nif __name__ == '__main__':\n    nums = [1, 2, 3, 1]\n\n    solution = Solution()\n    print(solution.rob(nums))\n"
         }
       ],
+      "statement": "You are a professional robber planning to rob houses along a street.\nEach house has a certain amount of money stashed, the\nonly constraint stopping you from robbing each of them\nis that adjacent houses have security systems connected\nand it will automatically contact the police if two\nadjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of\nmoney of each house, return the maximum amount of money\nyou can rob tonight without alerting the police.\n\nExample 1:\n\nInput: nums = [1,2,3,1]\nOutput: 4\nExplanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).\nTotal amount you can rob = 1 + 3 = 4.\nExample 2:\n\nInput: nums = [2,7,9,3,1]\nOutput: 12\nExplanation: Rob house 1 (money = 2), rob house 3\n(money = 9) and rob house 5 (money = 1).\nTotal amount you can rob = 2 + 9 + 1 = 12.",
       "viz": {
         "type": "dpRolling",
         "nums": [
@@ -746,7 +765,8 @@ window.SITE_DATA = {
           15
         ],
         "target": 11
-      }
+      },
+      "statement": "Given a sorted (ascending) array of integers nums and an integer target, return whether target\nexists in nums. You must write an algorithm with O(log n) runtime complexity.\n\nExample 1:\n\nInput: nums = [1,2,3,4,5,7,9,10], target = 9\nOutput: true\n\nExample 2:\n\nInput: nums = [1,2,3,4,5,7,9,10], target = 6\nOutput: false"
     },
     {
       "id": "search-rotated-array",
@@ -772,6 +792,7 @@ window.SITE_DATA = {
           "code": "\n\"\"\"\nThere is an integer array nums sorted in ascending order\n(with distinct values).\nPrior to being passed to your function, nums is possibly\nleft rotated at an unknown index k (1 <= k < nums.length)\nsuch that the resulting array is\n[nums[k], nums[k+1], ..., nums[n-1],\n nums[0], nums[1], ..., nums[k-1]] (0-indexed).\nFor example, [0,1,2,4,5,6,7] might be left rotated by\n3 indices and become [4,5,6,7,0,1,2].\nGiven the array nums after the possible rotation and an\ninteger target, return the index of target if it is in\nnums, or -1 if it is not in nums.\nYou must write an algorithm with O(log n) runtime\ncomplexity.\n\nExample 1:\n\nInput: nums = [4,5,6,7,0,1,2], target = 0\nOutput: 4\nExample 2:\n\nInput: nums = [4,5,6,7,0,1,2], target = 3\nOutput: -1\nExample 3:\n\nInput: nums = [1], target = 0\nOutput: -1\n\"\"\"\n\n\nclass Solution:\n\n    def search_target(self, nums: list[int], target: int) -> bool:\n        size = len(nums)\n        low = 0\n        high = size - 1\n\n        while low <= high:\n            mid = low + (high - low) // 2\n\n            if nums[mid] == target:\n                return mid\n\n            # case 1: The left half is sorted\n            if nums[low] <= nums[mid]:\n                if nums[low] <= target < nums[mid]:\n                    high = mid - 1\n                else:\n                    low = mid + 1\n\n            # case 2: The right half is sorted\n            else:\n                # Check if the target lies within this sorted right half\n                if nums[mid] < target <= nums[high]:\n                    low = mid + 1\n                else:\n                    high = mid - 1\n        return -1\n\n\nif __name__ == '__main__':\n    nums = [4, 5, 6, 7, 0, 1, 2]\n    solution = Solution()\n    print(solution.search_target(nums, 4))\n"
         }
       ],
+      "statement": "There is an integer array nums sorted in ascending order\n(with distinct values).\nPrior to being passed to your function, nums is possibly\nleft rotated at an unknown index k (1 <= k < nums.length)\nsuch that the resulting array is\n[nums[k], nums[k+1], ..., nums[n-1],\nnums[0], nums[1], ..., nums[k-1]] (0-indexed).\nFor example, [0,1,2,4,5,6,7] might be left rotated by\n3 indices and become [4,5,6,7,0,1,2].\nGiven the array nums after the possible rotation and an\ninteger target, return the index of target if it is in\nnums, or -1 if it is not in nums.\nYou must write an algorithm with O(log n) runtime\ncomplexity.\n\nExample 1:\n\nInput: nums = [4,5,6,7,0,1,2], target = 0\nOutput: 4\nExample 2:\n\nInput: nums = [4,5,6,7,0,1,2], target = 3\nOutput: -1\nExample 3:\n\nInput: nums = [1], target = 0\nOutput: -1",
       "viz": {
         "type": "rotatedSearch",
         "nums": [
@@ -811,6 +832,7 @@ window.SITE_DATA = {
           "code": "\n\"\"\"\nThere is an integer array nums sorted in non-decreasing\norder (not necessarily with distinct values).\nBefore being passed to your function, nums is rotated at\nan unknown pivot index k (0 <= k < nums.length) such that\nthe resulting array is\n[nums[k], nums[k+1], ..., nums[n-1],\n nums[0], nums[1], ..., nums[k-1]] (0-indexed).\nFor example, [0,1,2,4,4,4,5,6,6,7] might be rotated at\npivot index 5 and become [4,5,6,6,7,0,1,2,4,4].\nGiven the array nums after the rotation and an integer\ntarget, return true if target is in nums, or false if it\nis not in nums.\nYou must decrease the overall operation steps as much as possible.\n\nExample 1:\n\nInput: nums = [2,5,6,0,0,1,2], target = 0\nOutput: true\nExample 2:\n\nInput: nums = [2,5,6,0,0,1,2], target = 3\nOutput: false\n\"\"\"\n\n\nclass Solution:\n\n    def search_target(self, nums: list[int], target: int) -> bool:\n        size = len(nums)\n        low = 0\n        high = size - 1\n\n        while low <= high:\n            mid = low + (high - low) // 2\n\n            if nums[mid] == target:\n                return mid\n\n            if nums[mid] == nums[low] and nums[mid] == nums[high]:\n                low += 1\n                high -= 1\n                continue\n\n            # case 1: The left half is sorted\n            if nums[low] <= nums[mid]:\n                if nums[low] <= target < nums[mid]:\n                    high = mid - 1\n                else:\n                    low = mid + 1\n\n            # case 2: The right half is sorted\n            else:\n                # Check if the target lies within this sorted right half\n                if nums[mid] < target <= nums[high]:\n                    low = mid + 1\n                else:\n                    high = mid - 1\n        return -1\n\n\nif __name__ == '__main__':\n    nums = [7, 8, 1, 2, 3, 3, 3, 4, 5, 6]\n    solution = Solution()\n    print(solution.search_target(nums, 3))\n"
         }
       ],
+      "statement": "There is an integer array nums sorted in non-decreasing\norder (not necessarily with distinct values).\nBefore being passed to your function, nums is rotated at\nan unknown pivot index k (0 <= k < nums.length) such that\nthe resulting array is\n[nums[k], nums[k+1], ..., nums[n-1],\nnums[0], nums[1], ..., nums[k-1]] (0-indexed).\nFor example, [0,1,2,4,4,4,5,6,6,7] might be rotated at\npivot index 5 and become [4,5,6,6,7,0,1,2,4,4].\nGiven the array nums after the rotation and an integer\ntarget, return true if target is in nums, or false if it\nis not in nums.\nYou must decrease the overall operation steps as much as possible.\n\nExample 1:\n\nInput: nums = [2,5,6,0,0,1,2], target = 0\nOutput: true\nExample 2:\n\nInput: nums = [2,5,6,0,0,1,2], target = 3\nOutput: false",
       "viz": {
         "type": "rotatedSearch",
         "nums": [
@@ -884,6 +906,7 @@ window.SITE_DATA = {
           6
         ]
       },
+      "statement": "Given the root of a binary tree, return the inorder traversal of its nodes' values.\n\nExample 1:\n\nInput: root = [1,null,2,3]\nOutput: [1,3,2]\n\nExample 2:\n\nInput: root = [1,2,3,4,5,null,8,null,null,6,7,9]\nOutput: [4,2,6,5,7,1,3,9,8]\n\nExample 3:\n\nInput: root = []\nOutput: []\n\nExample 4:\n\nInput: root = [1]\nOutput: [1]",
       "deepDive": "**The single mental model:** every DFS order runs the same three actions — *visit node*,\n*go left*, *go right* — and they differ **only in where \"visit node\" sits**:\n\n- **Pre-order** = visit, left, right → roots come out before their subtrees (great for copying\n  a tree or serializing it).\n- **In-order** = left, visit, right → on a **binary search tree** this prints values in\n  **sorted** order.\n- **Post-order** = left, right, visit → children finish before the parent (great for deleting a\n  tree, or any \"combine results from children\" computation like height or max-path-sum).\n\n**Worked example** on `1(2(4,5),3(_,6))` in-order: dive to `4`, visit `4`, back to `2`, visit\n`2`, visit `5`, back to `1`, visit `1`, into `3`, visit `3`, visit `6` → `4 2 5 1 3 6`.\n\n**Recursive vs. iterative:** recursion leans on the call stack to remember \"where to resume.\"\nThe iterative in-order version makes that stack explicit — push left children all the way down,\npop to visit, then turn right — which is what an interviewer wants when they say \"no recursion.\""
     },
     {
@@ -931,6 +954,7 @@ window.SITE_DATA = {
           7
         ]
       },
+      "statement": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).\n\nExample 1:\nInput: root = [3,9,20,null,null,15,7]\nOutput: [[3],[9,20],[15,7]]\n\nExample 2:\n\nInput: root = [1]\nOutput: [[1]]\n\nExample 3:\n\nInput: root = []\nOutput: []",
       "deepDive": "**Depth-first won't group nodes by level — breadth-first will.** Use a queue (FIFO) so nodes\ncome out in the order they were discovered, which is level by level.\n\n**The \"level size snapshot\" trick** is the key detail. At the top of each iteration, record\n`size = len(queue)` — that's exactly how many nodes are on the current level. Pop precisely\n`size` nodes, collect their values into one list, and enqueue their children (which become the\nnext level). Without that snapshot you'd get one flat list instead of a list-per-level.\n\n**Worked example** on `[3, 9, 20, null, null, 15, 7]`:\n\n- queue `[3]`, size 1 → level `[3]`, enqueue `9, 20`.\n- queue `[9, 20]`, size 2 → level `[9, 20]`, enqueue `15, 7`.\n- queue `[15, 7]`, size 2 → level `[15, 7]`, no children.\n\nResult `[[3], [9, 20], [15, 7]]`. The same BFS skeleton solves right-side-view, zigzag order,\nand \"max value per level.\" O(n) time, O(n) space for the queue."
     },
     {
@@ -959,6 +983,7 @@ window.SITE_DATA = {
           "code": "\"\"\"\nGiven the root of a binary tree, return its maximum depth.\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\nExample 1:\n\nInput: root = [3,9,20,null,null,15,7]\nOutput: 3\n\nExample 2:\n\nInput: root = [1,null,2]\nOutput: 2\n\"\"\"\n\nfrom tree import TreeNode\nfrom typing import Optional\n\n\nclass Solution:\n\n\tdef max_depth(self, root: Optional[TreeNode]) -> int:\n\t\tif not root:\n\t\t\treturn 0\n\n\t\tleft_depth = self.max_depth(root.left)\n\t\tright_depth = self.max_depth(root.right)\n\t\treturn 1 + max(left_depth, right_depth)\n\n\nif __name__ == '__main__':\n\troot = TreeNode(3)\n\troot.left = TreeNode(9)\n\troot.right = TreeNode(20)\n\troot.left.left = TreeNode(15)\n\troot.left.right = TreeNode(7)\n\tsolution = Solution()\n\tprint(solution.max_depth(root))\n"
         }
       ],
+      "statement": "Given the root of a binary tree, return its maximum depth.\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\nExample 1:\n\nInput: root = [3,9,20,null,null,15,7]\nOutput: 3\n\nExample 2:\n\nInput: root = [1,null,2]\nOutput: 2",
       "viz": {
         "type": "treeDFS",
         "variant": "depth",
@@ -999,6 +1024,7 @@ window.SITE_DATA = {
           "code": "\"\"\"\nGiven a binary tree, determine if it is height-balanced.\n\nExample 1:\n\nInput: root = [3,9,20,null,null,15,7]\nOutput: true\n\nExample 2:\n\nInput: root = [1,2,2,3,3,null,null,4,4]\nOutput: false\n\"\"\"\n\nfrom typing import Optional\nfrom tree import TreeNode\n\n\nclass Solution:\n\n\tdef is_balanced_binary_tree(self, root: Optional[TreeNode]) -> bool:\n\n\t\tdef dfs(node: Optional[TreeNode]):\n\t\t\tif not node:\n\t\t\t\treturn 0\n\n\t\t\tleft_height = dfs(node.left)\n\t\t\tif left_height == -1: return -1\n\t\t\tright_height = dfs(node.right)\n\t\t\tif right_height == -1: return -1\n\n\t\t\tif abs(left_height - right_height) > 1:\n\t\t\t\treturn -1\n\n\t\t\treturn 1 + max(left_height, right_height)\n\t\treturn dfs(root) != -1\n\nif __name__ == '__main__':\n\troot = TreeNode(3)\n\troot.left = TreeNode(9)\n\troot.right = TreeNode(20)\n\troot.right.left = TreeNode(15)\n\troot.right.right = TreeNode(7)\n\tsolution = Solution()\n\tprint(solution.is_balanced_binary_tree(root))\n"
         }
       ],
+      "statement": "Given a binary tree, determine if it is height-balanced.\n\nExample 1:\n\nInput: root = [3,9,20,null,null,15,7]\nOutput: true\n\nExample 2:\n\nInput: root = [1,2,2,3,3,null,null,4,4]\nOutput: false",
       "viz": {
         "type": "treeDFS",
         "variant": "balanced",
@@ -1047,6 +1073,7 @@ window.SITE_DATA = {
           "code": "package com.dsalgo.trees;\n\n\nclass MaxPathSum {\n\tprivate int maxSum = Integer.MIN_VALUE;\n\n\tpublic int maxPathSum(TreeNode root) {\n\t\tdfs(root);\n\t\treturn maxSum;\n\t}\n\n\tprivate int dfs(TreeNode root) {\n\t\tif (root == null) return 0;\n\n\t\t// discard negative values with `0`\n\t\tint leftGain = Math.max(0, dfs(root.left));\n\t\tint rightGain = Math.max(0, dfs(root.right));\n\n\t\tmaxSum = Math.max(maxSum, leftGain + rightGain + root.data);\n\t\treturn root.data + Math.max(leftGain, rightGain);\n\t}\n\n\n\tpublic static void main(String[] args) {\n\t\tTreeNode root = TreeNode.getBinarytree();\n\t\tMaxPathSum maxPathSum = new MaxPathSum();\n\t\tSystem.out.println(maxPathSum.maxPathSum(root));\n\t}\n}"
         }
       ],
+      "statement": "A path in a binary tree is a sequence of nodes where each\npair of adjacent nodes in the sequence has an edge\nconnecting them.\nA node can only appear in the sequence at most once.\nNote that the path does not need to pass through the root.\nThe path sum of a path is the sum of the node's values\nin the path.\nGiven the root of a binary tree, return the maximum path\nsum of any non-empty path.\n\nExample 1:\n\nInput: root = [1,2,3]\nOutput: 6\nExplanation: The optimal path is 2 -> 1 -> 3 with a path sum of 2 + 1 + 3 = 6.\n\nExample 2:\n\nInput: root = [-10,9,20,null,null,15,7]\nOutput: 42\nExplanation: The optimal path is 15 -> 20 -> 7\nwith a path sum of 15 + 20 + 7 = 42.",
       "viz": {
         "type": "treeDFS",
         "variant": "maxpath",
@@ -1088,6 +1115,7 @@ window.SITE_DATA = {
           "code": "\"\"\"\nGiven a binary tree, find the lowest common ancestor (LCA) of two given\nnodes in the tree.\n<link>https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/</link>\n\nThe lowest common ancestor is defined between two nodes p and q as the\nlowest node in T that has both p and q as descendants (where we allow a\nnode to be a descendant of itself).\n\nExample 1:\n\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1\nOutput: 3\nExplanation: The LCA of nodes 5 and 1 is 3.\n\nExample 2:\n\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4\nOutput: 5\nExplanation: The LCA of nodes 5 and 4 is 5, since a node can be a\ndescendant of itself.\n\"\"\"\n\nfrom typing import Optional\nfrom tree import TreeNode\n\n\nclass Solution:\n    \"\"\"\n    Single post-order DFS.\n\n    Why post-order (children before parent)?  A node can only be the LCA once\n    we know what each of its subtrees contains. We recurse down, and let each\n    call report back whether it found p or q. The first node that sees one\n    target on its left and the other on its right (or is itself a target with\n    the other below it) is the lowest common ancestor.\n\n    Time complexity:  O(n) -- every node is visited once.\n    Space complexity: O(h) -- recursion stack, h = height of the tree.\n    \"\"\"\n\n    def lowestCommonAncestor(self, root: Optional[TreeNode],\n                             p: TreeNode, q: TreeNode) -> Optional[TreeNode]:\n        if root is None or root is p or root is q:\n            return root\n\n        left = self.lowestCommonAncestor(root.left, p, q)\n        right = self.lowestCommonAncestor(root.right, p, q)\n\n        # p and q were found in different subtrees -> this node is the LCA.\n        if left and right:\n            return root\n\n        # Otherwise bubble up whichever side actually found something.\n        return left if left else right\n\n\nif __name__ == '__main__':\n    #        3\n    #      /   \\\n    #     5     1\n    #    / \\   / \\\n    #   6   2 0   8\n    #      / \\\n    #     7   4\n    root = TreeNode(3)\n    root.left = TreeNode(5)\n    root.right = TreeNode(1)\n    root.left.left = TreeNode(6)\n    root.left.right = TreeNode(2)\n    root.right.left = TreeNode(0)\n    root.right.right = TreeNode(8)\n    root.left.right.left = TreeNode(7)\n    root.left.right.right = TreeNode(4)\n\n    solution = Solution()\n    p, q = root.left, root.right          # nodes 5 and 1\n    print(solution.lowestCommonAncestor(root, p, q).val)  # 3\n    p, q = root.left, root.left.right.right  # nodes 5 and 4\n    print(solution.lowestCommonAncestor(root, p, q).val)  # 5\n"
         }
       ],
+      "statement": "Given a binary tree, find the lowest common ancestor (LCA) of two given\nnodes in the tree.\n\nThe lowest common ancestor is defined between two nodes p and q as the\nlowest node in T that has both p and q as descendants (where we allow a\nnode to be a descendant of itself).\n\nExample 1:\n\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1\nOutput: 3\nExplanation: The LCA of nodes 5 and 1 is 3.\n\nExample 2:\n\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4\nOutput: 5\nExplanation: The LCA of nodes 5 and 4 is 5, since a node can be a\ndescendant of itself.",
       "viz": {
         "type": "treeDFS",
         "variant": "lca",
@@ -1133,7 +1161,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/trees/SearchBST.java",
           "code": "package com.dsalgo.trees;\n\n\npublic class SearchBST {\n\n    public TreeNode searchBST(TreeNode root, int val) {\n\n    \tif (root == null || root.data == val) {\n    \t\treturn root;\n    \t}\n\n    \tif (root.data > val) {\n    \t\treturn searchBST(root.left, val);\n    \t} else {\n    \t\treturn searchBST(root.right, val);\n    \t}\n\n    }\n\n\tpublic static void main(String[] args) {\n        TreeNode treeNode = new TreeNode(4);\n\t\ttreeNode.left = new TreeNode(2);\n\t\ttreeNode.right = new TreeNode(6);\n\t\ttreeNode.left.left = new TreeNode(1);\n\t\ttreeNode.left.right = new TreeNode(3);\n\t\ttreeNode.right.left = new TreeNode(5);\n\t\ttreeNode.right.right = new TreeNode(7);\n\n//\t\ttreeNode = new TreeNode(10);\n//\t\ttreeNode.left = new TreeNode(5);\n//\t\ttreeNode.right = new TreeNode(20);\n//\t\ttreeNode.left.left = new TreeNode(1);\n//\t\ttreeNode.left.right = new TreeNode(7);\n//\t\ttreeNode.right.left = new TreeNode(15);\n//\t\ttreeNode.right.right = new TreeNode(25);\n\n\t\tSearchBST searchBST = new SearchBST();\n\t\tSystem.out.println(searchBST.searchBST(treeNode, 3) != null);\n\t}\n}"
         }
-      ]
+      ],
+      "statement": "You are given the root of a binary search tree (BST) and an integer val. Find the node whose\nvalue equals val and return the subtree rooted at that node. If the node does not exist, return\nnull.\n\nExample 1:\n\nInput: root = [4,2,7,1,3], val = 2\nOutput: [2,1,3]\n\nExample 2:\n\nInput: root = [4,2,7,1,3], val = 5\nOutput: []"
     },
     {
       "id": "invert-tree",
@@ -1159,7 +1188,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/trees/InvertBinaryTreeRecursive.java",
           "code": "package com.dsalgo.trees;\n\nclass InvertBinaryTreeRecursive {\n\n\tpublic static void invertBinaryTree(TreeNode root) {\n\t\tif (root == null) return;\n\n\t\tswapBinaryTree(root);\n\t\tinvertBinaryTree(root.left);\n\t\tinvertBinaryTree(root.right);\n\t}\n\n\tpublic static void swapBinaryTree(TreeNode root) {\n\t\tTreeNode left = root.left;\n\t\troot.left = root.right;\n\t\troot.right = left;\n\t}\n\n\tpublic static void main(String[] args) {\n\t\tTreeNode treeNode = TreeNode.getBinarytree();\n\t\tInvertBinaryTreeRecursive.invertBinaryTree(treeNode);\n\t}\n}"
         }
-      ]
+      ],
+      "statement": "Given the root of a binary tree, invert the tree (mirror it by swapping every node's left and\nright children) and return its root.\n\nExample 1:\n\nInput: root = [4,2,7,1,3,6,9]\nOutput: [4,7,2,9,6,3,1]\n\nExample 2:\n\nInput: root = [2,1,3]\nOutput: [2,3,1]"
     },
     {
       "id": "branch-sums",
@@ -1185,7 +1215,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/trees/BranchSum.java",
           "code": "package com.dsalgo.trees;\n\n\nimport java.util.ArrayList;\nimport java.util.List;\n\n/**\n * Write a function that takes in a Binary Tree and returns a list of its branch sums\n * ordered from leftmost branch sum to rightmost branch sum.\n * A branch sum is a sum of all values in a branch in Binary Tree. A binary tree branch is a path of nodes\n * in a tree that starts at a root node and ends at any leaf node.\n */\nclass BranchSum {\n\n    public static void main(String[] args) {\n        List<Integer> sums = new ArrayList<>();\n        TreeNode root = TreeNode.getBinarytree();\n        BranchSum branchSum = new BranchSum();\n        branchSum.calculateBranchSums(root, 0, sums);\n        System.out.println(sums);\n\n    }\n\n    /**\n     * This method calculates the sum of all the branches in the binary tree.\n     * Time complexity: O(n) where n is number of nodes in a tree\n     * Space Complexity: O(n) due to recursion call stack\n     * \n     */\n    public void calculateBranchSums(TreeNode root, int currentSum, List<Integer> sums) {\n        if (root == null) return;\n\n        int newRunningSum = currentSum + root.data;\n        if (root.right == null && root.left == null) {\n            sums.add(newRunningSum);\n            return;\n        }\n        calculateBranchSums(root.left, newRunningSum, sums);\n        calculateBranchSums(root.right, newRunningSum, sums);\n\n    }\n}"
         }
-      ]
+      ],
+      "statement": "Write a function that takes in a Binary Tree and returns a list of its branch sums\nordered from leftmost branch sum to rightmost branch sum.\nA branch sum is a sum of all values in a branch in Binary Tree. A binary tree branch is a path of nodes\nin a tree that starts at a root node and ends at any leaf node."
     },
     {
       "id": "graph-traversal",
@@ -1243,6 +1274,7 @@ window.SITE_DATA = {
         },
         "start": "A"
       },
+      "statement": "Given a graph represented as an adjacency list, visit every node reachable from a given start\nnode.\n\nBreadth-First Search (BFS) explores the graph level by level using a queue. Depth-First Search\n(DFS) goes as deep as possible along each branch before backtracking, using a stack (or\nrecursion). Both use a visited set so cycles don't cause infinite loops.\n\nExample:\n\nInput: graph = {A:[B,C], B:[A,D,E], C:[A,F], D:[B], E:[B,F], F:[C,E]}, start = A\nBFS order: A, B, C, D, E, F\nDFS order: A, C, F, E, B, D   (one valid ordering)",
       "deepDive": "**Walk through BFS on this graph** (`A–B`, `A–C`, `B–D`, `B–E`, `C–F`, `E–F`), starting at `A`:\n\n- Mark `A` visited, queue = `[A]`.\n- Pop `A`, record it, enqueue its unvisited neighbours `B, C` → queue `[B, C]`.\n- Pop `B`, enqueue `D, E` → queue `[C, D, E]`.\n- Pop `C`, enqueue `F` → queue `[D, E, F]`.\n- Pop `D, E, F` (their neighbours are all visited) → done.\n\nVisit order `A, B, C, D, E, F` — nodes come out in **non-decreasing distance** from the source,\nwhich is exactly why BFS finds shortest paths in unweighted graphs.\n\n**Swap the queue for a stack** and you get DFS: after popping `A` you'd push `B, C`, then\nimmediately dive from `C` (LIFO) before finishing `B`'s side. Same code, different container,\ncompletely different traversal shape.\n\n**Two pitfalls to remember:** (1) mark a node visited *when you enqueue/push it*, not when you\npop it — otherwise it can be added twice; (2) graphs have cycles, so the visited set is not\noptional like it is for trees."
     },
     {
@@ -1305,6 +1337,7 @@ window.SITE_DATA = {
           ]
         ]
       },
+      "statement": "Given an m x n 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands.\n\nAn island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.\nYou may assume all four edges of the grid are all surrounded by water.\n\nExample 1:\n\nInput: grid = [\n[\"1\",\"1\",\"1\",\"1\",\"0\"],\n[\"1\",\"1\",\"0\",\"1\",\"0\"],\n[\"1\",\"1\",\"0\",\"0\",\"0\"],\n[\"0\",\"0\",\"0\",\"0\",\"0\"]\n]\nOutput: 1\nExample 2:\n\nInput: grid = [\n[\"1\",\"1\",\"0\",\"0\",\"0\"],\n[\"1\",\"1\",\"0\",\"0\",\"0\"],\n[\"0\",\"0\",\"1\",\"0\",\"0\"],\n[\"0\",\"0\",\"0\",\"1\",\"1\"]\n]\nOutput: 3",
       "deepDive": "**Why this is secretly a graph problem.** Treat every cell as a node connected to its 4\northogonal neighbours. An \"island\" is then just a **connected component** of land cells.\n\n**The flood-fill trick.** Scan row by row. The first `'1'` you touch belongs to a brand-new\nisland, so increment the counter and then *sink the entire landmass* with DFS/BFS: starting\nfrom that cell, keep visiting neighbouring `'1'`s and flipping them to `'0'`. After the fill,\nthat whole island is gone, so it can never be counted again.\n\n**Worked example** on the 4×4 grid in the visualization: the top-left 2×2 block of land is\ndiscovered first → island #1, sunk entirely. Scanning continues, finds the lone `1` in the\nmiddle → island #2. Then the bottom-right pair → island #3. Answer: **3**.\n\n**Why overwrite the grid instead of a visited set?** Flipping `'1'→'0'` *is* the visited\nmarker — it costs zero extra memory. If you're not allowed to mutate the input, use a separate\n`visited` matrix; the logic is identical.\n\nComplexity is O(rows·cols): every cell is visited a constant number of times."
     },
     {
@@ -1334,6 +1367,7 @@ window.SITE_DATA = {
           "code": "\"\"\"\nThere are n cities. Some of them are connected, while some are not. \nIf city a is connected directly with city b, and city b is connected directly with city c, then city a is connected indirectly with city c.\nA province is a group of directly or indirectly connected cities and no other cities outside of the group.\nYou are given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and the jth city are directly connected, and isConnected[i][j] = 0 otherwise.\nReturn the total number of provinces.\n\nExample 1:\n\nInput: isConnected = [[1,1,0],[1,1,0],[0,0,1]]\nOutput: 2\n\nExample 2:\n\nInput: isConnected = [[1,0,0],[0,1,0],[0,0,1]]\nOutput: 3\n\"\"\"\nfrom typing import List\n\n\nclass Solution:\n\n\tdef dfs(self, city: int, size: int, isConnected: List[List[int]], visited_city: List[bool]):\n\t\tvisited_city[city] = True\n\t\tstack: List[int] = [city]\n\t\twhile stack:\n\t\t\tcurrent_city = stack.pop()\n\t\t\tfor neighbour in range(size):\n\t\t\t\tif not visited_city[neighbour] and isConnected[current_city][neighbour] == 1:\n\t\t\t\t\tvisited_city[neighbour] = True\n\t\t\t\t\tstack.append(neighbour)\n\t\n\tdef findCircleNum(self, isConnected: List[List[int]]) -> int:\n\t\tif not isConnected or not isConnected[0]:\n\t\t\treturn 0\n\t\tsize: int = len(isConnected)\n\t\tvisited_city: List[bool] = [False] * size\n\t\tprovinces: int = 0\n\t\t\n\t\tfor city in range(size):\n\t\t\tif not visited_city[city]:\n\t\t\t\t# dfs\n\t\t\t\tself.dfs(city, size, isConnected, visited_city)\n\t\t\t\tprovinces += 1\n\t\treturn provinces\n\n\nif __name__ == '__main__':\n\tis_connected = [[1, 1, 0], [1, 1, 0], [0, 0, 1]]\n\tsolution = Solution()\n\tprint(solution.findCircleNum(isConnected=is_connected))\n"
         }
       ],
+      "statement": "There are n cities. Some of them are connected, while some are not.\nIf city a is connected directly with city b, and city b is connected directly with city c, then city a is connected indirectly with city c.\nA province is a group of directly or indirectly connected cities and no other cities outside of the group.\nYou are given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and the jth city are directly connected, and isConnected[i][j] = 0 otherwise.\nReturn the total number of provinces.\n\nExample 1:\n\nInput: isConnected = [[1,1,0],[1,1,0],[0,0,1]]\nOutput: 2\n\nExample 2:\n\nInput: isConnected = [[1,0,0],[0,1,0],[0,0,1]]\nOutput: 3",
       "viz": {
         "type": "matrixComponents",
         "matrix": [
@@ -1382,6 +1416,7 @@ window.SITE_DATA = {
           "code": "\"\"\"\n# Definition for a Node.\nclass Node:\n    def __init__(self, val = 0, neighbors = None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\"\"\"\n\nfrom typing import Optional\nfrom collections import deque\n\n\nclass Node:\n    def __init__(self, val=0, neighbors=None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\n\nclass Solution:\n    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:\n\n        if not node:\n            return None\n        \n        queue, clones = deque([node]), {node.val: Node(node.val)}\n        while queue:\n            current_node = queue.popleft()\n            curr_clone = clones[current_node.val]\n\n            for neighbor in current_node.neighbors:\n                if neighbor.val not in clones:\n                    clones[neighbor.val] = Node(neighbor.val)\n                    queue.append(neighbor)\n                curr_clone.neighbors.append(clones[neighbor.val])\n        return clones[node.val]\n\n\nif __name__ == '__main__':\n    # Build an undirected graph: 1-2, 1-4, 2-3, 3-4 (a 4-cycle)\n    n1, n2, n3, n4 = Node(1), Node(2), Node(3), Node(4)\n    n1.neighbors = [n2, n4]\n    n2.neighbors = [n1, n3]\n    n3.neighbors = [n2, n4]\n    n4.neighbors = [n1, n3]\n\n    clone = Solution().cloneGraph(n1)\n    print(clone.val, [nb.val for nb in clone.neighbors])  # 1 [2, 4]\n    print(\"deep copy?\", clone is not n1)                  # True\n        "
         }
       ],
+      "statement": "Given a reference to a node in a connected undirected graph, return a deep copy (clone) of the\ngraph.\n\nEach node contains an integer value and a list of its neighbors. The clone must be entirely\nindependent of the original — same structure and values, but all-new node objects.\n\nExample 1:\n\nInput: adjList = [[2,4],[1,3],[2,4],[1,3]]\nOutput: [[2,4],[1,3],[2,4],[1,3]]\nExplanation: 4 nodes form the cycle 1-2-3-4-1; the output is an identical, independent copy.\n\nExample 2:\n\nInput: adjList = []\nOutput: []",
       "viz": {
         "type": "cloneBFS",
         "graph": {
@@ -1432,6 +1467,7 @@ window.SITE_DATA = {
           "code": "\nfrom typing import List\nfrom collections import defaultdict, deque\n\nclass Solution:\n\n\tdef detect_cycle_directed_graph(self, vertices: int, adj: List[List[int]]):\n\t\tindegree = [0] * vertices\n\t\tgraph = defaultdict(list)\n\n\t\tfor u in range(vertices):\n\t\t\tfor v in adj[u]:\n\t\t\t\tgraph[u].append(v)\n\t\t\t\tindegree[v] += 1\n\n\t\t# queue for maintaining vertices which doesn't have dependencies and can be processed early\n\t\tqueue: deque = deque(i for i in range(vertices) if indegree[i] == 0)\n\t\tprocessed: int = 0\n\n\t\twhile queue:\n\t\t\tnode = queue.popleft()\n\t\t\tprocessed += 1\n\n\t\t\tfor neighbour in graph[node]:\n\t\t\t\tindegree[neighbour] -= 1\n\t\t\t\tif indegree[neighbour] == 0:\n\t\t\t\t\tqueue.append(neighbour)\n\n\t\treturn processed != vertices\n\n\nif __name__ == '__main__':\n\tsolution = Solution()\n\t# 0 -> 1 -> 2 -> 0  (cycle)\n\tprint(solution.detect_cycle_directed_graph(3, [[1], [2], [0]]))   # True\n\t# 0 -> 1 -> 2  (DAG, no cycle)\n\tprint(solution.detect_cycle_directed_graph(3, [[1, 2], [2], []]))  # False\n\n\n\n"
         }
       ],
+      "statement": "Given a directed graph with V vertices and an adjacency list adj, determine whether the graph\ncontains a cycle.\n\nEquivalently (Course Schedule): given dependencies between tasks, decide whether all tasks can\nbe finished — possible if and only if the dependency graph has no cycle.\n\nExample 1:\n\nInput: V = 3, adj = [[1], [2], [0]]\nOutput: true   (0 -> 1 -> 2 -> 0 is a cycle)\n\nExample 2:\n\nInput: V = 3, adj = [[1, 2], [2], []]\nOutput: false  (a DAG, no cycle)",
       "viz": {
         "type": "kahn",
         "vertices": 6,
@@ -1481,6 +1517,7 @@ window.SITE_DATA = {
           "code": "\n\"\"\"\nGiven an undirected graph with V vertices and an adjacency list adj, determine whether the graph contains a cycle.\n\nA cycle exists if there is a path that starts and ends at the same vertex, visiting at least one other vertex.\nIn undirected graphs, we must be careful not to consider the edge back to the parent as a cycle.\n\nCycle exists:Pythonadj = [[1,2], [0,2], [0,1]]   # Triangle: 0-1-2-0\nOutput: True\nNo cycle (Tree):Pythonadj = [[1], [0,2], [1]]        # 0-1-2\nOutput: False\n\"\"\"\n\nfrom typing import List\n\nclass Solution:\n\n\tdef detect_cycle(self, num_nodes: int, graph: List[List[int]]):\n\t\t\"\"\"\n\t\tDetect a cycle in undirected graph using iterative DFS\n\n\t\tnum_nodes: number of nodes\n\t\tgraph: Adjacency list graph representation\n\t\t\"\"\"\n\t\tvisited: List[bool] = [False] * num_nodes\n\n\t\tdef dfs_iterative(start: int):\n\t\t\tstack = [(start, -1)]\n\t\t\tvisited[start] = True\n\n\t\t\twhile stack:\n\t\t\t\tcurrent_node, parent = stack.pop()\n\n\t\t\t\tfor neighbour in graph[current_node]:\n\t\t\t\t\tif not visited[neighbour]:\n\t\t\t\t\t\tvisited[neighbour] = True\n\t\t\t\t\t\tstack.append((neighbour, current_node))\n\t\t\t\t\telif parent != neighbour:\n\t\t\t\t\t\treturn True\n\t\t\treturn False\n\n\t\tfor i in range(num_nodes):\n\t\t\tif not visited[i]:\n\t\t\t\tif dfs_iterative(i):\n\t\t\t\t\treturn True\n\t\treturn False\n\n# Test the function\ndef test_cycle_detection():\n\tsol = Solution()\n\t# Example 1 - Has Cycle\n\tadj1 = [[1,2],[0,2],[0,1,3],[2,4],[3]]\n\tprint(\"Example 1 (Has Cycle):\", sol.detect_cycle(5, adj1))   # True\n\t# Example 2 - No Cycle\n\tadj2 = [[1],[0,2],[1,3],[2]]\n\tprint(\"Example 2 (No Cycle):\", sol.detect_cycle(4, adj2))    # False\n\n\nif __name__ == '__main__':\n\ttest_cycle_detection()\n"
         }
       ],
+      "statement": "Given an undirected graph with V vertices and an adjacency list adj, determine whether the graph contains a cycle.\n\nA cycle exists if there is a path that starts and ends at the same vertex, visiting at least one other vertex.\nIn undirected graphs, we must be careful not to consider the edge back to the parent as a cycle.\n\nCycle exists:Pythonadj = [[1,2], [0,2], [0,1]]   # Triangle: 0-1-2-0\nOutput: True\nNo cycle (Tree):Pythonadj = [[1], [0,2], [1]]        # 0-1-2\nOutput: False",
       "viz": {
         "type": "undirectedCycle",
         "graph": {
@@ -1525,7 +1562,8 @@ window.SITE_DATA = {
           "path": "python/maps/max_num_balloons.py",
           "code": "\"\"\"\nGiven a string text, you want to use the characters of text to form as many instances of the word \"balloon\" as possible.\nYou can use each character in text at most once. Return the maximum number of instances that can be formed.\n\nExample 1:\n\nInput: text = \"nlaebolko\"\nOutput: 1\nExample 2:\n\nInput: text = \"loonbalxballpoon\"\nOutput: 2\nExample 3:\n\nInput: text = \"leetcode\"\nOutput: 0\n\"\"\"\n\nfrom collections import defaultdict\n\nclass Solution:\n\n\n\tdef maxNumberOfBalloons(self, text: str) -> int:\n\n\t\tcounter = defaultdict(int)\n\t\ttarget = 'balloon'\n\n\t\tfor c in text:\n\t\t\tif c in target:\n\t\t\t\tcounter[c] += 1\n\n\t\tif any(c not in counter for c in target):\n\t\t\treturn 0\n\n\t\treturn min(counter['b'],counter['a'], counter['l']//2, counter['o']//2, counter['n'])\n\n\nif __name__ == '__main__':\n\tsolution = Solution()\n\tprint(solution.maxNumberOfBalloons(\"nlaebolko\"))         # 1\n\tprint(solution.maxNumberOfBalloons(\"loonbalxballpoon\"))  # 2\n\tprint(solution.maxNumberOfBalloons(\"leetcode\"))          # 0"
         }
-      ]
+      ],
+      "statement": "Given a string text, you want to use the characters of text to form as many instances of the word \"balloon\" as possible.\nYou can use each character in text at most once. Return the maximum number of instances that can be formed.\n\nExample 1:\n\nInput: text = \"nlaebolko\"\nOutput: 1\nExample 2:\n\nInput: text = \"loonbalxballpoon\"\nOutput: 2\nExample 3:\n\nInput: text = \"leetcode\"\nOutput: 0"
     },
     {
       "id": "buckets-alternating",
@@ -1558,7 +1596,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/misc/BucketsProblem.java",
           "code": "package com.dsalgo.misc;\n\n/**\n * There are n buckets arranged in a row. Each bucket either is empty or contains a ball. The buckets are specified\n * as a string buckets consisting of characters '.' and 'B' in one move you can take the ball out of any bucket\n * and place it in another empty bucket. your goal is to arrange the balls to create an alternating sequence of full and empty buckets.\n * distance between two consecutive balls should be equal to 2, note that the sequence may start at any bucket\n * we need to give what is minimum numbers of moves required to create a correct sequence of balls in bucket.\n * If it is impossible return -1\n * <p>\n * Sample Input 1:\n * BB.B.BBB...\n * Sample Output 1:\n * 4\n * <p>\n * Sample Input 2:\n * ..B....B.BB\n * Sample Output 2:\n * 2\n * <p>\n * Sample Input 3:\n * ..B.B..BB.\n * Sample Output 3:\n * 1\n * <p>\n * Sample Input 4:\n * BB.B.\n * Sample Output 4:\n * -1\n */\npublic class BucketsProblem {\n\n    /**\n     * Calculate minimum moves required to arrange balls in alternating seqyence\n     *\n     * @param buckets string input\n     * @return minMoves integer value\n     */\n    public static int minMoves(String buckets) {\n        int bucketsLength = buckets.length();\n        int ballCount = 0;\n        int minimumMoves;\n\n        for (int index = 0; index < bucketsLength; index++) {\n            if (buckets.charAt(index) == 'B') {\n                ballCount++;\n            }\n        }\n\n        if (ballCount > (bucketsLength + 1) / 2) return -1;\n        minimumMoves = ballCount;\n\n        int correctBallPosition = 0;\n        for (int index = 0; index < bucketsLength; index = index + 2) {\n            if (buckets.charAt(index) == 'B') {\n                correctBallPosition++;\n            }\n        }\n\n        minimumMoves = Math.min(minimumMoves, ballCount - correctBallPosition);\n        if (minimumMoves == 0) return -1;\n        return minimumMoves;\n    }\n\n    public static void main(String[] args) {\n        //..B....B.BB; BB.B.BBB...; BB.B.\n        String input1 = \"BB.B.BBB...\";\n        String input2 = \"..B....B.BB\";\n        String input3 = \"..B.B..BB.\";\n        String input4 = \"BB.B.\";\n        String input5 = \"B.B.B.\";\n\n        System.out.println(minMoves(input1));\n        System.out.println(minMoves(input2));\n        System.out.println(minMoves(input3));\n        System.out.println(minMoves(input4));\n        System.out.println(minMoves(input5));\n    }\n}\n"
         }
-      ]
+      ],
+      "statement": "There are n buckets arranged in a row. Each bucket either is empty or contains a ball. The buckets are specified\nas a string buckets consisting of characters '.' and 'B' in one move you can take the ball out of any bucket\nand place it in another empty bucket. your goal is to arrange the balls to create an alternating sequence of full and empty buckets.\ndistance between two consecutive balls should be equal to 2, note that the sequence may start at any bucket\nwe need to give what is minimum numbers of moves required to create a correct sequence of balls in bucket.\nIf it is impossible return -1\n\nSample Input 1:\nBB.B.BBB...\nSample Output 1:\n4\n\nSample Input 2:\n..B....B.BB\nSample Output 2:\n2\n\nSample Input 3:\n..B.B..BB.\nSample Output 3:\n1\n\nSample Input 4:\nBB.B.\nSample Output 4:\n-1"
     },
     {
       "id": "wooden-sticks",
@@ -1585,7 +1624,8 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/misc/WoodenSticksProblem.java",
           "code": "package com.dsalgo.misc;\n\n/**\n * There are two wooden sticks of lengths A and B respectively. Each of them can be cut into shorter sticks of integer lengths. Our goal is to construct the largest possible square. In order to do this, we want to cut the sticks in such a way as to achieve four sticks of the same length (note that there can be some leftover pieces). What is the longest side of square that we can achieve?\n * Write a function:\n * def solution (A, B)\n * that, given two integers A, B, returns the side length of the largest square that we can obtain. If it is not possible to create any square, the function should return 0.\n * Examples:\n * 1. Given A = 10, B = 21, the function should return 7. We can split the second stick into three sticks of length 7 and shorten the first stick by 3.\n * 2. Given A = 13, B = 11, the function should return 5. We can cut two sticks of length 5 from each of the given sticks.\n * 3. Given A = 2, B = 1, the function should return 0. It is not possible to make any square from the given sticks.\n * 4. Given A = 1, B = 8, the function should return 2. We can cut stick B into four parts.\n * Write an efficient algorithm for the following assumptions:\n * A and B are integers within the range.\n */\npublic class WoodenSticksProblem {\n    static int countPieces(int length, int stick1, int stick2) {\n        return stick1 / length + stick2 / length;\n    }\n\n    static boolean canFormSquare(int length, int stick1, int stick2) {\n        return countPieces(length, stick1, stick2) >= 4;\n    }\n\n    public static int solution(int A, int B) {\n        // original code had: Math.min(A, B) instead of (A+B)/4. Possible solution could also be\n        // to use Math.max(A, B) which is less optimized as compared to (A+B)/4\n        for (int length = Math.max(A, B); length > 0; length--) {\n            if (canFormSquare(length, A, B)) {\n                return length;\n            }\n        }\n        return 0;\n    }\n\n    public static void main(String[] args) {\n        //Test cases:\n        //A = 13, B = 11; A = 10, B = 21; A = 1, B = 8; A = 1, B = 2; A = 22, B = 2\n        System.out.println(WoodenSticksProblem.solution(1, 8));\n    }\n}\n"
         }
-      ]
+      ],
+      "statement": "There are two wooden sticks of lengths A and B respectively. Each of them can be cut into shorter sticks of integer lengths. Our goal is to construct the largest possible square. In order to do this, we want to cut the sticks in such a way as to achieve four sticks of the same length (note that there can be some leftover pieces). What is the longest side of square that we can achieve?\nWrite a function:\ndef solution (A, B)\nthat, given two integers A, B, returns the side length of the largest square that we can obtain. If it is not possible to create any square, the function should return 0.\nExamples:\n1. Given A = 10, B = 21, the function should return 7. We can split the second stick into three sticks of length 7 and shorten the first stick by 3.\n2. Given A = 13, B = 11, the function should return 5. We can cut two sticks of length 5 from each of the given sticks.\n3. Given A = 2, B = 1, the function should return 0. It is not possible to make any square from the given sticks.\n4. Given A = 1, B = 8, the function should return 2. We can cut stick B into four parts.\nWrite an efficient algorithm for the following assumptions:\nA and B are integers within the range."
     }
   ],
   "counts": {

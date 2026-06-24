@@ -37,6 +37,32 @@
     return html.join("");
   }
 
+  // Renders a problem statement: reflows prose paragraphs but preserves the
+  // line structure of Example / Input / Output / Constraints blocks (and shows
+  // them in a monospace box, LeetCode-style).
+  const LABEL_RE = /^(Input|Output|Explanation|Examples?\s*\d*|Constraints?|Sample\s*Input\s*\d*|Sample\s*Output\s*\d*|Note)\b/i;
+
+  function statementToHtml(text) {
+    if (!text) return "";
+    const blocks = text.split(/\n\s*\n/);
+    const out = [];
+    for (const block of blocks) {
+      const lines = block.split("\n").map((l) => l.replace(/\s+$/, "")).filter((l) => l.trim().length);
+      if (!lines.length) continue;
+      const isExample = lines.some((l) => LABEL_RE.test(l.trim()));
+      if (isExample) {
+        const html = lines
+          .map((l) => escapeHtml(l).replace(LABEL_RE, (m) => `<strong>${m}</strong>`))
+          .join("<br>");
+        out.push(`<div class="example">${html}</div>`);
+      } else {
+        out.push(`<p>${inline(lines.join(" "))}</p>`);
+      }
+    }
+    return out.join("");
+  }
+
   window.mdToHtml = mdToHtml;
+  window.statementToHtml = statementToHtml;
   window.escapeHtml = escapeHtml;
 })();

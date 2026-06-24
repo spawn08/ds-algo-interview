@@ -128,6 +128,12 @@
         <p class="prob-lead">${p.summary}</p>
       </div>
 
+      ${p.statement ? `
+      <div class="panel">
+        <div class="panel-head"><span class="ico">❓</span>Problem</div>
+        <div class="panel-body statement">${window.statementToHtml(p.statement)}</div>
+      </div>` : ""}
+
       <div id="viz-slot"></div>
 
       <div class="panel">

@@ -15,6 +15,7 @@ Usage:
 
 import json
 import os
+import re
 import textwrap
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +27,46 @@ def code(path):
     full = os.path.join(REPO_ROOT, path)
     with open(full, "r", encoding="utf-8") as fh:
         return fh.read()
+
+
+def _clean_statement(text):
+    """Strip javadoc/markup noise from an extracted problem statement."""
+    lines = []
+    for ln in text.split("\n"):
+        s = ln.strip()
+        if s.startswith("@"):            # @link, @param, @return …
+            continue
+        s = s.replace("<p>", "").replace("</p>", "")
+        s = re.sub(r"<link>.*?</link>", "", s)   # python docstring link tags
+        s = re.sub(r"</?a[^>]*>", "", s)         # html anchors
+        s = re.sub(r"\{@link[^}]*\}", "", s)     # javadoc {@link ...}
+        if s.strip() in ("...", "*"):
+            continue
+        lines.append(s)
+    text = "\n".join(lines)
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    return text
+
+
+def extract_statement(files):
+    """Pull the problem statement from a source file's leading docstring/javadoc."""
+    for f in files:
+        path, src = f["path"], code(f["path"])
+        if path.endswith(".py"):
+            m = re.search(r'"""(.*?)"""', src, re.S)
+            if m:
+                text = m.group(1).strip()
+                if "Definition for" in text or len(text) < 40:
+                    continue  # skip Node stubs / too-short docstrings
+                return _clean_statement(text)
+        elif path.endswith(".java"):
+            m = re.search(r"/\*\*(.*?)\*/", src, re.S)
+            if m:
+                body = "\n".join(re.sub(r"^\s*\*?", "", ln) for ln in m.group(1).split("\n"))
+                cleaned = _clean_statement(body)
+                if len(cleaned) >= 40:
+                    return cleaned
+    return None
 
 
 def D(text):
@@ -1433,6 +1474,140 @@ DEEP_DIVES = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Curated problem statements for files that have no usable docstring/javadoc.
+# ---------------------------------------------------------------------------
+STATEMENTS = {
+    "group-anagrams": D("""
+        Given an array of strings strs, group the anagrams together. You can return the answer in
+        any order.
+
+        An anagram is a word or phrase formed by rearranging the letters of another, using all the
+        original letters exactly once.
+
+        Example 1:
+
+        Input: strs = ["eat","tea","tan","ate","nat","bat"]
+        Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+        Example 2:
+
+        Input: strs = [""]
+        Output: [[""]]
+    """),
+    "longest-common-substring": D("""
+        Given two strings text1 and text2, return the length of their longest common substring.
+
+        A substring is a contiguous sequence of characters within a string. Unlike a subsequence, it
+        cannot skip characters.
+
+        Example 1:
+
+        Input: text1 = "ABABC", text2 = "BABCA"
+        Output: 4
+        Explanation: The longest common substring is "BABC", with length 4.
+
+        Example 2:
+
+        Input: text1 = "abcde", text2 = "abfce"
+        Output: 2
+        Explanation: The longest common substring is "ab".
+    """),
+    "graph-traversal": D("""
+        Given a graph represented as an adjacency list, visit every node reachable from a given start
+        node.
+
+        Breadth-First Search (BFS) explores the graph level by level using a queue. Depth-First Search
+        (DFS) goes as deep as possible along each branch before backtracking, using a stack (or
+        recursion). Both use a visited set so cycles don't cause infinite loops.
+
+        Example:
+
+        Input: graph = {A:[B,C], B:[A,D,E], C:[A,F], D:[B], E:[B,F], F:[C,E]}, start = A
+        BFS order: A, B, C, D, E, F
+        DFS order: A, C, F, E, B, D   (one valid ordering)
+    """),
+    "clone-graph": D("""
+        Given a reference to a node in a connected undirected graph, return a deep copy (clone) of the
+        graph.
+
+        Each node contains an integer value and a list of its neighbors. The clone must be entirely
+        independent of the original — same structure and values, but all-new node objects.
+
+        Example 1:
+
+        Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+        Output: [[2,4],[1,3],[2,4],[1,3]]
+        Explanation: 4 nodes form the cycle 1-2-3-4-1; the output is an identical, independent copy.
+
+        Example 2:
+
+        Input: adjList = []
+        Output: []
+    """),
+    "cycle-detect-directed": D("""
+        Given a directed graph with V vertices and an adjacency list adj, determine whether the graph
+        contains a cycle.
+
+        Equivalently (Course Schedule): given dependencies between tasks, decide whether all tasks can
+        be finished — possible if and only if the dependency graph has no cycle.
+
+        Example 1:
+
+        Input: V = 3, adj = [[1], [2], [0]]
+        Output: true   (0 -> 1 -> 2 -> 0 is a cycle)
+
+        Example 2:
+
+        Input: V = 3, adj = [[1, 2], [2], []]
+        Output: false  (a DAG, no cycle)
+    """),
+    "binary-search": D("""
+        Given a sorted (ascending) array of integers nums and an integer target, return whether target
+        exists in nums. You must write an algorithm with O(log n) runtime complexity.
+
+        Example 1:
+
+        Input: nums = [1,2,3,4,5,7,9,10], target = 9
+        Output: true
+
+        Example 2:
+
+        Input: nums = [1,2,3,4,5,7,9,10], target = 6
+        Output: false
+    """),
+    "search-bst": D("""
+        You are given the root of a binary search tree (BST) and an integer val. Find the node whose
+        value equals val and return the subtree rooted at that node. If the node does not exist, return
+        null.
+
+        Example 1:
+
+        Input: root = [4,2,7,1,3], val = 2
+        Output: [2,1,3]
+
+        Example 2:
+
+        Input: root = [4,2,7,1,3], val = 5
+        Output: []
+    """),
+    "invert-tree": D("""
+        Given the root of a binary tree, invert the tree (mirror it by swapping every node's left and
+        right children) and return its root.
+
+        Example 1:
+
+        Input: root = [4,2,7,1,3,6,9]
+        Output: [4,7,2,9,6,3,1]
+
+        Example 2:
+
+        Input: root = [2,1,3]
+        Output: [2,3,1]
+    """),
+}
+
+
 def build():
     problems_out = []
     for p in PROBLEMS:
@@ -1446,6 +1621,10 @@ def build():
             })
         entry = dict(p)
         entry["files"] = files_out
+        # problem statement: curated override, else extracted from the source docstring/javadoc
+        statement = STATEMENTS.get(p["id"]) or extract_statement(files_out)
+        if statement:
+            entry["statement"] = statement
         # merge in extra visualization bindings (only if not already set)
         if not entry.get("viz") and p["id"] in EXTRA_VIZ:
             entry["viz"] = EXTRA_VIZ[p["id"]]
@@ -1479,8 +1658,10 @@ def build():
     print(f"  {len(problems_out)} problems across {len(CATEGORIES)} categories")
     viz = sum(1 for p in problems_out if p.get("viz"))
     dd = sum(1 for p in problems_out if p.get("deepDive"))
+    st = sum(1 for p in problems_out if p.get("statement"))
     print(f"  {viz} problems have interactive visualizations")
     print(f"  {dd} problems have deep-dive walkthroughs")
+    print(f"  {st} problems have a full problem statement")
 
 
 if __name__ == "__main__":
