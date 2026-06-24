@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoLab — Learn DSA for FAANG Interviews</title>
+  <meta name="description" content="Interactive data structures & algorithms guide with step-by-step visualizations, real Java & Python code, complexity analysis, and live Python execution." />
+
+  <!-- Prism syntax highlighting (CDN) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span class="brand-name">AlgoLab</span>
+      <span class="brand-tag">DSA for FAANG interviews</span>
+    </a>
+    <div class="topbar-actions">
+      <input id="search" class="search" type="search" placeholder="Search problems, tags…" autocomplete="off" />
+      <a class="ghost-btn" href="https://github.com/spawn08/ds-algo-interview" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar"><!-- categories injected --></aside>
+    <main class="content" id="content"><!-- view injected --></main>
+  </div>
+
+  <!-- Data + app -->
+  <script src="data/problems.js"></script>
+  <script src="assets/js/markdown.js"></script>
+  <script src="assets/js/visualizers.js"></script>
+  <script src="assets/js/pyodide-runner.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <!-- Prism core + languages (deferred; highlight is called manually) -->
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-clike.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+  <script>window.dispatchEvent(new Event('prism-ready'));</script>
+</body>
+</html>
