@@ -558,7 +558,7 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — last-seen map",
           "path": "python/sliding_window/lcs_without_repeating_character.py",
-          "code": "from typing import Dict\n\n\nclass LCSWithOutRepeatingChar:\n\n    def lcs(self, input_str: str) -> int:\n        if not input_str:\n            return 0\n\n        left = 0\n        max_length = 0\n        last_seen: Dict[str, int] = {}\n\n        for right in range(len(input_str)):\n            char = input_str[right]\n\n            if char in last_seen and last_seen[char] >= left:\n                left = last_seen[char] + 1\n\n            last_seen[char] = right\n            max_length = max(max_length, right - left + 1)\n\n        return max_length\n"
+          "code": "from typing import Dict\n\n\nclass LCSWithOutRepeatingChar:\n\n    def lcs(self, input_str: str) -> int:\n        if not input_str:\n            return 0\n\n        left = 0\n        max_length = 0\n        last_seen: Dict[str, int] = {}\n\n        for right in range(len(input_str)):\n            char = input_str[right]\n\n            if char in last_seen and last_seen[char] >= left:\n                left = last_seen[char] + 1\n\n            last_seen[char] = right\n            max_length = max(max_length, right - left + 1)\n\n        return max_length\n\n\nif __name__ == '__main__':\n    solver = LCSWithOutRepeatingChar()\n    print(solver.lcs(\"abcabcbb\"))  # 3  -> \"abc\"\n    print(solver.lcs(\"bbbbb\"))     # 1  -> \"b\"\n    print(solver.lcs(\"pwwkew\"))    # 3  -> \"wke\"\n"
         },
         {
           "lang": "java",
@@ -636,7 +636,8 @@ window.SITE_DATA = {
         "a": "abcde",
         "b": "ace",
         "mode": "subsequence"
-      }
+      },
+      "deepDive": "**Define the subproblem precisely:** `dp[i][j]` = length of the LCS of the first `i` characters\nof `text1` and the first `j` characters of `text2`. The full answer is `dp[m][n]`.\n\n**The recurrence, by cases on the last characters:**\n\n- If `text1[i-1] == text2[j-1]`, that shared character extends the best LCS of the smaller\n  prefixes: `dp[i][j] = 1 + dp[i-1][j-1]` (the diagonal).\n- Otherwise we must drop the last character of one string and take the better result:\n  `dp[i][j] = max(dp[i-1][j], dp[i][j-1])` (up vs. left).\n\nRow/column `0` represents an empty string, so it's all zeros — that's why the table is\n`(m+1) × (n+1)`.\n\n**Worked example** `\"abcde\"` vs `\"ace\"`: matches on `a`, `c`, `e` accumulate down the diagonal,\ngiving `dp[5][3] = 3` → the LCS is `\"ace\"`. Watch the visualization fill the grid cell by cell\nand you'll see the diagonal \"1+\" jumps exactly at matching characters.\n\nO(m·n) time and space; the space drops to O(min(m,n)) since each row only needs the previous\none. This grid recurrence is the template for edit distance and sequence alignment."
     },
     {
       "id": "longest-common-substring",
@@ -660,7 +661,7 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — 2D table",
           "path": "python/dynamic_programming/longest_common_substring.py",
-          "code": "class Solution:\n    def longestCommonSubstring(self, text1: str, text2: str) -> int:\n        m, n = len(text1), len(text2)\n\n        max_length = 0\n        dp = [[0] * (n + 1) for _ in range(m + 1)]\n\n        for i in range(1, m + 1):\n            for j in range(1, n + 1):\n                if text1[i - 1] == text2[j - 1]:\n                    dp[i][j] = 1 + dp[i - 1][j - 1]\n                    max_length = max(max_length, dp[i][j])\n                else:\n                    dp[i][j] = 0\n\n        return max_length\n"
+          "code": "class Solution:\n    def longestCommonSubstring(self, text1: str, text2: str) -> int:\n        m, n = len(text1), len(text2)\n\n        max_length = 0\n        dp = [[0] * (n + 1) for _ in range(m + 1)]\n\n        for i in range(1, m + 1):\n            for j in range(1, n + 1):\n                if text1[i - 1] == text2[j - 1]:\n                    dp[i][j] = 1 + dp[i - 1][j - 1]\n                    max_length = max(max_length, dp[i][j])\n                else:\n                    dp[i][j] = 0\n\n        return max_length\n\n\nif __name__ == '__main__':\n    solution = Solution()\n    print(solution.longestCommonSubstring(\"ABABC\", \"BABCA\"))  # 4  -> \"BABC\"\n    print(solution.longestCommonSubstring(\"abcde\", \"abfce\"))  # 2  -> \"ab\"\n    print(solution.longestCommonSubstring(\"abc\", \"def\"))      # 0\n"
         }
       ],
       "viz": {
@@ -668,7 +669,8 @@ window.SITE_DATA = {
         "a": "ABABC",
         "b": "BABCA",
         "mode": "substring"
-      }
+      },
+      "deepDive": "**Almost LCS — but with one decisive change.** A *substring* must be contiguous, whereas a\n*subsequence* may skip characters. That single constraint rewrites the mismatch case:\n\n- Match: `dp[i][j] = 1 + dp[i-1][j-1]` (extend the current contiguous run, same as LCS).\n- **Mismatch: `dp[i][j] = 0`** — the run is broken, so it resets. (LCS instead carries forward\n  `max(up, left)`, because a subsequence can tolerate a gap.)\n\nBecause a reset can happen anywhere, the answer is the **maximum value in the whole table**, not\nthe bottom-right corner.\n\n**Worked example** `\"ABABC\"` vs `\"BABCA\"`: the diagonal run for `B→A→B→C` climbs `1, 2, 3, 4`,\nso the longest common substring is `\"BABC\"`, length **4**. Toggle the visualization between the\ntwo modes to see \"carry forward the max\" (subsequence) versus \"reset to 0\" (substring) — it's\nthe clearest way to internalize the difference.\n\nO(m·n) time and space."
     },
     {
       "id": "house-robber",
@@ -693,7 +695,18 @@ window.SITE_DATA = {
           "path": "python/dynamic_programming/house_robber.py",
           "code": "\"\"\"\nYou are a professional robber planning to rob houses along a street.\nEach house has a certain amount of money stashed, the\nonly constraint stopping you from robbing each of them\nis that adjacent houses have security systems connected\nand it will automatically contact the police if two\nadjacent houses were broken into on the same night.\n\nGiven an integer array nums representing the amount of\nmoney of each house, return the maximum amount of money\nyou can rob tonight without alerting the police.\n\nExample 1:\n\nInput: nums = [1,2,3,1]\nOutput: 4\nExplanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).\nTotal amount you can rob = 1 + 3 = 4.\nExample 2:\n\nInput: nums = [2,7,9,3,1]\nOutput: 12\nExplanation: Rob house 1 (money = 2), rob house 3\n(money = 9) and rob house 5 (money = 1).\nTotal amount you can rob = 2 + 9 + 1 = 12.\n\"\"\"\n\nfrom typing import List\n\n# solve dp[i] = max(dp[i-1], amount[i] + dp[i-2])\n\n\nclass Solution:\n    def rob(self, nums: List[int]) -> int:\n        prev_one = 0  # dp[i-1]\n        prev_two = 0  # dp[i-2]\n\n        for amount in nums:\n            current = max(prev_one, amount + prev_two)\n            prev_two = prev_one\n            prev_one = current\n        return prev_one\n\n\nif __name__ == '__main__':\n    nums = [1, 2, 3, 1]\n\n    solution = Solution()\n    print(solution.rob(nums))\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "dpRolling",
+        "nums": [
+          2,
+          7,
+          9,
+          3,
+          1
+        ]
+      },
+      "deepDive": "**Set up the recurrence by asking one yes/no question at each house:** do I rob it?\n\n- **Skip it** → my best total is whatever I had through the previous house: `dp[i-1]`.\n- **Rob it** → I take its money but the adjacency rule forbids the previous house, so I add to\n  the best total through house `i-2`: `nums[i] + dp[i-2]`.\n\nSo `dp[i] = max(dp[i-1], nums[i] + dp[i-2])`.\n\n**Worked example** on `[2, 7, 9, 3, 1]`:\n\n- house 0: best = 2\n- house 1: max(2, 7) = 7\n- house 2: max(7, 2+9=11) = 11\n- house 3: max(11, 7+3=10) = 11\n- house 4: max(11, 11+1=12) = **12** (rob houses 0, 2, 4)\n\n**The space optimization:** the formula only ever looks back one and two steps, so the full\n`dp` array is unnecessary — keep two rolling variables `prev1` (`dp[i-1]`) and `prev2`\n(`dp[i-2]`). That drops memory from O(n) to **O(1)** while staying O(n) time. Recognizing\n\"my recurrence has a bounded look-back\" is the trigger for this very common optimization."
     },
     {
       "id": "binary-search",
@@ -758,7 +771,21 @@ window.SITE_DATA = {
           "path": "python/binary_search/rotated_sorted_array.py",
           "code": "\n\"\"\"\nThere is an integer array nums sorted in ascending order\n(with distinct values).\nPrior to being passed to your function, nums is possibly\nleft rotated at an unknown index k (1 <= k < nums.length)\nsuch that the resulting array is\n[nums[k], nums[k+1], ..., nums[n-1],\n nums[0], nums[1], ..., nums[k-1]] (0-indexed).\nFor example, [0,1,2,4,5,6,7] might be left rotated by\n3 indices and become [4,5,6,7,0,1,2].\nGiven the array nums after the possible rotation and an\ninteger target, return the index of target if it is in\nnums, or -1 if it is not in nums.\nYou must write an algorithm with O(log n) runtime\ncomplexity.\n\nExample 1:\n\nInput: nums = [4,5,6,7,0,1,2], target = 0\nOutput: 4\nExample 2:\n\nInput: nums = [4,5,6,7,0,1,2], target = 3\nOutput: -1\nExample 3:\n\nInput: nums = [1], target = 0\nOutput: -1\n\"\"\"\n\n\nclass Solution:\n\n    def search_target(self, nums: list[int], target: int) -> bool:\n        size = len(nums)\n        low = 0\n        high = size - 1\n\n        while low <= high:\n            mid = low + (high - low) // 2\n\n            if nums[mid] == target:\n                return mid\n\n            # case 1: The left half is sorted\n            if nums[low] <= nums[mid]:\n                if nums[low] <= target < nums[mid]:\n                    high = mid - 1\n                else:\n                    low = mid + 1\n\n            # case 2: The right half is sorted\n            else:\n                # Check if the target lies within this sorted right half\n                if nums[mid] < target <= nums[high]:\n                    low = mid + 1\n                else:\n                    high = mid - 1\n        return -1\n\n\nif __name__ == '__main__':\n    nums = [4, 5, 6, 7, 0, 1, 2]\n    solution = Solution()\n    print(solution.search_target(nums, 4))\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "rotatedSearch",
+        "nums": [
+          4,
+          5,
+          6,
+          7,
+          0,
+          1,
+          2
+        ],
+        "target": 0
+      },
+      "deepDive": "**Binary search seems impossible — the array isn't fully sorted.** But here's the saving grace:\nno matter where you split a rotated sorted array, **at least one half is still sorted.**\n\n**At each midpoint:**\n\n1. Compare `nums[low]` with `nums[mid]`. If `nums[low] <= nums[mid]`, the **left** half is the\n   sorted one; otherwise the **right** half is.\n2. Check whether the target lies *within the sorted half's value range*. If yes, search that\n   half; if no, search the other half.\n\nThat single decision restores the \"throw away half the candidates\" guarantee that makes binary\nsearch O(log n).\n\n**Worked example** `[4,5,6,7,0,1,2]`, target `0`: `mid` is `7` (index 3). Left half `[4..7]` is\nsorted, but `0` isn't in `[4,7]`, so go right → `[0,1,2]`. Now `mid` is `1`; `0 < 1`, search\nleft → find `0` at index 4.\n\n**The duplicates wrinkle (part II):** when `nums[low] == nums[mid] == nums[high]` you can't tell\nwhich half is sorted, so you shrink both ends by one (`low++, high--`). That fallback can fire\nevery step on input like `[1,1,1,1]`, degrading the worst case to O(n)."
     },
     {
       "id": "search-rotated-array-ii",
@@ -783,7 +810,22 @@ window.SITE_DATA = {
           "path": "python/binary_search/rotated_sorted_array_ii.py",
           "code": "\n\"\"\"\nThere is an integer array nums sorted in non-decreasing\norder (not necessarily with distinct values).\nBefore being passed to your function, nums is rotated at\nan unknown pivot index k (0 <= k < nums.length) such that\nthe resulting array is\n[nums[k], nums[k+1], ..., nums[n-1],\n nums[0], nums[1], ..., nums[k-1]] (0-indexed).\nFor example, [0,1,2,4,4,4,5,6,6,7] might be rotated at\npivot index 5 and become [4,5,6,6,7,0,1,2,4,4].\nGiven the array nums after the rotation and an integer\ntarget, return true if target is in nums, or false if it\nis not in nums.\nYou must decrease the overall operation steps as much as possible.\n\nExample 1:\n\nInput: nums = [2,5,6,0,0,1,2], target = 0\nOutput: true\nExample 2:\n\nInput: nums = [2,5,6,0,0,1,2], target = 3\nOutput: false\n\"\"\"\n\n\nclass Solution:\n\n    def search_target(self, nums: list[int], target: int) -> bool:\n        size = len(nums)\n        low = 0\n        high = size - 1\n\n        while low <= high:\n            mid = low + (high - low) // 2\n\n            if nums[mid] == target:\n                return mid\n\n            if nums[mid] == nums[low] and nums[mid] == nums[high]:\n                low += 1\n                high -= 1\n                continue\n\n            # case 1: The left half is sorted\n            if nums[low] <= nums[mid]:\n                if nums[low] <= target < nums[mid]:\n                    high = mid - 1\n                else:\n                    low = mid + 1\n\n            # case 2: The right half is sorted\n            else:\n                # Check if the target lies within this sorted right half\n                if nums[mid] < target <= nums[high]:\n                    low = mid + 1\n                else:\n                    high = mid - 1\n        return -1\n\n\nif __name__ == '__main__':\n    nums = [7, 8, 1, 2, 3, 3, 3, 4, 5, 6]\n    solution = Solution()\n    print(solution.search_target(nums, 3))\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "rotatedSearch",
+        "nums": [
+          1,
+          3,
+          5,
+          7,
+          8,
+          0,
+          1,
+          1
+        ],
+        "target": 8
+      },
+      "deepDive": "Everything from *Search in Rotated Sorted Array* applies — find the sorted half, decide which\nway to go — but **duplicates introduce genuine ambiguity.**\n\n**The problem case:** when `nums[low] == nums[mid] == nums[high]`, you literally cannot tell\nwhich side is the sorted one (e.g. `[1,1,1,0,1]` vs `[1,0,1,1,1]` look identical at the ends).\nThe only safe move is to **shrink the window by one on both sides** (`low++, high--`) and retry.\n\n**Why the complexity changes:** that fallback discards just two elements instead of half, so on\na pathological all-duplicates array it can run on every step → **O(n) worst case**, versus the\nclean **O(log n)** when values are distinct. Average case stays logarithmic.\n\nThe lesson is bigger than this problem: duplicates can quietly destroy the guarantees an\nalgorithm relies on, and recognizing that ambiguity is exactly what an interviewer is probing."
     },
     {
       "id": "tree-traversals",
@@ -809,7 +851,7 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — recursive (all orders)",
           "path": "python/trees/tree_traversal_dfs.py",
-          "code": "\nfrom tree import TreeNode\nfrom collections import deque\nfrom typing import List\n\n\nclass TreeTraversal:\n\n\n    def in_order_traversal(self, node: TreeNode):\n        if not node:\n            return\n        \n        self.in_order_traversal(node.left)\n        print(node.val)\n        self.in_order_traversal(node.right)\n\n    def pre_order_traversal(self, node: TreeNode):\n        if not node:\n            return\n        \n        print(node.val)\n        self.pre_order_traversal(node.left)\n        self.pre_order_traversal(node.right)\n    \n    def post_order_traversal(self, node: TreeNode):\n\n        if not node:\n            return\n        \n        self.post_order_traversal(node.left)\n        self.post_order_traversal(node.right)\n        print(node.val)\n\n    def level_order_traversal(self, node: TreeNode) -> List[int]:\n\n        if not node:\n            return []\n\n        queue = deque([node])\n        traversal = []\n\n        while queue:\n            current_node = queue.popleft()\n            traversal.append(current_node.val)\n\n            if current_node.left:\n                queue.append(current_node.left)\n            if current_node.right:\n                queue.append(current_node.right)\n\n        return traversal"
+          "code": "\nfrom tree import TreeNode\nfrom collections import deque\nfrom typing import List\n\n\nclass TreeTraversal:\n\n\n    def in_order_traversal(self, node: TreeNode):\n        if not node:\n            return\n        \n        self.in_order_traversal(node.left)\n        print(node.val)\n        self.in_order_traversal(node.right)\n\n    def pre_order_traversal(self, node: TreeNode):\n        if not node:\n            return\n        \n        print(node.val)\n        self.pre_order_traversal(node.left)\n        self.pre_order_traversal(node.right)\n    \n    def post_order_traversal(self, node: TreeNode):\n\n        if not node:\n            return\n        \n        self.post_order_traversal(node.left)\n        self.post_order_traversal(node.right)\n        print(node.val)\n\n    def level_order_traversal(self, node: TreeNode) -> List[int]:\n\n        if not node:\n            return []\n\n        queue = deque([node])\n        traversal = []\n\n        while queue:\n            current_node = queue.popleft()\n            traversal.append(current_node.val)\n\n            if current_node.left:\n                queue.append(current_node.left)\n            if current_node.right:\n                queue.append(current_node.right)\n\n        return traversal\n\n\nif __name__ == '__main__':\n    #        1\n    #       / \\\n    #      2   3\n    #     / \\\n    #    4   5\n    root = TreeNode(1)\n    root.left = TreeNode(2)\n    root.right = TreeNode(3)\n    root.left.left = TreeNode(4)\n    root.left.right = TreeNode(5)\n\n    traversal = TreeTraversal()\n    print(\"In-order (prints):\")\n    traversal.in_order_traversal(root)        # 4 2 5 1 3\n    print(\"Pre-order (prints):\")\n    traversal.pre_order_traversal(root)       # 1 2 4 5 3\n    print(\"Level-order:\", traversal.level_order_traversal(root))  # [1, 2, 3, 4, 5]"
         },
         {
           "lang": "python",
@@ -841,7 +883,8 @@ window.SITE_DATA = {
           null,
           6
         ]
-      }
+      },
+      "deepDive": "**The single mental model:** every DFS order runs the same three actions — *visit node*,\n*go left*, *go right* — and they differ **only in where \"visit node\" sits**:\n\n- **Pre-order** = visit, left, right → roots come out before their subtrees (great for copying\n  a tree or serializing it).\n- **In-order** = left, visit, right → on a **binary search tree** this prints values in\n  **sorted** order.\n- **Post-order** = left, right, visit → children finish before the parent (great for deleting a\n  tree, or any \"combine results from children\" computation like height or max-path-sum).\n\n**Worked example** on `1(2(4,5),3(_,6))` in-order: dive to `4`, visit `4`, back to `2`, visit\n`2`, visit `5`, back to `1`, visit `1`, into `3`, visit `3`, visit `6` → `4 2 5 1 3 6`.\n\n**Recursive vs. iterative:** recursion leans on the call stack to remember \"where to resume.\"\nThe iterative in-order version makes that stack explicit — push left children all the way down,\npop to visit, then turn right — which is what an interviewer wants when they say \"no recursion.\""
     },
     {
       "id": "level-order",
@@ -887,7 +930,8 @@ window.SITE_DATA = {
           15,
           7
         ]
-      }
+      },
+      "deepDive": "**Depth-first won't group nodes by level — breadth-first will.** Use a queue (FIFO) so nodes\ncome out in the order they were discovered, which is level by level.\n\n**The \"level size snapshot\" trick** is the key detail. At the top of each iteration, record\n`size = len(queue)` — that's exactly how many nodes are on the current level. Pop precisely\n`size` nodes, collect their values into one list, and enqueue their children (which become the\nnext level). Without that snapshot you'd get one flat list instead of a list-per-level.\n\n**Worked example** on `[3, 9, 20, null, null, 15, 7]`:\n\n- queue `[3]`, size 1 → level `[3]`, enqueue `9, 20`.\n- queue `[9, 20]`, size 2 → level `[9, 20]`, enqueue `15, 7`.\n- queue `[15, 7]`, size 2 → level `[15, 7]`, no children.\n\nResult `[[3], [9, 20], [15, 7]]`. The same BFS skeleton solves right-side-view, zigzag order,\nand \"max value per level.\" O(n) time, O(n) space for the queue."
     },
     {
       "id": "max-depth",
@@ -914,7 +958,21 @@ window.SITE_DATA = {
           "path": "python/trees/bt_max_depth.py",
           "code": "\"\"\"\nGiven the root of a binary tree, return its maximum depth.\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\nExample 1:\n\nInput: root = [3,9,20,null,null,15,7]\nOutput: 3\n\nExample 2:\n\nInput: root = [1,null,2]\nOutput: 2\n\"\"\"\n\nfrom tree import TreeNode\nfrom typing import Optional\n\n\nclass Solution:\n\n\tdef max_depth(self, root: Optional[TreeNode]) -> int:\n\t\tif not root:\n\t\t\treturn 0\n\n\t\tleft_depth = self.max_depth(root.left)\n\t\tright_depth = self.max_depth(root.right)\n\t\treturn 1 + max(left_depth, right_depth)\n\n\nif __name__ == '__main__':\n\troot = TreeNode(3)\n\troot.left = TreeNode(9)\n\troot.right = TreeNode(20)\n\troot.left.left = TreeNode(15)\n\troot.left.right = TreeNode(7)\n\tsolution = Solution()\n\tprint(solution.max_depth(root))\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "treeDFS",
+        "variant": "depth",
+        "tree": [
+          3,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      },
+      "deepDive": "**A textbook self-similar definition:** the depth of a tree is `1 + max(depth(left),\ndepth(right))`, and an empty subtree has depth `0`. The recursion is almost a transcription of\nthat sentence.\n\n**Worked example** on `[3, 9, 20, null, null, 15, 7]`: `9` is a leaf → depth 1. `15` and `7`\nare leaves → depth 1 each, so `20` → `1 + max(1,1) = 2`. Finally the root `3` →\n`1 + max(depth(9)=1, depth(20)=2) = 3`.\n\n**Why post-order (children before parent)?** A node can't know its own height until both\nchildren report theirs, so values bubble *up* from the leaves. The recursion visits each node\nonce → O(n) time; the call stack goes as deep as the tree → O(h) space (O(n) for a degenerate,\nlist-shaped tree). This same bottom-up shape underlies *balanced tree*, *diameter*, and\n*max path sum*."
     },
     {
       "id": "balanced-tree",
@@ -940,7 +998,23 @@ window.SITE_DATA = {
           "path": "python/trees/check_balanced_binary_tree.py",
           "code": "\"\"\"\nGiven a binary tree, determine if it is height-balanced.\n\nExample 1:\n\nInput: root = [3,9,20,null,null,15,7]\nOutput: true\n\nExample 2:\n\nInput: root = [1,2,2,3,3,null,null,4,4]\nOutput: false\n\"\"\"\n\nfrom typing import Optional\nfrom tree import TreeNode\n\n\nclass Solution:\n\n\tdef is_balanced_binary_tree(self, root: Optional[TreeNode]) -> bool:\n\n\t\tdef dfs(node: Optional[TreeNode]):\n\t\t\tif not node:\n\t\t\t\treturn 0\n\n\t\t\tleft_height = dfs(node.left)\n\t\t\tif left_height == -1: return -1\n\t\t\tright_height = dfs(node.right)\n\t\t\tif right_height == -1: return -1\n\n\t\t\tif abs(left_height - right_height) > 1:\n\t\t\t\treturn -1\n\n\t\t\treturn 1 + max(left_height, right_height)\n\t\treturn dfs(root) != -1\n\nif __name__ == '__main__':\n\troot = TreeNode(3)\n\troot.left = TreeNode(9)\n\troot.right = TreeNode(20)\n\troot.right.left = TreeNode(15)\n\troot.right.right = TreeNode(7)\n\tsolution = Solution()\n\tprint(solution.is_balanced_binary_tree(root))\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "treeDFS",
+        "variant": "balanced",
+        "tree": [
+          1,
+          2,
+          2,
+          3,
+          3,
+          null,
+          null,
+          4,
+          4
+        ]
+      },
+      "deepDive": "**The naive solution is accidentally O(n²).** \"For every node, compute the height of its left\nand right subtree and compare\" re-walks the same subtrees over and over.\n\n**The optimization: compute height and check balance in one pass, using `-1` as a failure\nsignal.** The recursion returns the subtree's height normally, but returns `-1` the moment it\ndiscovers *any* imbalance below it. As soon as a child returns `-1`, the parent immediately\nreturns `-1` too — short-circuiting the rest of the work.\n\n**Worked example** on `[1, 2, 2, 3, 3, null, null, 4, 4]`: the left spine `1→2→3→4` is much\ndeeper than the right side. When DFS unwinds, some node sees a left height that exceeds the\nright by more than 1, returns `-1`, and that `-1` propagates straight to the root → **not\nbalanced**.\n\nFolding the check into the height computation turns it into a single O(n) traversal. The\n\"return a sentinel to abort early\" pattern shows up constantly in tree problems."
     },
     {
       "id": "max-path-sum",
@@ -972,7 +1046,21 @@ window.SITE_DATA = {
           "path": "java/src/com/dsalgo/trees/MaxPathSum.java",
           "code": "package com.dsalgo.trees;\n\n\nclass MaxPathSum {\n\tprivate int maxSum = Integer.MIN_VALUE;\n\n\tpublic int maxPathSum(TreeNode root) {\n\t\tdfs(root);\n\t\treturn maxSum;\n\t}\n\n\tprivate int dfs(TreeNode root) {\n\t\tif (root == null) return 0;\n\n\t\t// discard negative values with `0`\n\t\tint leftGain = Math.max(0, dfs(root.left));\n\t\tint rightGain = Math.max(0, dfs(root.right));\n\n\t\tmaxSum = Math.max(maxSum, leftGain + rightGain + root.data);\n\t\treturn root.data + Math.max(leftGain, rightGain);\n\t}\n\n\n\tpublic static void main(String[] args) {\n\t\tTreeNode root = TreeNode.getBinarytree();\n\t\tMaxPathSum maxPathSum = new MaxPathSum();\n\t\tSystem.out.println(maxPathSum.maxPathSum(root));\n\t}\n}"
         }
-      ]
+      ],
+      "viz": {
+        "type": "treeDFS",
+        "variant": "maxpath",
+        "tree": [
+          -10,
+          9,
+          20,
+          null,
+          null,
+          15,
+          7
+        ]
+      },
+      "deepDive": "**The defining subtlety:** a node participates in the answer in two *different* ways, and\nconflating them is the classic bug.\n\n1. A path can **bend** at a node, using *both* children: `node.val + leftGain + rightGain`.\n   This is a candidate for the global maximum — but it can't be extended further upward (a\n   parent can't pass through a \"V\").\n2. A path can **continue up** through a node to its parent, using only *one* child:\n   `node.val + max(leftGain, rightGain)`. This is what we *return* to the caller.\n\n**Clamp negative gains to 0** — `max(gain(child), 0)` — because a branch with a negative total\nis better left out entirely.\n\n**Worked example** on `[-10, 9, 20, null, null, 15, 7]`: at `20`, left/right gains are 15 and 7,\nso the bend `15 + 20 + 7 = 42` updates the global best, and `20` returns `20 + max(15,7) = 27`\nupward. At the root `-10`, using its branch would only shrink the sum, so the best path never\npasses through it. Answer: **42**.\n\nKeep \"answer recorded at this node\" (the global max) strictly separate from \"value returned to\nthe parent.\" O(n) time, O(h) space."
     },
     {
       "id": "lowest-common-ancestor",
@@ -999,7 +1087,27 @@ window.SITE_DATA = {
           "path": "python/trees/lowest_common_ancestor.py",
           "code": "\"\"\"\nGiven a binary tree, find the lowest common ancestor (LCA) of two given\nnodes in the tree.\n<link>https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/</link>\n\nThe lowest common ancestor is defined between two nodes p and q as the\nlowest node in T that has both p and q as descendants (where we allow a\nnode to be a descendant of itself).\n\nExample 1:\n\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1\nOutput: 3\nExplanation: The LCA of nodes 5 and 1 is 3.\n\nExample 2:\n\nInput: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4\nOutput: 5\nExplanation: The LCA of nodes 5 and 4 is 5, since a node can be a\ndescendant of itself.\n\"\"\"\n\nfrom typing import Optional\nfrom tree import TreeNode\n\n\nclass Solution:\n    \"\"\"\n    Single post-order DFS.\n\n    Why post-order (children before parent)?  A node can only be the LCA once\n    we know what each of its subtrees contains. We recurse down, and let each\n    call report back whether it found p or q. The first node that sees one\n    target on its left and the other on its right (or is itself a target with\n    the other below it) is the lowest common ancestor.\n\n    Time complexity:  O(n) -- every node is visited once.\n    Space complexity: O(h) -- recursion stack, h = height of the tree.\n    \"\"\"\n\n    def lowestCommonAncestor(self, root: Optional[TreeNode],\n                             p: TreeNode, q: TreeNode) -> Optional[TreeNode]:\n        if root is None or root is p or root is q:\n            return root\n\n        left = self.lowestCommonAncestor(root.left, p, q)\n        right = self.lowestCommonAncestor(root.right, p, q)\n\n        # p and q were found in different subtrees -> this node is the LCA.\n        if left and right:\n            return root\n\n        # Otherwise bubble up whichever side actually found something.\n        return left if left else right\n\n\nif __name__ == '__main__':\n    #        3\n    #      /   \\\n    #     5     1\n    #    / \\   / \\\n    #   6   2 0   8\n    #      / \\\n    #     7   4\n    root = TreeNode(3)\n    root.left = TreeNode(5)\n    root.right = TreeNode(1)\n    root.left.left = TreeNode(6)\n    root.left.right = TreeNode(2)\n    root.right.left = TreeNode(0)\n    root.right.right = TreeNode(8)\n    root.left.right.left = TreeNode(7)\n    root.left.right.right = TreeNode(4)\n\n    solution = Solution()\n    p, q = root.left, root.right          # nodes 5 and 1\n    print(solution.lowestCommonAncestor(root, p, q).val)  # 3\n    p, q = root.left, root.left.right.right  # nodes 5 and 4\n    print(solution.lowestCommonAncestor(root, p, q).val)  # 5\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "treeDFS",
+        "variant": "lca",
+        "tree": [
+          3,
+          5,
+          1,
+          6,
+          2,
+          0,
+          8,
+          null,
+          null,
+          7,
+          4
+        ],
+        "p": 5,
+        "q": 1
+      },
+      "deepDive": "**Why post-order is mandatory:** you can't decide whether a node is the common ancestor until\nyou know what each of its subtrees contains. So process children first, and let every call\nreport back a simple fact: \"did I find `p` or `q` somewhere below me?\"\n\n**The three cases at each node:**\n\n- The node *is* `p` or `q` → return it (a node can be its own ancestor).\n- Both the left and right recursion return non-null → `p` and `q` were found on *different\n  sides*, so **this node is the LCA**.\n- Only one side returns non-null → bubble that result upward unchanged.\n\n**Worked example** on the tree with `p = 5`, `q = 1`: searching from the root `3`, the left\nrecursion finds `5` and the right recursion finds `1`. Root `3` sees a hit on both sides →\nit's the LCA. If instead `p = 5`, `q = 4` (where `4` lives under `5`), the call at `5` returns\nitself before recursing deeper, so `5` is the answer.\n\nOne clean O(n) traversal, O(h) stack. The \"let recursion return a found-flag\" trick generalizes\nto many tree-search problems."
     },
     {
       "id": "search-bst",
@@ -1134,7 +1242,8 @@ window.SITE_DATA = {
           ]
         },
         "start": "A"
-      }
+      },
+      "deepDive": "**Walk through BFS on this graph** (`A–B`, `A–C`, `B–D`, `B–E`, `C–F`, `E–F`), starting at `A`:\n\n- Mark `A` visited, queue = `[A]`.\n- Pop `A`, record it, enqueue its unvisited neighbours `B, C` → queue `[B, C]`.\n- Pop `B`, enqueue `D, E` → queue `[C, D, E]`.\n- Pop `C`, enqueue `F` → queue `[D, E, F]`.\n- Pop `D, E, F` (their neighbours are all visited) → done.\n\nVisit order `A, B, C, D, E, F` — nodes come out in **non-decreasing distance** from the source,\nwhich is exactly why BFS finds shortest paths in unweighted graphs.\n\n**Swap the queue for a stack** and you get DFS: after popping `A` you'd push `B, C`, then\nimmediately dive from `C` (LIFO) before finishing `B`'s side. Same code, different container,\ncompletely different traversal shape.\n\n**Two pitfalls to remember:** (1) mark a node visited *when you enqueue/push it*, not when you\npop it — otherwise it can be added twice; (2) graphs have cycles, so the visited set is not\noptional like it is for trees."
     },
     {
       "id": "number-of-islands",
@@ -1195,7 +1304,8 @@ window.SITE_DATA = {
             "1"
           ]
         ]
-      }
+      },
+      "deepDive": "**Why this is secretly a graph problem.** Treat every cell as a node connected to its 4\northogonal neighbours. An \"island\" is then just a **connected component** of land cells.\n\n**The flood-fill trick.** Scan row by row. The first `'1'` you touch belongs to a brand-new\nisland, so increment the counter and then *sink the entire landmass* with DFS/BFS: starting\nfrom that cell, keep visiting neighbouring `'1'`s and flipping them to `'0'`. After the fill,\nthat whole island is gone, so it can never be counted again.\n\n**Worked example** on the 4×4 grid in the visualization: the top-left 2×2 block of land is\ndiscovered first → island #1, sunk entirely. Scanning continues, finds the lone `1` in the\nmiddle → island #2. Then the bottom-right pair → island #3. Answer: **3**.\n\n**Why overwrite the grid instead of a visited set?** Flipping `'1'→'0'` *is* the visited\nmarker — it costs zero extra memory. If you're not allowed to mutate the input, use a separate\n`visited` matrix; the logic is identical.\n\nComplexity is O(rows·cols): every cell is visited a constant number of times."
     },
     {
       "id": "number-of-provinces",
@@ -1223,7 +1333,28 @@ window.SITE_DATA = {
           "path": "python/graphs/number_of_provinces.py",
           "code": "\"\"\"\nThere are n cities. Some of them are connected, while some are not. \nIf city a is connected directly with city b, and city b is connected directly with city c, then city a is connected indirectly with city c.\nA province is a group of directly or indirectly connected cities and no other cities outside of the group.\nYou are given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and the jth city are directly connected, and isConnected[i][j] = 0 otherwise.\nReturn the total number of provinces.\n\nExample 1:\n\nInput: isConnected = [[1,1,0],[1,1,0],[0,0,1]]\nOutput: 2\n\nExample 2:\n\nInput: isConnected = [[1,0,0],[0,1,0],[0,0,1]]\nOutput: 3\n\"\"\"\nfrom typing import List\n\n\nclass Solution:\n\n\tdef dfs(self, city: int, size: int, isConnected: List[List[int]], visited_city: List[bool]):\n\t\tvisited_city[city] = True\n\t\tstack: List[int] = [city]\n\t\twhile stack:\n\t\t\tcurrent_city = stack.pop()\n\t\t\tfor neighbour in range(size):\n\t\t\t\tif not visited_city[neighbour] and isConnected[current_city][neighbour] == 1:\n\t\t\t\t\tvisited_city[neighbour] = True\n\t\t\t\t\tstack.append(neighbour)\n\t\n\tdef findCircleNum(self, isConnected: List[List[int]]) -> int:\n\t\tif not isConnected or not isConnected[0]:\n\t\t\treturn 0\n\t\tsize: int = len(isConnected)\n\t\tvisited_city: List[bool] = [False] * size\n\t\tprovinces: int = 0\n\t\t\n\t\tfor city in range(size):\n\t\t\tif not visited_city[city]:\n\t\t\t\t# dfs\n\t\t\t\tself.dfs(city, size, isConnected, visited_city)\n\t\t\t\tprovinces += 1\n\t\treturn provinces\n\n\nif __name__ == '__main__':\n\tis_connected = [[1, 1, 0], [1, 1, 0], [0, 0, 1]]\n\tsolution = Solution()\n\tprint(solution.findCircleNum(isConnected=is_connected))\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "matrixComponents",
+        "matrix": [
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "deepDive": "**Same idea as Number of Islands, different input shape.** Here the graph is given as an\n`n × n` adjacency *matrix* (`isConnected[i][j] == 1` means cities `i` and `j` are directly\nlinked). A \"province\" is a connected component of cities.\n\n**The counting insight:** loop over all cities; whenever you find one that hasn't been\nvisited, that city must belong to a province you haven't seen yet — so increment the counter\nand DFS to mark every city reachable from it. **The number of times you *launch* a DFS equals\nthe number of provinces.**\n\n**Worked example** `[[1,1,0],[1,1,0],[0,0,1]]`: start at city 0 (unvisited) → province #1; DFS\nmarks 0 and 1 (they're connected). City 1 is now visited, skip. City 2 is unvisited →\nprovince #2; DFS marks just 2. Answer: **2**.\n\nBecause we may scan the whole matrix row for each city, the cost is O(n²) — unavoidable when\nthe graph is stored as a dense matrix."
     },
     {
       "id": "clone-graph",
@@ -1248,9 +1379,32 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — BFS + clone map",
           "path": "python/graphs/clone_graph.py",
-          "code": "\"\"\"\n# Definition for a Node.\nclass Node:\n    def __init__(self, val = 0, neighbors = None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\"\"\"\n\nfrom typing import Optional\nfrom collections import deque\n\nclass Solution:\n    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:\n\n        if not node:\n            return None\n        \n        queue, clones = deque([node]), {node.val: Node(node.val)}\n        while queue:\n            current_node = queue.popleft()\n            curr_clone = clones[current_node.val]\n\n            for neighbor in current_node.neighbors:\n                if neighbor.val not in clones:\n                    clones[neighbor.val] = Node(neighbor.val)\n                    queue.append(neighbor)\n                curr_clone.neighbors.append(clones[neighbor.val])\n        return clones[node.val]\n        "
+          "code": "\"\"\"\n# Definition for a Node.\nclass Node:\n    def __init__(self, val = 0, neighbors = None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\"\"\"\n\nfrom typing import Optional\nfrom collections import deque\n\n\nclass Node:\n    def __init__(self, val=0, neighbors=None):\n        self.val = val\n        self.neighbors = neighbors if neighbors is not None else []\n\n\nclass Solution:\n    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:\n\n        if not node:\n            return None\n        \n        queue, clones = deque([node]), {node.val: Node(node.val)}\n        while queue:\n            current_node = queue.popleft()\n            curr_clone = clones[current_node.val]\n\n            for neighbor in current_node.neighbors:\n                if neighbor.val not in clones:\n                    clones[neighbor.val] = Node(neighbor.val)\n                    queue.append(neighbor)\n                curr_clone.neighbors.append(clones[neighbor.val])\n        return clones[node.val]\n\n\nif __name__ == '__main__':\n    # Build an undirected graph: 1-2, 1-4, 2-3, 3-4 (a 4-cycle)\n    n1, n2, n3, n4 = Node(1), Node(2), Node(3), Node(4)\n    n1.neighbors = [n2, n4]\n    n2.neighbors = [n1, n3]\n    n3.neighbors = [n2, n4]\n    n4.neighbors = [n1, n3]\n\n    clone = Solution().cloneGraph(n1)\n    print(clone.val, [nb.val for nb in clone.neighbors])  # 1 [2, 4]\n    print(\"deep copy?\", clone is not n1)                  # True\n        "
         }
-      ]
+      ],
+      "viz": {
+        "type": "cloneBFS",
+        "graph": {
+          "1": [
+            2,
+            4
+          ],
+          "2": [
+            1,
+            3
+          ],
+          "3": [
+            2,
+            4
+          ],
+          "4": [
+            1,
+            3
+          ]
+        },
+        "start": 1
+      },
+      "deepDive": "**The core challenge isn't copying values — it's copying *structure* without looping forever.**\nThe graph has cycles, so a naive recursive copy would revisit nodes endlessly and create\nduplicate clones.\n\n**The fix: a `value → clone` hash map** that doubles as the visited set. BFS the original:\n\n- Create `clone(start)` up front and put it in the map.\n- Pop a node, look up its clone, then for each neighbour: if it isn't in the map yet, create\n  its clone and enqueue the *original*; either way, append the neighbour's clone to the current\n  clone's neighbour list.\n\n**Worked example** on the 4-cycle `1–2–3–4–1`: visiting `1` creates clones of `2` and `4` and\nlinks `clone(1)→[clone(2), clone(4)]`. Later, when we process `2`, its neighbour `1` is already\nin the map, so we reuse `clone(1)` instead of making a second copy — that reuse is what keeps\nthe cycle intact and the algorithm terminating.\n\nThe map is the whole trick: it's simultaneously \"have I cloned this?\" and \"where is the clone?\"\n— the universal pattern for copying or memoizing over cyclic structures. O(V+E) time, O(V) space."
     },
     {
       "id": "cycle-detect-directed",
@@ -1275,9 +1429,32 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — Kahn's algorithm",
           "path": "python/graphs/cycle_detect_directed_graph.py",
-          "code": "\nfrom typing import List\nfrom collections import defaultdict, deque\n\nclass Solution:\n\n\tdef detect_cycle_directed_graph(self, vertices: int, adj: List[List[int]]):\n\t\tindegree = [0] * vertices\n\t\tgraph = defaultdict(list)\n\n\t\tfor u in range(vertices):\n\t\t\tfor v in adj[u]:\n\t\t\t\tgraph[u].append(v)\n\t\t\t\tindegree[v] += 1\n\n\t\t# queue for maintaining vertices which doesn't have dependencies and can be processed early\n\t\tqueue: deque = deque(i for i in range(vertices) if indegree[i] == 0)\n\t\tprocessed: int = 0\n\n\t\twhile queue:\n\t\t\tnode = queue.popleft()\n\t\t\tprocessed += 1\n\n\t\t\tfor neighbour in graph[node]:\n\t\t\t\tindegree[neighbour] -= 1\n\t\t\t\tif indegree[neighbour] == 0:\n\t\t\t\t\tqueue.append(neighbour)\n\n\t\treturn processed != vertices\n\n\n\n"
+          "code": "\nfrom typing import List\nfrom collections import defaultdict, deque\n\nclass Solution:\n\n\tdef detect_cycle_directed_graph(self, vertices: int, adj: List[List[int]]):\n\t\tindegree = [0] * vertices\n\t\tgraph = defaultdict(list)\n\n\t\tfor u in range(vertices):\n\t\t\tfor v in adj[u]:\n\t\t\t\tgraph[u].append(v)\n\t\t\t\tindegree[v] += 1\n\n\t\t# queue for maintaining vertices which doesn't have dependencies and can be processed early\n\t\tqueue: deque = deque(i for i in range(vertices) if indegree[i] == 0)\n\t\tprocessed: int = 0\n\n\t\twhile queue:\n\t\t\tnode = queue.popleft()\n\t\t\tprocessed += 1\n\n\t\t\tfor neighbour in graph[node]:\n\t\t\t\tindegree[neighbour] -= 1\n\t\t\t\tif indegree[neighbour] == 0:\n\t\t\t\t\tqueue.append(neighbour)\n\n\t\treturn processed != vertices\n\n\nif __name__ == '__main__':\n\tsolution = Solution()\n\t# 0 -> 1 -> 2 -> 0  (cycle)\n\tprint(solution.detect_cycle_directed_graph(3, [[1], [2], [0]]))   # True\n\t# 0 -> 1 -> 2  (DAG, no cycle)\n\tprint(solution.detect_cycle_directed_graph(3, [[1, 2], [2], []]))  # False\n\n\n\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "kahn",
+        "vertices": 6,
+        "adj": [
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ],
+          [
+            3
+          ],
+          [
+            4,
+            5
+          ],
+          [],
+          []
+        ]
+      },
+      "deepDive": "**Reframe \"is there a cycle?\" as \"can I schedule all the tasks?\"** (this is literally Course\nSchedule). Kahn's algorithm builds a topological order, and a directed graph has a valid\ntopological order **iff** it has no cycle.\n\n**How it runs:**\n\n1. Compute every node's *in-degree* (number of prerequisites).\n2. Put all in-degree-0 nodes (no prerequisites) in a queue.\n3. Repeatedly pop a node, \"complete\" it, and decrement each neighbour's in-degree; when a\n   neighbour hits 0, enqueue it.\n4. Count how many nodes you processed.\n\n**The verdict:** if you processed *every* node, you found a full ordering → **no cycle**. If\nsome nodes were never reachable with in-degree 0, they're mutually waiting on each other →\n**cycle**.\n\n**Why it works:** a DAG always has at least one source (in-degree 0) to start from, and removing\nit keeps the rest a DAG. A cycle has no such entry point, so the process stalls with nodes left\nover. Bonus: the order you pop nodes in *is* a valid topological sort. O(V+E)."
     },
     {
       "id": "cycle-detect-undirected",
@@ -1301,9 +1478,28 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — parent-aware DFS",
           "path": "python/graphs/cycle_detect_undirected_graph.py",
-          "code": "\n\"\"\"\nGiven an undirected graph with V vertices and an adjacency list adj, determine whether the graph contains a cycle.\n\nA cycle exists if there is a path that starts and ends at the same vertex, visiting at least one other vertex.\nIn undirected graphs, we must be careful not to consider the edge back to the parent as a cycle.\n\nCycle exists:Pythonadj = [[1,2], [0,2], [0,1]]   # Triangle: 0-1-2-0\nOutput: True\nNo cycle (Tree):Pythonadj = [[1], [0,2], [1]]        # 0-1-2\nOutput: False\n\"\"\"\n\nfrom typing import List\n\nclass Solution:\n\n\tdef detect_cycle(self, num_nodes: int, graph: List[List[int]]):\n\t\t\"\"\"\n\t\tDetect a cycle in undirected graph using iterative DFS\n\n\t\tnum_nodes: number of nodes\n\t\tgraph: Adjacency list graph representation\n\t\t\"\"\"\n\t\tvisited: List[bool] = [False] * num_nodes\n\n\t\tdef dfs_iterative(start: int):\n\t\t\tstack = [(start, -1)]\n\t\t\tvisited[start] = True\n\n\t\t\twhile stack:\n\t\t\t\tcurrent_node, parent = stack.pop()\n\n\t\t\t\tfor neighbour in graph[current_node]:\n\t\t\t\t\tif not visited[neighbour]:\n\t\t\t\t\t\tvisited[neighbour] = True\n\t\t\t\t\t\tstack.append((neighbour, current_node))\n\t\t\t\t\telif parent != neighbour:\n\t\t\t\t\t\treturn True\n\t\t\treturn False\n\n\t\tfor i in range(num_nodes):\n\t\t\tif not visited[i]:\n\t\t\t\tif dfs_iterative(i):\n\t\t\t\t\treturn True\n\t\treturn False\n\n# Test the function\ndef test_cycle_detection():\n\tsol = Solution()\n\t# Example 1 - Has Cycle\n\tadj1 = [[1,2],[0,2],[0,1,3],[2,4],[3]]\n\tprint(\"Example 1 (Has Cycle):\", sol.detect_cycle(5, adj1))   # True\n\t# Example 2 - No Cycle\n\tadj2 = [[1],[0,2],[1,3],[2]]\n\tprint(\"Example 2 (No Cycle):\", sol.detect_cycle(4, adj2))    # False\n\ntest_cycle_detection()\n"
+          "code": "\n\"\"\"\nGiven an undirected graph with V vertices and an adjacency list adj, determine whether the graph contains a cycle.\n\nA cycle exists if there is a path that starts and ends at the same vertex, visiting at least one other vertex.\nIn undirected graphs, we must be careful not to consider the edge back to the parent as a cycle.\n\nCycle exists:Pythonadj = [[1,2], [0,2], [0,1]]   # Triangle: 0-1-2-0\nOutput: True\nNo cycle (Tree):Pythonadj = [[1], [0,2], [1]]        # 0-1-2\nOutput: False\n\"\"\"\n\nfrom typing import List\n\nclass Solution:\n\n\tdef detect_cycle(self, num_nodes: int, graph: List[List[int]]):\n\t\t\"\"\"\n\t\tDetect a cycle in undirected graph using iterative DFS\n\n\t\tnum_nodes: number of nodes\n\t\tgraph: Adjacency list graph representation\n\t\t\"\"\"\n\t\tvisited: List[bool] = [False] * num_nodes\n\n\t\tdef dfs_iterative(start: int):\n\t\t\tstack = [(start, -1)]\n\t\t\tvisited[start] = True\n\n\t\t\twhile stack:\n\t\t\t\tcurrent_node, parent = stack.pop()\n\n\t\t\t\tfor neighbour in graph[current_node]:\n\t\t\t\t\tif not visited[neighbour]:\n\t\t\t\t\t\tvisited[neighbour] = True\n\t\t\t\t\t\tstack.append((neighbour, current_node))\n\t\t\t\t\telif parent != neighbour:\n\t\t\t\t\t\treturn True\n\t\t\treturn False\n\n\t\tfor i in range(num_nodes):\n\t\t\tif not visited[i]:\n\t\t\t\tif dfs_iterative(i):\n\t\t\t\t\treturn True\n\t\treturn False\n\n# Test the function\ndef test_cycle_detection():\n\tsol = Solution()\n\t# Example 1 - Has Cycle\n\tadj1 = [[1,2],[0,2],[0,1,3],[2,4],[3]]\n\tprint(\"Example 1 (Has Cycle):\", sol.detect_cycle(5, adj1))   # True\n\t# Example 2 - No Cycle\n\tadj2 = [[1],[0,2],[1,3],[2]]\n\tprint(\"Example 2 (No Cycle):\", sol.detect_cycle(4, adj2))    # False\n\n\nif __name__ == '__main__':\n\ttest_cycle_detection()\n"
         }
-      ]
+      ],
+      "viz": {
+        "type": "undirectedCycle",
+        "graph": {
+          "0": [
+            1,
+            2
+          ],
+          "1": [
+            0,
+            2
+          ],
+          "2": [
+            0,
+            1
+          ]
+        },
+        "start": 0
+      },
+      "deepDive": "**The twist that trips people up:** in an undirected graph, every single edge `u–v` looks like\na tiny cycle, because from `v` you can immediately walk back to `u`. If you naively flag \"I\nreached an already-visited node,\" you'll report a cycle on a plain tree.\n\n**The fix: track where you came from (the parent).** During DFS, when you look at a neighbour:\n\n- If it's unvisited → visit it, recording the current node as its parent.\n- If it's visited **and it's not your parent** → you've found a genuine *second* way to reach\n  it → a real cycle.\n\n**Worked example:** on the triangle `0–1–2–0`, DFS goes `0 → 1 → 2`. From `2`, neighbour `0` is\nalready visited and `0` is *not* `2`'s parent (that's `1`) → cycle. On the path `0–1–2`, every\nalready-visited neighbour you meet *is* your parent, so no false alarm.\n\nThis parent-aware DFS is also the backbone of finding bridges and articulation points. O(V+E)."
     },
     {
       "id": "max-balloons",
@@ -1327,7 +1523,7 @@ window.SITE_DATA = {
           "lang": "python",
           "label": "Python — counter + min",
           "path": "python/maps/max_num_balloons.py",
-          "code": "\"\"\"\nGiven a string text, you want to use the characters of text to form as many instances of the word \"balloon\" as possible.\nYou can use each character in text at most once. Return the maximum number of instances that can be formed.\n\nExample 1:\n\nInput: text = \"nlaebolko\"\nOutput: 1\nExample 2:\n\nInput: text = \"loonbalxballpoon\"\nOutput: 2\nExample 3:\n\nInput: text = \"leetcode\"\nOutput: 0\n\"\"\"\n\nfrom collections import defaultdict\n\nclass Solution:\n\n\n\tdef maxNumberOfBalloons(self, text: str) -> int:\n\n\t\tcounter = defaultdict(int)\n\t\ttarget = 'balloon'\n\n\t\tfor c in text:\n\t\t\tif c in target:\n\t\t\t\tcounter[c] += 1\n\n\t\tif any(c not in counter for c in target):\n\t\t\treturn 0\n\n\t\treturn min(counter['b'],counter['a'], counter['l']//2, counter['o']//2, counter['n'])"
+          "code": "\"\"\"\nGiven a string text, you want to use the characters of text to form as many instances of the word \"balloon\" as possible.\nYou can use each character in text at most once. Return the maximum number of instances that can be formed.\n\nExample 1:\n\nInput: text = \"nlaebolko\"\nOutput: 1\nExample 2:\n\nInput: text = \"loonbalxballpoon\"\nOutput: 2\nExample 3:\n\nInput: text = \"leetcode\"\nOutput: 0\n\"\"\"\n\nfrom collections import defaultdict\n\nclass Solution:\n\n\n\tdef maxNumberOfBalloons(self, text: str) -> int:\n\n\t\tcounter = defaultdict(int)\n\t\ttarget = 'balloon'\n\n\t\tfor c in text:\n\t\t\tif c in target:\n\t\t\t\tcounter[c] += 1\n\n\t\tif any(c not in counter for c in target):\n\t\t\treturn 0\n\n\t\treturn min(counter['b'],counter['a'], counter['l']//2, counter['o']//2, counter['n'])\n\n\nif __name__ == '__main__':\n\tsolution = Solution()\n\tprint(solution.maxNumberOfBalloons(\"nlaebolko\"))         # 1\n\tprint(solution.maxNumberOfBalloons(\"loonbalxballpoon\"))  # 2\n\tprint(solution.maxNumberOfBalloons(\"leetcode\"))          # 0"
         }
       ]
     },

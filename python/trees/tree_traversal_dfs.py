@@ -50,3 +50,23 @@ class TreeTraversal:
                 queue.append(current_node.right)
 
         return traversal
+
+
+if __name__ == '__main__':
+    #        1
+    #       / \
+    #      2   3
+    #     / \
+    #    4   5
+    root = TreeNode(1)
+    root.left = TreeNode(2)
+    root.right = TreeNode(3)
+    root.left.left = TreeNode(4)
+    root.left.right = TreeNode(5)
+
+    traversal = TreeTraversal()
+    print("In-order (prints):")
+    traversal.in_order_traversal(root)        # 4 2 5 1 3
+    print("Pre-order (prints):")
+    traversal.pre_order_traversal(root)       # 1 2 4 5 3
+    print("Level-order:", traversal.level_order_traversal(root))  # [1, 2, 3, 4, 5]

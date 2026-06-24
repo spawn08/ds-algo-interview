@@ -21,3 +21,10 @@ class LCSWithOutRepeatingChar:
             max_length = max(max_length, right - left + 1)
 
         return max_length
+
+
+if __name__ == '__main__':
+    solver = LCSWithOutRepeatingChar()
+    print(solver.lcs("abcabcbb"))  # 3  -> "abc"
+    print(solver.lcs("bbbbb"))     # 1  -> "b"
+    print(solver.lcs("pwwkew"))    # 3  -> "wke"

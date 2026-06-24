@@ -34,3 +34,10 @@ class Solution:
 			return 0
 
 		return min(counter['b'],counter['a'], counter['l']//2, counter['o']//2, counter['n'])
+
+
+if __name__ == '__main__':
+	solution = Solution()
+	print(solution.maxNumberOfBalloons("nlaebolko"))         # 1
+	print(solution.maxNumberOfBalloons("loonbalxballpoon"))  # 2
+	print(solution.maxNumberOfBalloons("leetcode"))          # 0

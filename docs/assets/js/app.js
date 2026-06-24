@@ -140,6 +140,12 @@
         <div class="panel-body prose">${window.mdToHtml(p.why)}</div>
       </div>
 
+      ${p.deepDive ? `
+      <div class="panel">
+        <div class="panel-head"><span class="ico">🔬</span>Deep dive &amp; worked example</div>
+        <div class="panel-body prose">${window.mdToHtml(p.deepDive)}</div>
+      </div>` : ""}
+
       <div class="panel">
         <div class="panel-head"><span class="ico">⏱️</span>Complexity</div>
         <div class="panel-body">

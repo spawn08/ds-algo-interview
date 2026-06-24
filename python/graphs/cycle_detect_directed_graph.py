@@ -29,4 +29,12 @@ class Solution:
 		return processed != vertices
 
 
+if __name__ == '__main__':
+	solution = Solution()
+	# 0 -> 1 -> 2 -> 0  (cycle)
+	print(solution.detect_cycle_directed_graph(3, [[1], [2], [0]]))   # True
+	# 0 -> 1 -> 2  (DAG, no cycle)
+	print(solution.detect_cycle_directed_graph(3, [[1, 2], [2], []]))  # False
+
+
 

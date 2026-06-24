@@ -55,4 +55,6 @@ def test_cycle_detection():
 	adj2 = [[1],[0,2],[1,3],[2]]
 	print("Example 2 (No Cycle):", sol.detect_cycle(4, adj2))    # False
 
-test_cycle_detection()
+
+if __name__ == '__main__':
+	test_cycle_detection()

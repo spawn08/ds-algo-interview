@@ -1086,6 +1086,353 @@ PROBLEMS = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Extra visualization bindings for complex problems (merged in build()).
+# ---------------------------------------------------------------------------
+EXTRA_VIZ = {
+    "house-robber": {"type": "dpRolling", "nums": [2, 7, 9, 3, 1]},
+    "max-depth": {"type": "treeDFS", "variant": "depth", "tree": [3, 9, 20, None, None, 15, 7]},
+    "balanced-tree": {"type": "treeDFS", "variant": "balanced", "tree": [1, 2, 2, 3, 3, None, None, 4, 4]},
+    "max-path-sum": {"type": "treeDFS", "variant": "maxpath", "tree": [-10, 9, 20, None, None, 15, 7]},
+    "lowest-common-ancestor": {"type": "treeDFS", "variant": "lca",
+                               "tree": [3, 5, 1, 6, 2, 0, 8, None, None, 7, 4], "p": 5, "q": 1},
+    "cycle-detect-directed": {"type": "kahn", "vertices": 6, "adj": [[1, 2], [3], [3], [4, 5], [], []]},
+    "number-of-provinces": {"type": "matrixComponents", "matrix": [[1, 1, 0], [1, 1, 0], [0, 0, 1]]},
+    "clone-graph": {"type": "cloneBFS", "graph": {"1": [2, 4], "2": [1, 3], "3": [2, 4], "4": [1, 3]}, "start": 1},
+    "cycle-detect-undirected": {"type": "undirectedCycle", "graph": {"0": [1, 2], "1": [0, 2], "2": [0, 1]}, "start": 0},
+    "search-rotated-array": {"type": "rotatedSearch", "nums": [4, 5, 6, 7, 0, 1, 2], "target": 0},
+    "search-rotated-array-ii": {"type": "rotatedSearch", "nums": [1, 3, 5, 7, 8, 0, 1, 1], "target": 8},
+}
+
+# ---------------------------------------------------------------------------
+# "Deep dive" walkthroughs — detailed, worked-example explanations for the
+# harder problems (rendered as an extra panel on the site).
+# ---------------------------------------------------------------------------
+DEEP_DIVES = {
+    "graph-traversal": D("""
+        **Walk through BFS on this graph** (`A–B`, `A–C`, `B–D`, `B–E`, `C–F`, `E–F`), starting at `A`:
+
+        - Mark `A` visited, queue = `[A]`.
+        - Pop `A`, record it, enqueue its unvisited neighbours `B, C` → queue `[B, C]`.
+        - Pop `B`, enqueue `D, E` → queue `[C, D, E]`.
+        - Pop `C`, enqueue `F` → queue `[D, E, F]`.
+        - Pop `D, E, F` (their neighbours are all visited) → done.
+
+        Visit order `A, B, C, D, E, F` — nodes come out in **non-decreasing distance** from the source,
+        which is exactly why BFS finds shortest paths in unweighted graphs.
+
+        **Swap the queue for a stack** and you get DFS: after popping `A` you'd push `B, C`, then
+        immediately dive from `C` (LIFO) before finishing `B`'s side. Same code, different container,
+        completely different traversal shape.
+
+        **Two pitfalls to remember:** (1) mark a node visited *when you enqueue/push it*, not when you
+        pop it — otherwise it can be added twice; (2) graphs have cycles, so the visited set is not
+        optional like it is for trees.
+    """),
+    "number-of-islands": D("""
+        **Why this is secretly a graph problem.** Treat every cell as a node connected to its 4
+        orthogonal neighbours. An "island" is then just a **connected component** of land cells.
+
+        **The flood-fill trick.** Scan row by row. The first `'1'` you touch belongs to a brand-new
+        island, so increment the counter and then *sink the entire landmass* with DFS/BFS: starting
+        from that cell, keep visiting neighbouring `'1'`s and flipping them to `'0'`. After the fill,
+        that whole island is gone, so it can never be counted again.
+
+        **Worked example** on the 4×4 grid in the visualization: the top-left 2×2 block of land is
+        discovered first → island #1, sunk entirely. Scanning continues, finds the lone `1` in the
+        middle → island #2. Then the bottom-right pair → island #3. Answer: **3**.
+
+        **Why overwrite the grid instead of a visited set?** Flipping `'1'→'0'` *is* the visited
+        marker — it costs zero extra memory. If you're not allowed to mutate the input, use a separate
+        `visited` matrix; the logic is identical.
+
+        Complexity is O(rows·cols): every cell is visited a constant number of times.
+    """),
+    "number-of-provinces": D("""
+        **Same idea as Number of Islands, different input shape.** Here the graph is given as an
+        `n × n` adjacency *matrix* (`isConnected[i][j] == 1` means cities `i` and `j` are directly
+        linked). A "province" is a connected component of cities.
+
+        **The counting insight:** loop over all cities; whenever you find one that hasn't been
+        visited, that city must belong to a province you haven't seen yet — so increment the counter
+        and DFS to mark every city reachable from it. **The number of times you *launch* a DFS equals
+        the number of provinces.**
+
+        **Worked example** `[[1,1,0],[1,1,0],[0,0,1]]`: start at city 0 (unvisited) → province #1; DFS
+        marks 0 and 1 (they're connected). City 1 is now visited, skip. City 2 is unvisited →
+        province #2; DFS marks just 2. Answer: **2**.
+
+        Because we may scan the whole matrix row for each city, the cost is O(n²) — unavoidable when
+        the graph is stored as a dense matrix.
+    """),
+    "clone-graph": D("""
+        **The core challenge isn't copying values — it's copying *structure* without looping forever.**
+        The graph has cycles, so a naive recursive copy would revisit nodes endlessly and create
+        duplicate clones.
+
+        **The fix: a `value → clone` hash map** that doubles as the visited set. BFS the original:
+
+        - Create `clone(start)` up front and put it in the map.
+        - Pop a node, look up its clone, then for each neighbour: if it isn't in the map yet, create
+          its clone and enqueue the *original*; either way, append the neighbour's clone to the current
+          clone's neighbour list.
+
+        **Worked example** on the 4-cycle `1–2–3–4–1`: visiting `1` creates clones of `2` and `4` and
+        links `clone(1)→[clone(2), clone(4)]`. Later, when we process `2`, its neighbour `1` is already
+        in the map, so we reuse `clone(1)` instead of making a second copy — that reuse is what keeps
+        the cycle intact and the algorithm terminating.
+
+        The map is the whole trick: it's simultaneously "have I cloned this?" and "where is the clone?"
+        — the universal pattern for copying or memoizing over cyclic structures. O(V+E) time, O(V) space.
+    """),
+    "cycle-detect-directed": D("""
+        **Reframe "is there a cycle?" as "can I schedule all the tasks?"** (this is literally Course
+        Schedule). Kahn's algorithm builds a topological order, and a directed graph has a valid
+        topological order **iff** it has no cycle.
+
+        **How it runs:**
+
+        1. Compute every node's *in-degree* (number of prerequisites).
+        2. Put all in-degree-0 nodes (no prerequisites) in a queue.
+        3. Repeatedly pop a node, "complete" it, and decrement each neighbour's in-degree; when a
+           neighbour hits 0, enqueue it.
+        4. Count how many nodes you processed.
+
+        **The verdict:** if you processed *every* node, you found a full ordering → **no cycle**. If
+        some nodes were never reachable with in-degree 0, they're mutually waiting on each other →
+        **cycle**.
+
+        **Why it works:** a DAG always has at least one source (in-degree 0) to start from, and removing
+        it keeps the rest a DAG. A cycle has no such entry point, so the process stalls with nodes left
+        over. Bonus: the order you pop nodes in *is* a valid topological sort. O(V+E).
+    """),
+    "cycle-detect-undirected": D("""
+        **The twist that trips people up:** in an undirected graph, every single edge `u–v` looks like
+        a tiny cycle, because from `v` you can immediately walk back to `u`. If you naively flag "I
+        reached an already-visited node," you'll report a cycle on a plain tree.
+
+        **The fix: track where you came from (the parent).** During DFS, when you look at a neighbour:
+
+        - If it's unvisited → visit it, recording the current node as its parent.
+        - If it's visited **and it's not your parent** → you've found a genuine *second* way to reach
+          it → a real cycle.
+
+        **Worked example:** on the triangle `0–1–2–0`, DFS goes `0 → 1 → 2`. From `2`, neighbour `0` is
+        already visited and `0` is *not* `2`'s parent (that's `1`) → cycle. On the path `0–1–2`, every
+        already-visited neighbour you meet *is* your parent, so no false alarm.
+
+        This parent-aware DFS is also the backbone of finding bridges and articulation points. O(V+E).
+    """),
+    "tree-traversals": D("""
+        **The single mental model:** every DFS order runs the same three actions — *visit node*,
+        *go left*, *go right* — and they differ **only in where "visit node" sits**:
+
+        - **Pre-order** = visit, left, right → roots come out before their subtrees (great for copying
+          a tree or serializing it).
+        - **In-order** = left, visit, right → on a **binary search tree** this prints values in
+          **sorted** order.
+        - **Post-order** = left, right, visit → children finish before the parent (great for deleting a
+          tree, or any "combine results from children" computation like height or max-path-sum).
+
+        **Worked example** on `1(2(4,5),3(_,6))` in-order: dive to `4`, visit `4`, back to `2`, visit
+        `2`, visit `5`, back to `1`, visit `1`, into `3`, visit `3`, visit `6` → `4 2 5 1 3 6`.
+
+        **Recursive vs. iterative:** recursion leans on the call stack to remember "where to resume."
+        The iterative in-order version makes that stack explicit — push left children all the way down,
+        pop to visit, then turn right — which is what an interviewer wants when they say "no recursion."
+    """),
+    "level-order": D("""
+        **Depth-first won't group nodes by level — breadth-first will.** Use a queue (FIFO) so nodes
+        come out in the order they were discovered, which is level by level.
+
+        **The "level size snapshot" trick** is the key detail. At the top of each iteration, record
+        `size = len(queue)` — that's exactly how many nodes are on the current level. Pop precisely
+        `size` nodes, collect their values into one list, and enqueue their children (which become the
+        next level). Without that snapshot you'd get one flat list instead of a list-per-level.
+
+        **Worked example** on `[3, 9, 20, null, null, 15, 7]`:
+
+        - queue `[3]`, size 1 → level `[3]`, enqueue `9, 20`.
+        - queue `[9, 20]`, size 2 → level `[9, 20]`, enqueue `15, 7`.
+        - queue `[15, 7]`, size 2 → level `[15, 7]`, no children.
+
+        Result `[[3], [9, 20], [15, 7]]`. The same BFS skeleton solves right-side-view, zigzag order,
+        and "max value per level." O(n) time, O(n) space for the queue.
+    """),
+    "max-depth": D("""
+        **A textbook self-similar definition:** the depth of a tree is `1 + max(depth(left),
+        depth(right))`, and an empty subtree has depth `0`. The recursion is almost a transcription of
+        that sentence.
+
+        **Worked example** on `[3, 9, 20, null, null, 15, 7]`: `9` is a leaf → depth 1. `15` and `7`
+        are leaves → depth 1 each, so `20` → `1 + max(1,1) = 2`. Finally the root `3` →
+        `1 + max(depth(9)=1, depth(20)=2) = 3`.
+
+        **Why post-order (children before parent)?** A node can't know its own height until both
+        children report theirs, so values bubble *up* from the leaves. The recursion visits each node
+        once → O(n) time; the call stack goes as deep as the tree → O(h) space (O(n) for a degenerate,
+        list-shaped tree). This same bottom-up shape underlies *balanced tree*, *diameter*, and
+        *max path sum*.
+    """),
+    "balanced-tree": D("""
+        **The naive solution is accidentally O(n²).** "For every node, compute the height of its left
+        and right subtree and compare" re-walks the same subtrees over and over.
+
+        **The optimization: compute height and check balance in one pass, using `-1` as a failure
+        signal.** The recursion returns the subtree's height normally, but returns `-1` the moment it
+        discovers *any* imbalance below it. As soon as a child returns `-1`, the parent immediately
+        returns `-1` too — short-circuiting the rest of the work.
+
+        **Worked example** on `[1, 2, 2, 3, 3, null, null, 4, 4]`: the left spine `1→2→3→4` is much
+        deeper than the right side. When DFS unwinds, some node sees a left height that exceeds the
+        right by more than 1, returns `-1`, and that `-1` propagates straight to the root → **not
+        balanced**.
+
+        Folding the check into the height computation turns it into a single O(n) traversal. The
+        "return a sentinel to abort early" pattern shows up constantly in tree problems.
+    """),
+    "max-path-sum": D("""
+        **The defining subtlety:** a node participates in the answer in two *different* ways, and
+        conflating them is the classic bug.
+
+        1. A path can **bend** at a node, using *both* children: `node.val + leftGain + rightGain`.
+           This is a candidate for the global maximum — but it can't be extended further upward (a
+           parent can't pass through a "V").
+        2. A path can **continue up** through a node to its parent, using only *one* child:
+           `node.val + max(leftGain, rightGain)`. This is what we *return* to the caller.
+
+        **Clamp negative gains to 0** — `max(gain(child), 0)` — because a branch with a negative total
+        is better left out entirely.
+
+        **Worked example** on `[-10, 9, 20, null, null, 15, 7]`: at `20`, left/right gains are 15 and 7,
+        so the bend `15 + 20 + 7 = 42` updates the global best, and `20` returns `20 + max(15,7) = 27`
+        upward. At the root `-10`, using its branch would only shrink the sum, so the best path never
+        passes through it. Answer: **42**.
+
+        Keep "answer recorded at this node" (the global max) strictly separate from "value returned to
+        the parent." O(n) time, O(h) space.
+    """),
+    "lowest-common-ancestor": D("""
+        **Why post-order is mandatory:** you can't decide whether a node is the common ancestor until
+        you know what each of its subtrees contains. So process children first, and let every call
+        report back a simple fact: "did I find `p` or `q` somewhere below me?"
+
+        **The three cases at each node:**
+
+        - The node *is* `p` or `q` → return it (a node can be its own ancestor).
+        - Both the left and right recursion return non-null → `p` and `q` were found on *different
+          sides*, so **this node is the LCA**.
+        - Only one side returns non-null → bubble that result upward unchanged.
+
+        **Worked example** on the tree with `p = 5`, `q = 1`: searching from the root `3`, the left
+        recursion finds `5` and the right recursion finds `1`. Root `3` sees a hit on both sides →
+        it's the LCA. If instead `p = 5`, `q = 4` (where `4` lives under `5`), the call at `5` returns
+        itself before recursing deeper, so `5` is the answer.
+
+        One clean O(n) traversal, O(h) stack. The "let recursion return a found-flag" trick generalizes
+        to many tree-search problems.
+    """),
+    "house-robber": D("""
+        **Set up the recurrence by asking one yes/no question at each house:** do I rob it?
+
+        - **Skip it** → my best total is whatever I had through the previous house: `dp[i-1]`.
+        - **Rob it** → I take its money but the adjacency rule forbids the previous house, so I add to
+          the best total through house `i-2`: `nums[i] + dp[i-2]`.
+
+        So `dp[i] = max(dp[i-1], nums[i] + dp[i-2])`.
+
+        **Worked example** on `[2, 7, 9, 3, 1]`:
+
+        - house 0: best = 2
+        - house 1: max(2, 7) = 7
+        - house 2: max(7, 2+9=11) = 11
+        - house 3: max(11, 7+3=10) = 11
+        - house 4: max(11, 11+1=12) = **12** (rob houses 0, 2, 4)
+
+        **The space optimization:** the formula only ever looks back one and two steps, so the full
+        `dp` array is unnecessary — keep two rolling variables `prev1` (`dp[i-1]`) and `prev2`
+        (`dp[i-2]`). That drops memory from O(n) to **O(1)** while staying O(n) time. Recognizing
+        "my recurrence has a bounded look-back" is the trigger for this very common optimization.
+    """),
+    "lcs": D("""
+        **Define the subproblem precisely:** `dp[i][j]` = length of the LCS of the first `i` characters
+        of `text1` and the first `j` characters of `text2`. The full answer is `dp[m][n]`.
+
+        **The recurrence, by cases on the last characters:**
+
+        - If `text1[i-1] == text2[j-1]`, that shared character extends the best LCS of the smaller
+          prefixes: `dp[i][j] = 1 + dp[i-1][j-1]` (the diagonal).
+        - Otherwise we must drop the last character of one string and take the better result:
+          `dp[i][j] = max(dp[i-1][j], dp[i][j-1])` (up vs. left).
+
+        Row/column `0` represents an empty string, so it's all zeros — that's why the table is
+        `(m+1) × (n+1)`.
+
+        **Worked example** `"abcde"` vs `"ace"`: matches on `a`, `c`, `e` accumulate down the diagonal,
+        giving `dp[5][3] = 3` → the LCS is `"ace"`. Watch the visualization fill the grid cell by cell
+        and you'll see the diagonal "1+" jumps exactly at matching characters.
+
+        O(m·n) time and space; the space drops to O(min(m,n)) since each row only needs the previous
+        one. This grid recurrence is the template for edit distance and sequence alignment.
+    """),
+    "longest-common-substring": D("""
+        **Almost LCS — but with one decisive change.** A *substring* must be contiguous, whereas a
+        *subsequence* may skip characters. That single constraint rewrites the mismatch case:
+
+        - Match: `dp[i][j] = 1 + dp[i-1][j-1]` (extend the current contiguous run, same as LCS).
+        - **Mismatch: `dp[i][j] = 0`** — the run is broken, so it resets. (LCS instead carries forward
+          `max(up, left)`, because a subsequence can tolerate a gap.)
+
+        Because a reset can happen anywhere, the answer is the **maximum value in the whole table**, not
+        the bottom-right corner.
+
+        **Worked example** `"ABABC"` vs `"BABCA"`: the diagonal run for `B→A→B→C` climbs `1, 2, 3, 4`,
+        so the longest common substring is `"BABC"`, length **4**. Toggle the visualization between the
+        two modes to see "carry forward the max" (subsequence) versus "reset to 0" (substring) — it's
+        the clearest way to internalize the difference.
+
+        O(m·n) time and space.
+    """),
+    "search-rotated-array": D("""
+        **Binary search seems impossible — the array isn't fully sorted.** But here's the saving grace:
+        no matter where you split a rotated sorted array, **at least one half is still sorted.**
+
+        **At each midpoint:**
+
+        1. Compare `nums[low]` with `nums[mid]`. If `nums[low] <= nums[mid]`, the **left** half is the
+           sorted one; otherwise the **right** half is.
+        2. Check whether the target lies *within the sorted half's value range*. If yes, search that
+           half; if no, search the other half.
+
+        That single decision restores the "throw away half the candidates" guarantee that makes binary
+        search O(log n).
+
+        **Worked example** `[4,5,6,7,0,1,2]`, target `0`: `mid` is `7` (index 3). Left half `[4..7]` is
+        sorted, but `0` isn't in `[4,7]`, so go right → `[0,1,2]`. Now `mid` is `1`; `0 < 1`, search
+        left → find `0` at index 4.
+
+        **The duplicates wrinkle (part II):** when `nums[low] == nums[mid] == nums[high]` you can't tell
+        which half is sorted, so you shrink both ends by one (`low++, high--`). That fallback can fire
+        every step on input like `[1,1,1,1]`, degrading the worst case to O(n).
+    """),
+    "search-rotated-array-ii": D("""
+        Everything from *Search in Rotated Sorted Array* applies — find the sorted half, decide which
+        way to go — but **duplicates introduce genuine ambiguity.**
+
+        **The problem case:** when `nums[low] == nums[mid] == nums[high]`, you literally cannot tell
+        which side is the sorted one (e.g. `[1,1,1,0,1]` vs `[1,0,1,1,1]` look identical at the ends).
+        The only safe move is to **shrink the window by one on both sides** (`low++, high--`) and retry.
+
+        **Why the complexity changes:** that fallback discards just two elements instead of half, so on
+        a pathological all-duplicates array it can run on every step → **O(n) worst case**, versus the
+        clean **O(log n)** when values are distinct. Average case stays logarithmic.
+
+        The lesson is bigger than this problem: duplicates can quietly destroy the guarantees an
+        algorithm relies on, and recognizing that ambiguity is exactly what an interviewer is probing.
+    """),
+}
+
+
 def build():
     problems_out = []
     for p in PROBLEMS:
@@ -1099,6 +1446,12 @@ def build():
             })
         entry = dict(p)
         entry["files"] = files_out
+        # merge in extra visualization bindings (only if not already set)
+        if not entry.get("viz") and p["id"] in EXTRA_VIZ:
+            entry["viz"] = EXTRA_VIZ[p["id"]]
+        # merge in deep-dive walkthroughs
+        if p["id"] in DEEP_DIVES:
+            entry["deepDive"] = DEEP_DIVES[p["id"]]
         problems_out.append(entry)
 
     # counts per category
@@ -1125,7 +1478,9 @@ def build():
     print(f"Wrote {OUTPUT}")
     print(f"  {len(problems_out)} problems across {len(CATEGORIES)} categories")
     viz = sum(1 for p in problems_out if p.get("viz"))
+    dd = sum(1 for p in problems_out if p.get("deepDive"))
     print(f"  {viz} problems have interactive visualizations")
+    print(f"  {dd} problems have deep-dive walkthroughs")
 
 
 if __name__ == "__main__":

@@ -293,6 +293,10 @@ a:hover { text-decoration: underline; }
 .node-circle.visited { stroke: var(--accent-2); fill: rgba(163,113,247,.16); }
 .node-circle.done { stroke: var(--green); fill: rgba(63,185,80,.16); }
 .node-label { fill: var(--text); font-family: var(--mono); font-size: 14px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.node-badge { fill: var(--amber); font-family: var(--mono); font-size: 12px; font-weight: 700; }
+.node-circle.target { stroke: var(--pink); fill: rgba(247,120,186,.18); }
+.node-circle.lca { stroke: var(--amber); fill: rgba(210,153,34,.25); stroke-width: 3; }
+.node-circle.bad { stroke: var(--red); fill: rgba(248,81,73,.18); }
 .edge-line { stroke: var(--border); stroke-width: 2; transition: stroke .25s ease; }
 .edge-line.active { stroke: var(--accent); }
 .output-strip { font-family: var(--mono); font-size: 14px; color: var(--text); letter-spacing: .04em; }

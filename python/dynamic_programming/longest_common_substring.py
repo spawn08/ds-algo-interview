@@ -14,3 +14,10 @@ class Solution:
                     dp[i][j] = 0
 
         return max_length
+
+
+if __name__ == '__main__':
+    solution = Solution()
+    print(solution.longestCommonSubstring("ABABC", "BABCA"))  # 4  -> "BABC"
+    print(solution.longestCommonSubstring("abcde", "abfce"))  # 2  -> "ab"
+    print(solution.longestCommonSubstring("abc", "def"))      # 0
