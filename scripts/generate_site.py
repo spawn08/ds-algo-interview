@@ -96,6 +96,8 @@ CATEGORIES = [
      "blurb": "Recursion is your friend: most tree problems reduce to 'solve children, combine at the parent'."},
     {"id": "graphs", "name": "Graphs",
      "blurb": "BFS, DFS, topological sort, and connectivity over nodes and edges (and grids in disguise)."},
+    {"id": "heaps", "name": "Heaps & Priority Queues",
+     "blurb": "Keep the best element a pop away. Top-K, streaming medians, and 'process by priority' in O(log n)."},
     {"id": "misc", "name": "Greedy & Misc",
      "blurb": "Greedy choices, bit tricks, and search problems that don't fit a single bucket."},
 ]
@@ -1115,6 +1117,38 @@ PROBLEMS = [
         "files": [
             {"lang": "python", "label": "Python — Kahn's (topological order)", "path": "python/graphs/course_schedule_II.py"},
         ],
+    },
+
+    # ===================== HEAPS & PRIORITY QUEUES =====================
+    {
+        "id": "kth-largest-element",
+        "title": "Kth Largest Element in an Array",
+        "category": "heaps",
+        "difficulty": "Medium",
+        "tags": ["heap", "priority queue", "top-k"],
+        "link": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+        "summary": "Find the kth largest value without fully sorting, using a size-k min-heap.",
+        "idea": D("""
+            Keep a **min-heap capped at size k** holding the k largest values seen so far. Scan the
+            array: while the heap has fewer than k elements, push; once it's full, only a number bigger
+            than the heap's root (the *smallest* of the current top-k) deserves a spot — so replace the
+            root with it. After the pass, that root is exactly the kth largest.
+        """),
+        "why": D("""
+            **Why a *min*-heap for the *largest* element?** The root of a min-heap is its smallest item,
+            so it's the weakest member of your elite top-k group — precisely the one to evict the moment
+            something bigger arrives. Sorting the whole array is O(n log n); the size-k heap is
+            **O(n log k)** and O(k) memory, a real win when n is huge but k is small (and it works on a
+            stream, where you never see the whole input at once). `heapreplace` does the pop-then-push in
+            a single sift, slightly cheaper than separate calls.
+        """),
+        "complexity": {"time": "O(n log k)", "space": "O(k)",
+                       "note": "Each element triggers at most one O(log k) heap operation; "
+                               "the heap never exceeds k elements."},
+        "files": [
+            {"lang": "python", "label": "Python — size-k min-heap", "path": "python/heaps/kth_largest_element.py"},
+        ],
+        "viz": {"type": "topKHeap", "nums": [3, 2, 1, 5, 6, 4], "k": 2},
     },
 
     # ===================== GREEDY & MISC =====================
