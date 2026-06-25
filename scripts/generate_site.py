@@ -1049,6 +1049,73 @@ PROBLEMS = [
             {"lang": "python", "label": "Python — parent-aware DFS", "path": "python/graphs/cycle_detect_undirected_graph.py"},
         ],
     },
+    {
+        "id": "course-schedule",
+        "title": "Course Schedule I",
+        "category": "graphs",
+        "difficulty": "Medium",
+        "tags": ["graph", "topological sort", "bfs"],
+        "link": "https://leetcode.com/problems/course-schedule/",
+        "summary": "Can you finish every course given its prerequisites?",
+        "idea": D("""
+            Model each course as a node and each prerequisite pair `[course, prereq]` as a directed edge
+            `prereq → course`. "Can I finish all courses?" then becomes "**is this dependency graph a DAG
+            (no cycle)?**" Run Kahn's topological sort: repeatedly take any course whose prerequisites are
+            all done (**in-degree 0**), and decrement its dependents. If every course gets processed, there
+            is no cycle and you can finish; if some never reach in-degree 0, they form an impossible loop.
+        """),
+        "why": D("""
+            **Why does counting processed courses detect a cycle?** A directed acyclic graph always has at
+            least one course with no unmet prerequisites to start from, and removing it exposes more. A
+            cycle is a knot of mutually-dependent courses — none ever reaches in-degree 0, so the queue
+            drains early. Comparing `completed` against `numCourses` is therefore a clean yes/no cycle test.
+            We build the adjacency list in the direction `prereq → course` so that finishing a prerequisite
+            "unlocks" the courses that depend on it.
+        """),
+        "complexity": {
+            "time": "O(V + E)",
+            "space": "O(V + E)",
+            "note": "`V` = courses, `E` = prerequisite pairs. One pass builds the graph; one BFS drains it. "
+                    "Edge case: with **no** prerequisites every course is independent and trivially finishable.",
+        },
+        "viz": {"type": "kahn", "vertices": 4, "adj": [[1, 2], [3], [3], []]},
+        "files": [
+            {"lang": "python", "label": "Python — Kahn's (cycle test)", "path": "python/graphs/course_schedule_I.py"},
+        ],
+    },
+    {
+        "id": "course-schedule-ii",
+        "title": "Course Schedule II",
+        "category": "graphs",
+        "difficulty": "Medium",
+        "tags": ["graph", "topological sort", "bfs", "ordering"],
+        "link": "https://leetcode.com/problems/course-schedule-ii/",
+        "summary": "Return a valid order to take all courses (or empty if impossible).",
+        "idea": D("""
+            Same setup as Course Schedule I — courses are nodes, prerequisite `[course, prereq]` is an edge
+            `prereq → course` — but now we **record the order** in which courses become available. Each time
+            a course's in-degree hits 0 we append it to the result. That append order *is* a valid
+            topological ordering. If a cycle blocks some courses, fewer than `numCourses` get recorded, so
+            we return an empty list.
+        """),
+        "why": D("""
+            **Why is the pop order a valid schedule?** A course is only enqueued once every one of its
+            prerequisites has already been processed, so it can never appear before something it depends on.
+            That's the definition of a topological order. This is the *same engine* as Course Schedule I —
+            the only change is that we emit the order instead of a boolean. Recognising that I and II are one
+            algorithm with a different return value is the real takeaway.
+        """),
+        "complexity": {
+            "time": "O(V + E)",
+            "space": "O(V + E)",
+            "note": "Identical cost to Course Schedule I. The length check (`order` size vs `numCourses`) "
+                    "doubles as the cycle guard — a cycle leaves the order short, so we return `[]`.",
+        },
+        "viz": {"type": "kahn", "vertices": 4, "adj": [[1, 2], [3], [3], []]},
+        "files": [
+            {"lang": "python", "label": "Python — Kahn's (topological order)", "path": "python/graphs/course_schedule_II.py"},
+        ],
+    },
 
     # ===================== GREEDY & MISC =====================
     {

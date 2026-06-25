@@ -1539,6 +1539,99 @@ window.SITE_DATA = {
       "deepDive": "**The twist that trips people up:** in an undirected graph, every single edge `u–v` looks like\na tiny cycle, because from `v` you can immediately walk back to `u`. If you naively flag \"I\nreached an already-visited node,\" you'll report a cycle on a plain tree.\n\n**The fix: track where you came from (the parent).** During DFS, when you look at a neighbour:\n\n- If it's unvisited → visit it, recording the current node as its parent.\n- If it's visited **and it's not your parent** → you've found a genuine *second* way to reach\n  it → a real cycle.\n\n**Worked example:** on the triangle `0–1–2–0`, DFS goes `0 → 1 → 2`. From `2`, neighbour `0` is\nalready visited and `0` is *not* `2`'s parent (that's `1`) → cycle. On the path `0–1–2`, every\nalready-visited neighbour you meet *is* your parent, so no false alarm.\n\nThis parent-aware DFS is also the backbone of finding bridges and articulation points. O(V+E)."
     },
     {
+      "id": "course-schedule",
+      "title": "Course Schedule I",
+      "category": "graphs",
+      "difficulty": "Medium",
+      "tags": [
+        "graph",
+        "topological sort",
+        "bfs"
+      ],
+      "link": "https://leetcode.com/problems/course-schedule/",
+      "summary": "Can you finish every course given its prerequisites?",
+      "idea": "Model each course as a node and each prerequisite pair `[course, prereq]` as a directed edge\n`prereq → course`. \"Can I finish all courses?\" then becomes \"**is this dependency graph a DAG\n(no cycle)?**\" Run Kahn's topological sort: repeatedly take any course whose prerequisites are\nall done (**in-degree 0**), and decrement its dependents. If every course gets processed, there\nis no cycle and you can finish; if some never reach in-degree 0, they form an impossible loop.",
+      "why": "**Why does counting processed courses detect a cycle?** A directed acyclic graph always has at\nleast one course with no unmet prerequisites to start from, and removing it exposes more. A\ncycle is a knot of mutually-dependent courses — none ever reaches in-degree 0, so the queue\ndrains early. Comparing `completed` against `numCourses` is therefore a clean yes/no cycle test.\nWe build the adjacency list in the direction `prereq → course` so that finishing a prerequisite\n\"unlocks\" the courses that depend on it.",
+      "complexity": {
+        "time": "O(V + E)",
+        "space": "O(V + E)",
+        "note": "`V` = courses, `E` = prerequisite pairs. One pass builds the graph; one BFS drains it. Edge case: with **no** prerequisites every course is independent and trivially finishable."
+      },
+      "viz": {
+        "type": "kahn",
+        "vertices": 4,
+        "adj": [
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ],
+          [
+            3
+          ],
+          []
+        ]
+      },
+      "files": [
+        {
+          "lang": "python",
+          "label": "Python — Kahn's (cycle test)",
+          "path": "python/graphs/course_schedule_I.py",
+          "code": "\"\"\"\nThere are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. \nYou are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\nReturn true if you can finish all courses. Otherwise, return false.\n\nExample 1:\n\nInput: numCourses = 2, prerequisites = [[1,0]]\nOutput: true\nExplanation: There are a total of 2 courses to take. \nTo take course 1 you should have finished course 0. So it is possible.\nExample 2:\n\nInput: numCourses = 2, prerequisites = [[1,0],[0,1]]\nOutput: false\nExplanation: There are a total of 2 courses to take. \nTo take course 1 you should have finished course 0, and \nto take course 0 you should also have finished course 1. So it is impossible.\n\"\"\"\n\nfrom collections import defaultdict, deque\nfrom typing import List\n\n\nclass Solution:\n    def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:\n        if not prerequisites:\n            return False\n        adjacency = defaultdict(list)\n        in_degree = [0] * numCourses\n\n        for course, preq in prerequisites:\n            adjacency[preq].append(course)\n            in_degree[course] += 1\n        ready_queue = deque([course_id for course_id in range(numCourses) if in_degree[course_id] == 0])\n        completed = 0\n\n        while ready_queue:\n            current_course = ready_queue.popleft()\n            completed += 1\n\n            for dependent_course in adjacency[current_course]:\n                in_degree[dependent_course] -= 1\n                if in_degree[dependent_course] == 0:\n                    ready_queue.append(dependent_course)\n        return completed == numCourses\n\nif __name__ == '__main__':\n    numCourses = 2\n    prerequisites = [[1,0]]\n    solution = Solution()\n    print(solution.canFinish(numCourses=numCourses, prerequisites=prerequisites))"
+        }
+      ],
+      "statement": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1.\nYou are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\nReturn true if you can finish all courses. Otherwise, return false.\n\nExample 1:\n\nInput: numCourses = 2, prerequisites = [[1,0]]\nOutput: true\nExplanation: There are a total of 2 courses to take.\nTo take course 1 you should have finished course 0. So it is possible.\nExample 2:\n\nInput: numCourses = 2, prerequisites = [[1,0],[0,1]]\nOutput: false\nExplanation: There are a total of 2 courses to take.\nTo take course 1 you should have finished course 0, and\nto take course 0 you should also have finished course 1. So it is impossible."
+    },
+    {
+      "id": "course-schedule-ii",
+      "title": "Course Schedule II",
+      "category": "graphs",
+      "difficulty": "Medium",
+      "tags": [
+        "graph",
+        "topological sort",
+        "bfs",
+        "ordering"
+      ],
+      "link": "https://leetcode.com/problems/course-schedule-ii/",
+      "summary": "Return a valid order to take all courses (or empty if impossible).",
+      "idea": "Same setup as Course Schedule I — courses are nodes, prerequisite `[course, prereq]` is an edge\n`prereq → course` — but now we **record the order** in which courses become available. Each time\na course's in-degree hits 0 we append it to the result. That append order *is* a valid\ntopological ordering. If a cycle blocks some courses, fewer than `numCourses` get recorded, so\nwe return an empty list.",
+      "why": "**Why is the pop order a valid schedule?** A course is only enqueued once every one of its\nprerequisites has already been processed, so it can never appear before something it depends on.\nThat's the definition of a topological order. This is the *same engine* as Course Schedule I —\nthe only change is that we emit the order instead of a boolean. Recognising that I and II are one\nalgorithm with a different return value is the real takeaway.",
+      "complexity": {
+        "time": "O(V + E)",
+        "space": "O(V + E)",
+        "note": "Identical cost to Course Schedule I. The length check (`order` size vs `numCourses`) doubles as the cycle guard — a cycle leaves the order short, so we return `[]`."
+      },
+      "viz": {
+        "type": "kahn",
+        "vertices": 4,
+        "adj": [
+          [
+            1,
+            2
+          ],
+          [
+            3
+          ],
+          [
+            3
+          ],
+          []
+        ]
+      },
+      "files": [
+        {
+          "lang": "python",
+          "label": "Python — Kahn's (topological order)",
+          "path": "python/graphs/course_schedule_II.py",
+          "code": "\"\"\"\nThere are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. \nYou are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\nReturn the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them. \nIf it is impossible to finish all courses, return an empty array.\n\nExample 1:\n\nInput: numCourses = 2, prerequisites = [[1,0]]\nOutput: [0,1]\nExplanation: There are a total of 2 courses to take. \nTo take course 1 you should have finished course 0. So the correct course order is [0,1].\n\nExample 2:\n\nInput: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]\nOutput: [0,2,1,3]\nExplanation: There are a total of 4 courses to take. \nTo take course 3 you should have finished both courses 1 and 2. \nBoth courses 1 and 2 should be taken after you finished course 0.\nSo one correct course order is [0,1,2,3]. Another correct ordering is [0,2,1,3].\nExample 3:\n\nInput: numCourses = 1, prerequisites = []\nOutput: [0]\n\"\"\"\n\nfrom collections import defaultdict, deque\nfrom typing import List\n\nclass Solution:\n    def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:\n        if not prerequisites:\n            return []\n        adjacency = defaultdict(list)\n        in_degree = [0] * numCourses\n\n        for course, prereq in prerequisites:\n            adjacency[prereq].append(course)\n            in_degree[course] += 1\n        \n        ready_queue = deque([course_id for course_id in range(numCourses) if in_degree[course_id] == 0])\n        course_completion_order = []\n\n        while ready_queue:\n            current_course = ready_queue.popleft()\n            course_completion_order.append(current_course)\n\n            for dependency_course in adjacency[current_course]:\n                in_degree[dependency_course] -= 1\n                if in_degree[dependency_course] == 0:\n                    ready_queue.append(dependency_course)\n\n        if len(course_completion_order) != numCourses:\n            return []\n        return course_completion_order\n\nif __name__ == '__main__':\n    prerequisites = [[1,0],[2,0],[3,1],[3,2]]\n    numCourses = 4\n\n    solution = Solution()\n    print(solution.findOrder(numCourses, prerequisites))\n"
+        }
+      ],
+      "statement": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1.\nYou are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\nReturn the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them.\nIf it is impossible to finish all courses, return an empty array.\n\nExample 1:\n\nInput: numCourses = 2, prerequisites = [[1,0]]\nOutput: [0,1]\nExplanation: There are a total of 2 courses to take.\nTo take course 1 you should have finished course 0. So the correct course order is [0,1].\n\nExample 2:\n\nInput: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]\nOutput: [0,2,1,3]\nExplanation: There are a total of 4 courses to take.\nTo take course 3 you should have finished both courses 1 and 2.\nBoth courses 1 and 2 should be taken after you finished course 0.\nSo one correct course order is [0,1,2,3]. Another correct ordering is [0,2,1,3].\nExample 3:\n\nInput: numCourses = 1, prerequisites = []\nOutput: [0]"
+    },
+    {
       "id": "max-balloons",
       "title": "Maximum Number of Balloons",
       "category": "misc",
@@ -1637,10 +1730,10 @@ window.SITE_DATA = {
     "dynamic-programming": 3,
     "binary-search": 3,
     "trees": 9,
-    "graphs": 6,
+    "graphs": 8,
     "misc": 3
   },
-  "total": 40,
+  "total": 42,
   "guides": [
     {
       "id": "trees",
