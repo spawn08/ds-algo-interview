@@ -1607,6 +1607,494 @@ STATEMENTS = {
     """),
 }
 
+# ---------------------------------------------------------------------------
+# Concept GUIDES — long-form, visual "how to actually solve these" walkthroughs.
+# Each guide is a list of sections; a section may carry prose (`body`, rendered
+# with the richer guide markdown) and/or an embedded, playable visualization
+# (`viz`, reusing the same visualizers the problem pages use).
+# ---------------------------------------------------------------------------
+GUIDES = [
+    {
+        "id": "trees",
+        "icon": "🌳",
+        "title": "How to Solve Tree Problems",
+        "shortTitle": "Trees",
+        "blurb": "If you freeze when you see a tree problem, it is almost never that the "
+                 "problem is hard — you just haven't internalised the 3 building blocks and "
+                 "the 5 recurring patterns. This guide makes the recursion explicit and visual.",
+        "sections": [
+            {
+                "title": "The mental model that fixes everything",
+                "body": D("""
+                    Every tree problem is **one of two questions in disguise**:
+
+                    1. *"Visit every node and collect or compute something."* — this is a **traversal**.
+                    2. *"At each node, combine the answers from my children into my own answer."* — this is **recursion on the tree** (a DFS that returns a value).
+
+                    That is the whole game. Tree problems *feel* hard only because the recursion hides the work. So we are going to make the recursion **mechanical**: a base case plus a combine step, every single time.
+
+                    > When you are stuck, you are stuck on exactly one of two things: *"What is the answer for an empty tree?"* (the base case) or *"How do I combine my children's answers with my own value?"* (the combine step). Ask both out loud.
+                """),
+            },
+            {
+                "title": "Building block 1 — what a tree node really is",
+                "body": D("""
+                    A binary tree is just objects pointing at up to two other objects.
+
+                    ```python
+                    class TreeNode:
+                        def __init__(self, val=0, left=None, right=None):
+                            self.val = val
+                            self.left = left      # another TreeNode, or None
+                            self.right = right    # another TreeNode, or None
+                    ```
+
+                    Facts you must keep in your head:
+
+                    - A node whose `left` and `right` are both `None` is a **leaf**.
+                    - `None` is a legal value meaning *"no child here"*. **Half of all tree bugs are forgetting a child can be `None`.**
+                    - The whole tree is one variable, `root`. If `root is None`, the tree is empty — your most common base case.
+                """),
+            },
+            {
+                "title": "Building block 2 — recursion = base case + combine",
+                "body": D("""
+                    The single biggest unlock is this sentence:
+
+                    > **Assume the recursive call already works on a smaller subtree. Now just combine.**
+
+                    This is the *recursive leap of faith*. You do **not** trace 10 levels deep in your head. You write the function as if it already works on the children, and trust it. Every recursive tree function has exactly two parts:
+
+                    ```python
+                    def solve(node):
+                        # 1. BASE CASE — the smallest input. Almost always "empty tree".
+                        if node is None:
+                            return <the answer for an empty tree>
+
+                        # 2. RECURSIVE CASE — trust the child calls, then combine.
+                        left  = solve(node.left)     # trust it
+                        right = solve(node.right)    # trust it
+                        return <combine left, right, and node.val>
+                    ```
+
+                    Fill in the two blanks and you have solved the problem.
+                """),
+            },
+            {
+                "title": "DFS vs BFS — and the four traversals",
+                "body": D("""
+                    There are two orders to visit nodes, and you must know both cold.
+
+                    | Traversal | Order | Use it when… |
+                    |-----------|-------|--------------|
+                    | **Pre-order** | Root, Left, Right | you process a node *before* its subtree (copy/clone, serialize) |
+                    | **In-order** | Left, Root, Right | working with a **Binary Search Tree** — in-order yields *sorted* values |
+                    | **Post-order** | Left, Right, Root | you need children's results *before* the parent (height, "is my subtree OK?") — **the most common interview shape** |
+                    | **Level-order (BFS)** | level by level | anything about *levels*, *depth*, or *shortest distance* |
+
+                    The only thing that changes between the three DFS traversals is **where you process the node** relative to the two recursive calls. Play the visualization below and switch the mode to *watch the same tree print in a different order*.
+
+                    ```python
+                    def pre_order(node):      # process BEFORE children
+                        if not node: return
+                        process(node)
+                        pre_order(node.left); pre_order(node.right)
+
+                    def in_order(node):       # process BETWEEN children
+                        if not node: return
+                        in_order(node.left); process(node); in_order(node.right)
+
+                    def post_order(node):     # process AFTER children
+                        if not node: return
+                        post_order(node.left); post_order(node.right); process(node)
+                    ```
+
+                    > **Memory hook:** Pre / In / Post tells you where **Root** sits — first, middle, or last.
+                """),
+                "viz": {"type": "treeTraversal", "tree": [1, 2, 3, 4, 5, None, 6]},
+                "vizTitle": "DFS traversals — switch In / Pre / Post and press Play",
+                "caption": "Notice the node is *recorded* (turns green) at a different moment in each mode, but the path the DFS walks is identical.",
+            },
+            {
+                "title": "Level-order (BFS) — the queue template",
+                "body": D("""
+                    For anything *per level*, use a queue. The trick is the `level_size` line: freeze the count so you process exactly one level per outer loop.
+
+                    ```python
+                    from collections import deque
+
+                    def level_order(root):
+                        if not root: return []
+                        result, queue = [], deque([root])
+                        while queue:
+                            level_size = len(queue)        # nodes in THIS level
+                            level = []
+                            for _ in range(level_size):
+                                node = queue.popleft()
+                                level.append(node.val)
+                                if node.left:  queue.append(node.left)
+                                if node.right: queue.append(node.right)
+                            result.append(level)
+                        return result
+                    ```
+
+                    *Right side view* = last node of each level. *Average per level* = mean of each level. *Zigzag* = reverse alternate levels. All the same template, one line changed.
+                """),
+                "viz": {"type": "treeLevelOrder", "tree": [3, 9, 20, None, None, 15, 7]},
+                "vizTitle": "BFS — draining the queue one level at a time",
+                "caption": "Each outer loop drains every node currently in the queue (one level), then enqueues their children for the next round.",
+            },
+            {
+                "title": "Pattern 1 — combine children's answers (the workhorse)",
+                "body": D("""
+                    **Signs:** *maximum depth, height, count nodes, sum of…, diameter, is it balanced.* You return information **up** the tree, from children to parent — a post-order DFS.
+
+                    ```python
+                    def max_depth(node):
+                        if not node:
+                            return 0                          # empty tree has depth 0
+                        return 1 + max(max_depth(node.left), max_depth(node.right))
+                    ```
+
+                    Read it as: *"my depth = 1 (for myself) + the deeper of my two children."* That is the combine step; the base case is *"empty = 0."* Watch each node compute its height **only after both children report back** (`h=…` badges appear bottom-up).
+                """),
+                "viz": {"type": "treeDFS", "variant": "depth", "tree": [3, 9, 20, None, None, 15, 7]},
+                "vizTitle": "Max depth — heights bubble up from the leaves",
+                "caption": "A parent cannot compute its height until both children have returned theirs. That bottom-up flow IS post-order.",
+            },
+            {
+                "title": "Pattern 1, the twist — what you return ≠ what you record",
+                "body": D("""
+                    Sometimes the value you *return to your parent* differs from the value you're *tracking overall*. This is the trick behind **diameter** and **maximum path sum**.
+
+                    ```python
+                    def max_path_sum(root):
+                        best = float('-inf')                       # the global answer
+                        def dfs(node):                             # returns: best DOWNWARD path
+                            nonlocal best
+                            if not node: return 0
+                            left  = max(dfs(node.left), 0)         # drop negative branches
+                            right = max(dfs(node.right), 0)
+                            best = max(best, node.val + left + right)   # path that BENDS here
+                            return node.val + max(left, right)          # path you can EXTEND up
+                        dfs(root)
+                        return best
+                    ```
+
+                    A node *records* the bent path that peaks at itself, but *returns* only a straight path its parent can extend. When a problem feels impossible, ask: **"are these two quantities actually different?"**
+                """),
+                "viz": {"type": "treeDFS", "variant": "maxpath", "tree": [-10, 9, 20, None, None, 15, 7]},
+                "vizTitle": "Max path sum — 'through' is recorded, '↑return' goes to the parent",
+                "caption": "The ↑ badge is what the node hands upward (one side only); the global best tracks the best path that bends at some node.",
+            },
+            {
+                "title": "Pattern 2 — validate a property of every node",
+                "body": D("""
+                    **Signs:** *is it balanced, is it a valid BST, is it symmetric, are two trees identical.* You recurse and return a boolean (or a sentinel like `-1`). For **balanced**, compute height bottom-up and short-circuit with `-1` the instant a subtree is unbalanced.
+
+                    For **valid BST** the key insight is you must pass an allowed `(low, high)` range **down** as arguments — because a node on the far left must be smaller than every ancestor it descended right of, not just its parent:
+
+                    ```python
+                    def is_valid_bst(node, low=float('-inf'), high=float('inf')):
+                        if not node: return True
+                        if not (low < node.val < high): return False
+                        return (is_valid_bst(node.left,  low, node.val) and
+                                is_valid_bst(node.right, node.val, high))
+                    ```
+                """),
+                "viz": {"type": "treeDFS", "variant": "balanced", "tree": [1, 2, 2, 3, 3, None, None, 4, 4]},
+                "vizTitle": "Balanced check — returning −1 the moment a subtree is too lopsided",
+                "caption": "As soon as a subtree reports unbalanced, the −1 propagates straight up and the rest of the tree is skipped.",
+            },
+            {
+                "title": "Pattern 4 — Lowest Common Ancestor (the bubble-up)",
+                "body": D("""
+                    **Signs:** *lowest common ancestor, "where do two nodes meet?"* The trick is slick and reused everywhere: each call reports whether a target lives below it.
+
+                    ```python
+                    def lca(node, p, q):
+                        if not node or node is p or node is q:
+                            return node
+                        left  = lca(node.left,  p, q)
+                        right = lca(node.right, p, q)
+                        if left and right:     # targets in different subtrees -> THIS is the LCA
+                            return node
+                        return left or right   # both on one side (or neither) -> bubble it up
+                    ```
+
+                    The *"if left and right → I'm the meeting point"* logic appears in many tree problems.
+                """),
+                "viz": {"type": "treeDFS", "variant": "lca",
+                        "tree": [3, 5, 1, 6, 2, 0, 8, None, None, 7, 4], "p": 5, "q": 1},
+                "vizTitle": "LCA — the node that first sees a target on BOTH sides",
+                "caption": "Each subtree reports a found target upward; the first node receiving a hit from both sides is the answer.",
+            },
+            {
+                "title": "Your repeatable procedure (run this when you blank out)",
+                "body": D("""
+                    1. **Draw a small tree** (3–5 nodes). Always. You cannot solve what you cannot see.
+                    2. **Pick DFS or BFS.** Mentions *levels / depth / shortest*? → BFS. Otherwise → DFS.
+                    3. **If DFS, choose the direction of information flow.** Answers flow **up** (children → parent)? → post-order, return values (Patterns 1 & 2). State flows **down** (root → node)? → pass parameters (path / valid-BST).
+                    4. **Write the base case first.** Literally: *"What's the answer for an empty tree (`node is None`)?"*
+                    5. **Write the combine step**, trusting the recursive calls already work.
+                    6. **Ask: is what I return the same as what I track?** If not, use a `nonlocal` global (the Pattern 1 twist).
+                    7. **Trace your small tree by hand**, paying attention to leaves and `None` children.
+
+                    Do steps 4 and 5 *in writing* every time and you will stop freezing.
+                """),
+            },
+            {
+                "title": "Complexity — what to say in the interview",
+                "body": D("""
+                    | | Cost | Why |
+                    |---|------|-----|
+                    | **Time** | `O(n)` | you visit each node a constant number of times |
+                    | **Space (DFS)** | `O(h)` | the recursion/call stack; `h` = height |
+                    | balanced tree | `O(log n)` | height ≈ log n |
+                    | worst case (a "stick") | `O(n)` | height = n |
+                    | **Space (BFS)** | `O(w)` | max width — up to `O(n)` at the bottom level |
+
+                    > **One paragraph to remember:** Every tree problem is *traverse* or *combine children's answers*. Pick DFS (default) or BFS (levels/shortest). For DFS, decide whether info flows **up** (return values, post-order) or **down** (parameters). Write the **base case** first, then the **combine step** trusting the recursion already works. Draw a small tree. That's the whole skill.
+                """),
+            },
+        ],
+    },
+    {
+        "id": "graphs",
+        "icon": "🕸️",
+        "title": "How to Solve Graph Problems",
+        "shortTitle": "Graphs",
+        "blurb": "Graphs feel scary because the input doesn't look like a graph — it's a grid, "
+                 "a list of pairs, a matrix, or course dependencies. Step 1 is always recognising "
+                 "'this is a graph' and turning it into one. After that, BFS/DFS does the heavy lifting.",
+        "sections": [
+            {
+                "title": "The mental model — four buckets",
+                "body": D("""
+                    A tree is just a graph with no cycles. Graphs add two complications: **cycles** (so you must track *visited*) and **many ways to represent the input**. Almost every graph problem is one of four buckets — your first job on any problem is to decide which:
+
+                    1. **Connectivity / components** — *"can I reach B from A?", "how many separate groups / islands?"* → **DFS or BFS flood fill.**
+                    2. **Shortest path** — *"fewest steps", "minimum cost", "nearest"* → **BFS** (unweighted) or **Dijkstra** (weighted).
+                    3. **Ordering with dependencies** — *"course schedule", "build order", "is there a cycle?"* → **topological sort (Kahn's).**
+                    4. **Minimum spanning tree** — *"connect everything as cheaply as possible"* → **Prim's / Kruskal's.**
+                """),
+            },
+            {
+                "title": "Difference 1 — you MUST track visited nodes",
+                "body": D("""
+                    A tree cannot loop back on itself; a graph can. DFS a graph without remembering where you've been and you loop **forever**. The single most common graph bug is a missing `visited` set.
+
+                    ```python
+                    visited = set()
+                    def dfs(node):
+                        if node in visited:        # without this line: infinite loop
+                            return
+                        visited.add(node)
+                        for nb in graph[node]:
+                            dfs(nb)
+                    ```
+
+                    > **Rule:** every graph traversal needs a `visited` set (or a `visited` grid for 2D problems). No exceptions.
+                """),
+            },
+            {
+                "title": "Difference 2 — recognise the graph in disguise",
+                "body": D("""
+                    The graph is rarely handed to you as `{node: [neighbours]}`. Learning to spot the format and **build the adjacency list** is the skill that's missing when you "can't start."
+
+                    | Input format | What to do |
+                    |--------------|------------|
+                    | **Edge list** `[[0,1],[0,2]]` | loop and append to a `defaultdict(list)`; add **both** directions if undirected |
+                    | **Adjacency matrix** `M[i][j]==1` | neighbours are the columns equal to 1 — often no list needed |
+                    | **2D grid** | each **cell is a node**; neighbours are up/down/left/right cells |
+                    | **Object with `.neighbors`** | already a graph; just traverse it |
+
+                    ```python
+                    from collections import defaultdict
+                    graph = defaultdict(list)
+                    for u, v in edges:
+                        graph[u].append(v)
+                        graph[v].append(u)      # add BOTH only if UNDIRECTED
+                    ```
+
+                    For a **grid**, memorise the four deltas and the bounds check — you'll write them a hundred times:
+
+                    ```python
+                    for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:   # up, down, left, right
+                        nr, nc = r + dr, c + dc
+                        if 0 <= nr < rows and 0 <= nc < cols and grid[nr][nc] == '1':
+                            ...   # (nr, nc) is a valid neighbour
+                    ```
+                """),
+            },
+            {
+                "title": "The two core traversals (memorise both)",
+                "body": D("""
+                    **BFS** uses a queue and explores level by level — it finds the **shortest path in an unweighted graph for free**. **DFS** uses a stack (or recursion) and dives deep — great for "explore everything / is it connected?".
+
+                    ```python
+                    from collections import deque
+                    def bfs(graph, start):
+                        visited = {start}              # mark when you ENQUEUE, not when you dequeue
+                        queue = deque([start])
+                        while queue:
+                            node = queue.popleft()
+                            for nb in graph[node]:
+                                if nb not in visited:
+                                    visited.add(nb)
+                                    queue.append(nb)
+                    ```
+
+                    > **Critical subtlety:** mark a node visited the moment you **add it to the queue**, not when you pop it — otherwise the same node gets enqueued many times.
+
+                    Play the visualization and toggle **BFS vs DFS** to see the queue (FIFO) and stack (LIFO) produce very different visit orders on the *same* graph.
+                """),
+                "viz": {"type": "graphTraversal",
+                        "graph": {"A": ["B", "C"], "B": ["A", "D", "E"], "C": ["A", "F"],
+                                  "D": ["B"], "E": ["B", "F"], "F": ["C", "E"]},
+                        "start": "A"},
+                "vizTitle": "BFS vs DFS — same graph, different frontier",
+                "caption": "BFS (queue) fans out level by level; DFS (stack) plunges down one branch first. Watch the side panel switch between queue and stack.",
+            },
+            {
+                "title": "Which traversal do I pick?",
+                "body": D("""
+                    | If the problem asks… | Use |
+                    |----------------------|-----|
+                    | Shortest path / fewest moves (unweighted) | **BFS** |
+                    | "Is everything connected?" / count components | either (DFS is shorter) |
+                    | Explore or flood-fill a region | either |
+                    | Shortest path with **weights / costs** | **Dijkstra** (heap) |
+                    | Dependency order / cycle in a directed graph | **topological sort** |
+
+                    > **Default to BFS when you see "shortest" or "minimum steps."** BFS reaches nodes in increasing order of distance, so it gets the shortest unweighted path for free. DFS does not.
+                """),
+            },
+            {
+                "title": "Pattern: count connected components (flood fill)",
+                "body": D("""
+                    The most common graph pattern. *Loop over every node; if it's unvisited it's a **new** component — increment a counter and flood-fill to drown the whole component so you don't count it twice.*
+
+                    ```python
+                    def count_components(graph, n):
+                        visited, count = set(), 0
+                        for node in range(n):
+                            if node not in visited:
+                                count += 1            # found a new component
+                                dfs(graph, node, visited)   # drown the whole island
+                        return count
+                    ```
+
+                    *Number of Provinces* is this exact shape on an adjacency matrix — each DFS launch is one province.
+                """),
+                "viz": {"type": "matrixComponents", "matrix": [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 1], [0, 0, 1, 1]]},
+                "vizTitle": "Number of Provinces — every DFS launch = one component",
+                "caption": "The outer loop finds an unvisited seed; the inner DFS marks its entire group visited. The number of launches is the answer.",
+            },
+            {
+                "title": "A grid IS a graph — Number of Islands",
+                "body": D("""
+                    This trips everyone up. In grid problems each **cell is a node** and its neighbours are the four adjacent cells. There's no `graph` dict — the grid itself is the adjacency structure. Scan every cell; each unvisited land cell starts a new island, and the flood-fill sinks it.
+
+                    > **Mantra for component problems:** *the outer loop finds a new seed; the inner traversal drowns its whole island.*
+                """),
+                "viz": {"type": "gridDFS",
+                        "grid": [["1", "1", "0", "0", "1"],
+                                 ["1", "0", "0", "1", "1"],
+                                 ["0", "0", "1", "0", "0"],
+                                 ["0", "1", "1", "0", "1"]]},
+                "vizTitle": "Number of Islands — flood fill on a grid",
+                "caption": "Each time the scan hits un-sunk land, that's a new island; the flood fill sinks every connected land cell before the scan continues.",
+            },
+            {
+                "title": "Cycle detection in an UNDIRECTED graph",
+                "body": D("""
+                    DFS while remembering each node's **parent**. If you reach an already-visited neighbour that **isn't the parent** you came from, you've looped back → there's a cycle.
+
+                    ```python
+                    def has_cycle(graph, node, parent, visited):
+                        visited.add(node)
+                        for nb in graph[node]:
+                            if nb not in visited:
+                                if has_cycle(graph, nb, node, visited): return True
+                            elif nb != parent:        # visited AND not the parent -> cycle
+                                return True
+                        return False
+                    ```
+                """),
+                "viz": {"type": "undirectedCycle",
+                        "graph": {"0": [1, 2], "1": [0, 2], "2": [0, 1, 3], "3": [2]}, "start": 0},
+                "vizTitle": "Undirected cycle — a back-edge to a non-parent",
+                "caption": "The cycle is flagged the instant DFS meets an already-visited node that is not the parent it arrived from.",
+            },
+            {
+                "title": "Dependency order — Kahn's topological sort",
+                "body": D("""
+                    **Triggers:** *course schedule, prerequisites, build/compile order, "is there a cycle in a directed graph?"* Idea: repeatedly remove nodes with **no remaining prerequisites** (in-degree 0). Remove them all → valid order, no cycle. Some get stuck → cycle.
+
+                    ```python
+                    from collections import defaultdict, deque
+                    def topo_sort(n, edges):                   # edges: [u_before, v_after]
+                        graph, indeg = defaultdict(list), [0]*n
+                        for u, v in edges:
+                            graph[u].append(v); indeg[v] += 1
+                        queue = deque(i for i in range(n) if indeg[i] == 0)
+                        order = []
+                        while queue:
+                            node = queue.popleft(); order.append(node)
+                            for nb in graph[node]:
+                                indeg[nb] -= 1                 # "remove" the edge
+                                if indeg[nb] == 0: queue.append(nb)
+                        return order if len(order) == n else []   # empty => cycle
+                    ```
+
+                    *Course Schedule I* = "is `len(order) == n`?"; *Course Schedule II* = "return `order`." **Same code.** That's the payoff of recognising the pattern.
+                """),
+                "viz": {"type": "kahn", "vertices": 6, "adj": [[1, 2], [3], [3], [4, 5], [], []]},
+                "vizTitle": "Kahn's algorithm — peeling off in-degree-0 nodes",
+                "caption": "Watch each in-degree badge tick down as edges are removed; a node joins the queue the moment its in-degree hits 0. Processing all nodes proves there is no cycle.",
+            },
+            {
+                "title": "Clone a graph — traversal + an old→new map",
+                "body": D("""
+                    **Trigger:** *deep copy this graph.* BFS/DFS the original while keeping a dictionary mapping each original node to its clone. That map both prevents cloning twice and doubles as your `visited` set.
+                """),
+                "viz": {"type": "cloneBFS",
+                        "graph": {"1": [2, 4], "2": [1, 3], "3": [2, 4], "4": [1, 3]}, "start": 1},
+                "vizTitle": "Clone graph — BFS building a value→clone map",
+                "caption": "The first time a node is seen, its clone is created and enqueued; revisits just reuse the map. One pass copies every node and re-links every edge.",
+            },
+            {
+                "title": "Your repeatable procedure",
+                "body": D("""
+                    1. **Identify the graph.** What are the nodes? When are two connected? Say it in one sentence: *"Nodes are cells; edges connect adjacent land cells."*
+                    2. **Note the input format** (edge list / matrix / grid / object) and decide whether to **build an adjacency list** or traverse the input directly.
+                    3. **Directed or undirected?** This decides whether you add one direction or both.
+                    4. **Classify into one of the four buckets** (connectivity, shortest path, dependency order, MST).
+                    5. **Pick the tool:** components → DFS/BFS flood fill · shortest unweighted → BFS · shortest weighted → Dijkstra · dependency order / directed cycle → Kahn's · connect-all-cheaply → MST.
+                    6. **Write the `visited` set first**, then the traversal, then the bookkeeping (counter / distance array / order list / clone map).
+                    7. **Test on a tiny example with a cycle** to confirm `visited` saves you.
+                """),
+            },
+            {
+                "title": "Complexity — what to say in the interview",
+                "body": D("""
+                    Let **V** = vertices, **E** = edges.
+
+                    | Algorithm | Time | Space |
+                    |-----------|------|-------|
+                    | BFS / DFS | `O(V + E)` | `O(V)` |
+                    | Grid (R×C) | `O(R · C)` | `O(R · C)` |
+                    | Topological sort (Kahn's) | `O(V + E)` | `O(V)` |
+                    | Dijkstra (binary heap) | `O(E log V)` | `O(V)` |
+
+                    > **One paragraph to remember:** Step 1 is always *turn the input into a graph* — identify nodes, identify when two are connected, decide directed vs undirected. Then **classify**: connectivity → flood fill; shortest unweighted → BFS; shortest weighted → Dijkstra; dependency order or directed cycle → Kahn's; cheapest connection → MST. **Always keep a `visited` set** — the one thing trees let you skip and graphs never do.
+                """),
+            },
+        ],
+    },
+]
+
 
 def build():
     problems_out = []
@@ -1643,6 +2131,7 @@ def build():
         "problems": problems_out,
         "counts": counts,
         "total": len(problems_out),
+        "guides": GUIDES,
     }
 
     os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)
@@ -1662,6 +2151,8 @@ def build():
     print(f"  {viz} problems have interactive visualizations")
     print(f"  {dd} problems have deep-dive walkthroughs")
     print(f"  {st} problems have a full problem statement")
+    gv = sum(1 for g in GUIDES for s in g.get("sections", []) if s.get("viz"))
+    print(f"  {len(GUIDES)} concept guides with {gv} embedded visualizations")
 
 
 if __name__ == "__main__":

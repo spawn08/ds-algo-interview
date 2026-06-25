@@ -4,14 +4,20 @@
 (function () {
   "use strict";
 
-  const DATA = window.SITE_DATA || { categories: [], problems: [], counts: {}, total: 0 };
+  const DATA = window.SITE_DATA || { categories: [], problems: [], counts: {}, total: 0, guides: [] };
+  if (!DATA.guides) DATA.guides = [];
   const byId = (id) => DATA.problems.find((p) => p.id === id);
+  const guideById = (id) => DATA.guides.find((g) => g.id === id);
   const catName = (id) => (DATA.categories.find((c) => c.id === id) || {}).name || id;
   const contentEl = document.getElementById("content");
   const sidebarEl = document.getElementById("sidebar");
   const searchEl = document.getElementById("search");
 
-  let activeViz = null;
+  let activeVizzes = [];
+  function destroyVizzes() {
+    activeVizzes.forEach((v) => v && v.destroy && v.destroy());
+    activeVizzes = [];
+  }
 
   function langCount() {
     const langs = new Set();
@@ -35,6 +41,13 @@
       const active = route.view === "category" && route.id === c.id;
       html += `<a class="side-link ${active ? "active" : ""}" href="#/category/${c.id}">${c.name}<span class="side-count">${count}</span></a>`;
     });
+    if (DATA.guides.length) {
+      html += '<div class="side-section-title">Learn — Concept Guides</div>';
+      DATA.guides.forEach((g) => {
+        const active = route.view === "guide" && route.id === g.id;
+        html += `<a class="side-link ${active ? "active" : ""}" href="#/guide/${g.id}">${g.icon || "📘"} ${g.shortTitle || g.title}<span></span></a>`;
+      });
+    }
     sidebarEl.innerHTML = html;
   }
 
@@ -52,6 +65,19 @@
     const featuredIds = ["two-sum", "binary-search", "valid-parentheses", "tree-traversals", "graph-traversal", "max-subarray"];
     const featured = featuredIds.map(byId).filter(Boolean).map(problemCardHtml).join("");
 
+    const guideCards = DATA.guides.map((g) => `
+        <div class="guide-card" onclick="location.hash='#/guide/${g.id}'">
+          <div class="guide-card-icon">${g.icon || "📘"}</div>
+          <div class="guide-card-body">
+            <h3>${g.title}</h3>
+            <p>${g.blurb}</p>
+            <div class="meta">${(g.sections || []).filter((s) => s.viz).length} interactive visuals · concept guide</div>
+          </div>
+        </div>`).join("");
+    const guidesBlock = DATA.guides.length ? `
+      <div class="section-head"><h2>Concept guides</h2><span class="sub">read these first if problems feel overwhelming</span></div>
+      <div class="guide-card-grid">${guideCards}</div>` : "";
+
     contentEl.innerHTML = `
       <section class="hero">
         <h1>Learn <span class="grad">Data Structures &amp; Algorithms</span><br/>the way interviews actually test them.</h1>
@@ -65,6 +91,8 @@
           <div class="hero-stat"><div class="num">${langCount()}</div><div class="lbl">languages</div></div>
         </div>
       </section>
+
+      ${guidesBlock}
 
       <div class="section-head"><h2>Featured problems</h2><span class="sub">great starting points</span></div>
       <div class="card-grid">${featured}</div>
@@ -170,15 +198,67 @@
       </div>`;
 
     // visualization
-    if (activeViz && activeViz.destroy) activeViz.destroy();
-    activeViz = null;
     if (p.viz) {
       const slot = document.getElementById("viz-slot");
-      try { activeViz = window.mountVisualizer(slot, p.viz.type, p.viz); }
+      try { activeVizzes.push(window.mountVisualizer(slot, p.viz.type, p.viz)); }
       catch (e) { slot.innerHTML = `<div class="empty-state">Visualization error: ${e.message}</div>`; }
     }
 
     renderCodeTabs(p);
+  }
+
+  // ----------------------------------------------------------------- Guide
+  function viewGuide(id) {
+    const g = guideById(id);
+    if (!g) { contentEl.innerHTML = '<div class="empty-state">Guide not found.</div>'; return; }
+
+    const toc = (g.sections || [])
+      .filter((s) => s.title)
+      .map((s, i) => `<a href="#guide-sec-${i}">${s.title}</a>`)
+      .join("");
+
+    const sectionsHtml = (g.sections || []).map((s, i) => {
+      const anchor = s.title ? `id="guide-sec-${i}"` : "";
+      const heading = s.title ? `<h2 class="guide-h2" ${anchor}>${s.title}</h2>` : "";
+      const body = s.body ? `<div class="prose guide-prose">${window.guideToHtml(s.body)}</div>` : "";
+      let vizBlock = "";
+      if (s.viz) {
+        vizBlock = `
+          <div class="guide-viz">
+            ${s.vizTitle ? `<div class="guide-viz-title"><span class="ico">▶</span>${s.vizTitle}</div>` : ""}
+            <div class="viz-embed" data-viz-index="${i}"></div>
+            ${s.caption ? `<p class="guide-viz-caption">${window.guideToHtml(s.caption)}</p>` : ""}
+          </div>`;
+      }
+      return `<section class="guide-section">${heading}${body}${vizBlock}</section>`;
+    }).join("");
+
+    contentEl.innerHTML = `
+      <div class="breadcrumb"><a href="#/">Home</a> / Concept Guides / ${g.title}</div>
+      <div class="guide-hero">
+        <div class="guide-hero-icon">${g.icon || "📘"}</div>
+        <div>
+          <h1>${g.title}</h1>
+          <p class="prob-lead">${g.blurb}</p>
+        </div>
+      </div>
+      ${toc ? `<div class="guide-toc"><span class="guide-toc-label">On this page</span>${toc}</div>` : ""}
+      ${sectionsHtml}
+      <div class="footer-note">
+        You've reached the end. Now open a problem in the
+        <a href="#/category/${g.id}">${catName(g.id)}</a> category and apply the procedure above.
+      </div>`;
+
+    // mount each embedded visualizer
+    (g.sections || []).forEach((s, i) => {
+      if (!s.viz) return;
+      const slot = contentEl.querySelector(`.viz-embed[data-viz-index="${i}"]`);
+      if (!slot) return;
+      try { activeVizzes.push(window.mountVisualizer(slot, s.viz.type, s.viz)); }
+      catch (e) { slot.innerHTML = `<div class="empty-state">Visualization error: ${e.message}</div>`; }
+    });
+
+    highlight(contentEl);
   }
 
   function renderCodeTabs(p) {
@@ -241,14 +321,17 @@
     const parts = h.split("/").filter(Boolean);
     if (parts[0] === "category" && parts[1]) return { view: "category", id: parts[1] };
     if (parts[0] === "problem" && parts[1]) return { view: "problem", id: parts[1] };
+    if (parts[0] === "guide" && parts[1]) return { view: "guide", id: parts[1] };
     return { view: "home" };
   }
 
   function route() {
+    destroyVizzes();
     if (searchEl.value.trim()) { viewSearch(searchEl.value.trim()); renderSidebar(); return; }
     const r = parseHash();
     if (r.view === "category") viewCategory(r.id);
     else if (r.view === "problem") viewProblem(r.id);
+    else if (r.view === "guide") viewGuide(r.id);
     else viewHome();
     renderSidebar();
     window.scrollTo(0, 0);
