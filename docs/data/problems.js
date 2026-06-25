@@ -1678,6 +1678,37 @@ window.SITE_DATA = {
       "statement": "Given an integer array nums and an integer k, return the kth largest element in the array.\nNote that it is the kth largest element in the sorted order, not the kth distinct element.\nCan you solve it without sorting?\n\nExample 1:\n\nInput: nums = [3,2,1,5,6,4], k = 2\nOutput: 5\n\nExample 2:\n\nInput: nums = [3,2,3,1,2,4,5,5,6], k = 4\nOutput: 4"
     },
     {
+      "id": "top-k-frequent",
+      "title": "Top K Frequent Elements",
+      "category": "heaps",
+      "difficulty": "Medium",
+      "tags": [
+        "heap",
+        "priority queue",
+        "hash map",
+        "top-k",
+        "counting"
+      ],
+      "link": "https://leetcode.com/problems/top-k-frequent-elements/",
+      "summary": "Return the k most frequent values using a frequency map plus a bounded heap.",
+      "idea": "First **count** how often each value appears with a hash map (`Counter`). Then you need the\nk keys with the highest counts — that's a classic top-K, so feed the counts to a heap.\n`heapq.nlargest(k, counts, key=...)` keeps a **min-heap of size k** over the distinct values\nand returns the k with the largest counts, without sorting the whole map.",
+      "why": "**Why count first, then heap?** The two subproblems are independent: tallying frequencies is\nan O(n) pass, and selecting the top-k by frequency is the same size-k min-heap trick as Kth\nLargest — just keyed by count instead of value. With m distinct elements that's\n**O(m log k)**, beating a full O(m log m) sort of the counts when k is small. (Bucket sort\nby frequency can push this to O(n), a good follow-up to mention.)",
+      "complexity": {
+        "time": "O(n + m log k)",
+        "space": "O(n)",
+        "note": "n = total elements, m = distinct values (m <= n). nlargest holds a size-k heap; the Counter holds m entries."
+      },
+      "files": [
+        {
+          "lang": "python",
+          "label": "Python — Counter + nlargest",
+          "path": "python/heaps/top_k_frequent_elements.py",
+          "code": "\"\"\"\nGiven an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.\n\nExample 1:\n\nInput: nums = [1,1,1,2,2,3], k = 2\nOutput: [1,2]\n\nExample 2:\n\nInput: nums = [1], k = 1\nOutput: [1]\n\nExample 3:\n\nInput: nums = [1,2,1,2,1,2,3,1,3,2], k = 2\nOutput: [1,2]\n\"\"\"\n\nfrom typing import List\nfrom collections import Counter\nimport heapq\n\n\nclass Solution:\n\t\"\"\"\n\tReturn the k most frequent elements using a frequency map + a bounded heap.\n\n\tCount occurrences with Counter, then let heapq.nlargest pick the k keys with\n\tthe highest counts. Under the hood nlargest keeps a min-heap of size k over\n\tthe distinct values, so it never sorts the whole frequency map.\n\n\tLet n = len(nums) and m = number of distinct values (m <= n).\n\tTime complexity:  O(n + m log k) -- O(n) to count, O(m log k) for nlargest\n\t                  to scan m keys against a size-k heap.\n\tSpace complexity: O(n) -- the Counter stores up to m <= n entries, plus the\n\t                  O(k) heap and output.\n\t\"\"\"\n\n\tdef topKFrequent(self, nums: List[int], k: int) -> List[int]:\n\t\tif k == len(nums):\n\t\t\treturn nums\n\t\tcounter = Counter(nums)\n\t\treturn heapq.nlargest(k, counter.keys(), key=counter.get)\n\n\nif __name__ == '__main__':\n\tinput_list = [1, 1, 1, 2, 2, 3]\n\tsolution = Solution()\n\tprint(solution.topKFrequent(input_list, 2))\n\tprint(solution.topKFrequent([1], 1))\n\tprint(solution.topKFrequent([1, 2, 1, 2, 1, 2, 3, 1, 3, 2], 2))"
+        }
+      ],
+      "statement": "Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.\n\nExample 1:\n\nInput: nums = [1,1,1,2,2,3], k = 2\nOutput: [1,2]\n\nExample 2:\n\nInput: nums = [1], k = 1\nOutput: [1]\n\nExample 3:\n\nInput: nums = [1,2,1,2,1,2,3,1,3,2], k = 2\nOutput: [1,2]"
+    },
+    {
       "id": "max-balloons",
       "title": "Maximum Number of Balloons",
       "category": "misc",
@@ -1777,10 +1808,10 @@ window.SITE_DATA = {
     "binary-search": 3,
     "trees": 9,
     "graphs": 8,
-    "heaps": 1,
+    "heaps": 2,
     "misc": 3
   },
-  "total": 43,
+  "total": 44,
   "guides": [
     {
       "id": "trees",

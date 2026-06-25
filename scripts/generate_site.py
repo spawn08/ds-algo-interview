@@ -1150,6 +1150,34 @@ PROBLEMS = [
         ],
         "viz": {"type": "topKHeap", "nums": [3, 2, 1, 5, 6, 4], "k": 2},
     },
+    {
+        "id": "top-k-frequent",
+        "title": "Top K Frequent Elements",
+        "category": "heaps",
+        "difficulty": "Medium",
+        "tags": ["heap", "priority queue", "hash map", "top-k", "counting"],
+        "link": "https://leetcode.com/problems/top-k-frequent-elements/",
+        "summary": "Return the k most frequent values using a frequency map plus a bounded heap.",
+        "idea": D("""
+            First **count** how often each value appears with a hash map (`Counter`). Then you need the
+            k keys with the highest counts — that's a classic top-K, so feed the counts to a heap.
+            `heapq.nlargest(k, counts, key=...)` keeps a **min-heap of size k** over the distinct values
+            and returns the k with the largest counts, without sorting the whole map.
+        """),
+        "why": D("""
+            **Why count first, then heap?** The two subproblems are independent: tallying frequencies is
+            an O(n) pass, and selecting the top-k by frequency is the same size-k min-heap trick as Kth
+            Largest — just keyed by count instead of value. With m distinct elements that's
+            **O(m log k)**, beating a full O(m log m) sort of the counts when k is small. (Bucket sort
+            by frequency can push this to O(n), a good follow-up to mention.)
+        """),
+        "complexity": {"time": "O(n + m log k)", "space": "O(n)",
+                       "note": "n = total elements, m = distinct values (m <= n). nlargest holds a "
+                               "size-k heap; the Counter holds m entries."},
+        "files": [
+            {"lang": "python", "label": "Python — Counter + nlargest", "path": "python/heaps/top_k_frequent_elements.py"},
+        ],
+    },
 
     # ===================== GREEDY & MISC =====================
     {
