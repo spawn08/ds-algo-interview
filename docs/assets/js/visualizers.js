@@ -1337,6 +1337,152 @@
     };
   };
 
+  // ---------- Heap operations: insert (sift-up) & extract-min (sift-down) ----------
+  Visualizers.heapOps = function (p) {
+    const startHeap = p.heap, insertVal = p.value;
+    return {
+      kind: "1d",
+      modes: [{ id: "insert", label: "Insert " + insertVal }, { id: "extract", label: "Extract-Min" }],
+      build(mode) {
+        const steps = [];
+        const heap = [...startHeap];
+        const frame = (cls, badge) => heap.map((v, i) => ({ v, idx: i, cls: (cls && cls[i]) || "", badge: (badge && badge[i]) || null }));
+        if (mode === "insert") {
+          steps.push({ narration: `A min-heap lives in an array. Parent of <code>i</code> is <code>(i-1)//2</code>; children are <code>2i+1</code> and <code>2i+2</code>. We'll insert ${hl(insertVal)}.`, cells: frame() });
+          heap.push(insertVal);
+          let i = heap.length - 1;
+          steps.push({ narration: `Drop ${hl(insertVal)} at the end (index ${hl(i)}) so the tree stays complete, then <strong>sift up</strong>.`, cells: frame({ [i]: "active" }) });
+          while (i > 0) {
+            const par = (i - 1) >> 1;
+            steps.push({ narration: `Compare with parent at index ${hl(par)} (value ${hl(heap[par])}).`, cells: frame({ [i]: "active", [par]: "window" }) });
+            if (heap[i] < heap[par]) {
+              [heap[i], heap[par]] = [heap[par], heap[i]];
+              steps.push({ narration: `${hl(heap[par])} &lt; ${hl(heap[i])} → swap the smaller value up.`, cells: frame({ [i]: "match", [par]: "match" }) });
+              i = par;
+            } else {
+              steps.push({ narration: `${hl(heap[i])} ≥ parent ${hl(heap[par])} → heap property holds. Stop.`, cells: frame({ [i]: "match" }) });
+              break;
+            }
+          }
+          steps.push({ narration: `Inserted. Sift-up touches at most one node per level → ${hl("O(log n)")}.`, cells: frame() });
+        } else {
+          steps.push({ narration: `Extract-min returns the root ${hl(heap[0])} (always the smallest). Remove it, move the LAST element to the root, then <strong>sift down</strong>.`, cells: frame({ 0: "active" }) });
+          const minVal = heap[0], last = heap.pop();
+          if (heap.length) {
+            heap[0] = last;
+            steps.push({ narration: `Last value ${hl(last)} jumps to the root to keep the tree complete. Now sink it.`, cells: frame({ 0: "active" }) });
+            let i = 0; const n = heap.length;
+            while (true) {
+              let smallest = i; const l = 2 * i + 1, r = 2 * i + 2;
+              const cls = { [i]: "active" }; if (l < n) cls[l] = "window"; if (r < n) cls[r] = "window";
+              steps.push({ narration: `Look at ${hl(heap[i])} and its child${r < n ? "ren" : ""} ${l < n ? heap[l] : ""}${r < n ? " and " + heap[r] : ""}.`, cells: frame(cls) });
+              if (l < n && heap[l] < heap[smallest]) smallest = l;
+              if (r < n && heap[r] < heap[smallest]) smallest = r;
+              if (smallest === i) { steps.push({ narration: `${hl(heap[i])} is ≤ both children → done sinking.`, cells: frame({ [i]: "match" }) }); break; }
+              [heap[i], heap[smallest]] = [heap[smallest], heap[i]];
+              steps.push({ narration: `Swap with the smaller child ${hl(heap[i])}.`, cells: frame({ [i]: "match", [smallest]: "match" }) });
+              i = smallest;
+            }
+          }
+          steps.push({ narration: `Returned ${hl(minVal)}. Extract-min is ${hl("O(log n)")}; the new root is the next smallest.`, cells: frame() });
+        }
+        return steps;
+      },
+    };
+  };
+
+  // ---------- Build-heap (heapify) in O(n) ----------
+  Visualizers.heapify = function (p) {
+    return {
+      kind: "1d",
+      build() {
+        const heap = [...p.array];
+        const n = heap.length;
+        const frame = (cls) => heap.map((v, i) => ({ v, idx: i, cls: (cls && cls[i]) || "" }));
+        const steps = [];
+        steps.push({ narration: `Turn a raw array into a min-heap. Naively pushing n times is O(n log n); <strong>heapify</strong> sinks each node bottom-up in only ${hl("O(n)")}.`, cells: frame() });
+        const lastParent = (n >> 1) - 1;
+        steps.push({ narration: `Leaves (indices ${hl(lastParent + 1)}…${hl(n - 1)}) are already valid heaps. Start sift-down at the last parent, index ${hl(lastParent)}, and walk to the root.`, cells: frame(heap.reduce((a, _v, i) => { a[i] = i > lastParent ? "dim" : ""; return a; }, {})) });
+        for (let start = lastParent; start >= 0; start--) {
+          let i = start;
+          steps.push({ narration: `Sift down index ${hl(start)} (value ${hl(heap[start])}).`, cells: frame({ [start]: "active" }) });
+          while (true) {
+            let smallest = i; const l = 2 * i + 1, r = 2 * i + 2;
+            if (l < n && heap[l] < heap[smallest]) smallest = l;
+            if (r < n && heap[r] < heap[smallest]) smallest = r;
+            if (smallest === i) break;
+            [heap[i], heap[smallest]] = [heap[smallest], heap[i]];
+            steps.push({ narration: `Swap ${hl(heap[smallest])} with smaller child ${hl(heap[i])}.`, cells: frame({ [i]: "match", [smallest]: "match" }) });
+            i = smallest;
+          }
+        }
+        steps.push({ narration: `Every node now satisfies the heap property → valid min-heap, root = ${hl(heap[0])}.`, cells: frame({ 0: "active" }) });
+        return steps;
+      },
+    };
+  };
+
+  // ---------- Top-K with a size-K min-heap ----------
+  Visualizers.topKHeap = function (p) {
+    const nums = p.nums, k = p.k;
+    return {
+      kind: "1d",
+      build() {
+        const steps = [];
+        const heap = [];                         // min-heap of the k largest so far
+        const hpush = (x) => { heap.push(x); let i = heap.length - 1; while (i > 0) { const pa = (i - 1) >> 1; if (heap[i] < heap[pa]) { [heap[i], heap[pa]] = [heap[pa], heap[i]]; i = pa; } else break; } };
+        const hpop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0, n = heap.length; while (true) { let s = i, l = 2 * i + 1, r = 2 * i + 2; if (l < n && heap[l] < heap[s]) s = l; if (r < n && heap[r] < heap[s]) s = r; if (s === i) break;[heap[i], heap[s]] = [heap[s], heap[i]]; i = s; } } return top; };
+        const frame = (cur) => nums.map((v, i) => ({ v, idx: i, cls: i === cur ? "active" : i < cur ? "dim" : "" }));
+        const heapPanel = () => [{ title: `min-heap (≤ ${k})`, type: "kv", rows: heap.length ? [{ k: "root (smallest)", v: heap[0] }, { k: "contents", v: "[" + heap.join(", ") + "]" }] : [{ k: "contents", v: "empty" }] }];
+        steps.push({ narration: `Find the ${hl(k + " largest")} values. Keep a <strong>min-heap of size ${k}</strong>: its root is the smallest of the current top-${k}, so it's the easiest to evict.`, cells: frame(-1), side: heapPanel() });
+        for (let i = 0; i < nums.length; i++) {
+          hpush(nums[i]);
+          steps.push({ narration: `See ${hl(nums[i])} → push it onto the heap.`, cells: frame(i), side: heapPanel() });
+          if (heap.length > k) {
+            const evicted = hpop();
+            steps.push({ narration: `Heap exceeded ${hl(k)} → pop the smallest (${hl(evicted)}). Only the ${k} largest survive.`, cells: frame(i), side: heapPanel() });
+          }
+        }
+        steps.push({ narration: `Stream done. The heap holds the ${hl(k)} largest; its root ${hl(heap[0])} is the ${hl("k-th largest")} (k=${k}). Cost ${hl("O(n log k)")} — far cheaper than sorting when k ≪ n.`, cells: frame(nums.length), side: heapPanel() });
+        return steps;
+      },
+    };
+  };
+
+  // ---------- Running median with two heaps ----------
+  Visualizers.twoHeaps = function (p) {
+    const nums = p.nums;
+    return {
+      kind: "1d",
+      build() {
+        const steps = [];
+        const low = [];   // max-heap (lower half) — top = largest
+        const high = [];  // min-heap (upper half) — top = smallest
+        const push = (heap, x, cmp) => { heap.push(x); let i = heap.length - 1; while (i > 0) { const pa = (i - 1) >> 1; if (cmp(heap[i], heap[pa]) < 0) { [heap[i], heap[pa]] = [heap[pa], heap[i]]; i = pa; } else break; } };
+        const pop = (heap, cmp) => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0, n = heap.length; while (true) { let s = i, l = 2 * i + 1, r = 2 * i + 2; if (l < n && cmp(heap[l], heap[s]) < 0) s = l; if (r < n && cmp(heap[r], heap[s]) < 0) s = r; if (s === i) break;[heap[i], heap[s]] = [heap[s], heap[i]]; i = s; } } return top; };
+        const MAX = (a, b) => b - a, MIN = (a, b) => a - b;     // comparators
+        const median = () => low.length > high.length ? low[0] : (low[0] + high[0]) / 2;
+        const frame = (cur) => nums.map((v, i) => ({ v, idx: i, cls: i === cur ? "active" : i < cur ? "dim" : "" }));
+        const panels = () => [
+          { title: "max-heap (low half)", type: "kv", rows: [{ k: "top = largest low", v: low.length ? low[0] : "—" }, { k: "size", v: low.length }] },
+          { title: "min-heap (high half)", type: "kv", rows: [{ k: "top = smallest high", v: high.length ? high[0] : "—" }, { k: "size", v: high.length }] },
+        ];
+        steps.push({ narration: `Running median: keep the smaller half in a <strong>max-heap</strong> and the larger half in a <strong>min-heap</strong>. The two tops straddle the middle, so the median is O(1) to read.`, cells: frame(-1), side: panels() });
+        for (let i = 0; i < nums.length; i++) {
+          const x = nums[i];
+          if (!low.length || x <= low[0]) push(low, x, MAX); else push(high, x, MIN);
+          steps.push({ narration: `Add ${hl(x)} → goes to the ${low.length && x <= (low.length ? low[0] : Infinity) ? "low" : "high"} half.`, cells: frame(i), side: panels() });
+          // rebalance so sizes differ by at most 1, low ≥ high
+          if (low.length > high.length + 1) { const m = pop(low, MAX); push(high, m, MIN); steps.push({ narration: `Low half too big → move its max ${hl(m)} to the high half.`, cells: frame(i), side: panels() }); }
+          else if (high.length > low.length) { const m = pop(high, MIN); push(low, m, MAX); steps.push({ narration: `High half too big → move its min ${hl(m)} to the low half.`, cells: frame(i), side: panels() }); }
+          steps.push({ narration: `Median so far = ${hl(median())} (from the two heap tops).`, cells: frame(i), side: panels() });
+        }
+        steps.push({ narration: `Each insert is ${hl("O(log n)")}; the median is always the ${hl("O(1)")} read across the two tops.`, cells: frame(nums.length), side: panels() });
+        return steps;
+      },
+    };
+  };
+
   // =========================================================================
   // PLAYER
   // =========================================================================

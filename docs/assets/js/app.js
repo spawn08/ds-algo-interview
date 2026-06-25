@@ -245,8 +245,9 @@
       ${toc ? `<div class="guide-toc"><span class="guide-toc-label">On this page</span>${toc}</div>` : ""}
       ${sectionsHtml}
       <div class="footer-note">
-        You've reached the end. Now open a problem in the
-        <a href="#/category/${g.id}">${catName(g.id)}</a> category and apply the procedure above.
+        ${(DATA.counts[g.id] || 0) > 0
+          ? `You've reached the end. Now open a problem in the <a href="#/category/${g.id}">${catName(g.id)}</a> category and apply the procedure above.`
+          : `You've reached the end. Apply this on classic heap problems — Kth Largest, Top K Frequent, Merge K Sorted Lists, Find Median from Data Stream, Task Scheduler.`}
       </div>`;
 
     // mount each embedded visualizer

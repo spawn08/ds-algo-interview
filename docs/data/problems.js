@@ -2618,6 +2618,108 @@ window.SITE_DATA = {
           "body": "**When you blank out on an array problem:**\n\n1. **Is the array sorted (or can sorting help)?** → two pointers or binary search.\n2. **Am I asked about a range/subarray sum?** → prefix sums (± a hash map).\n3. **Am I asked about a contiguous window?** → sliding window (fixed or variable).\n4. **Am I re-scanning to find a value?** → a hash map / set for O(1) lookup.\n5. **Max/min over all subarrays?** → Kadane / running aggregate.\n6. **O(1) space required?** → in-place swaps, cyclic sort, index-as-hash.\n\nAlways sanity-check the brute force first, then pick the technique that removes the redundant work.\n\n| Technique | Time | Extra space |\n|-----------|------|-------------|\n| Hashing | `O(n)` | `O(n)` |\n| Two pointers | `O(n)` (`O(n log n)` if you sort) | `O(1)` |\n| Prefix sums | `O(n)` build, `O(1)` query | `O(n)` |\n| Sliding window | `O(n)` | `O(1)`–`O(k)` |\n| Kadane | `O(n)` | `O(1)` |\n| Binary search | `O(log n)` | `O(1)` |\n\n> **One paragraph to remember:** Most array problems are a hidden `O(n²)` scan. Identify the redundant work, then pick the tool that removes it — hashing for repeated lookups, two pointers for sorted data, prefix sums for range queries, a sliding window for contiguous ranges, Kadane for best-subarray, and binary search for sorted or monotonic answer spaces."
         }
       ]
+    },
+    {
+      "id": "heaps",
+      "icon": "⛰️",
+      "title": "Heaps & Priority Queues",
+      "shortTitle": "Heaps",
+      "blurb": "A heap is the data structure for 'give me the best one, fast.' It keeps the min (or max) instantly available and updates in O(log n). Master the array trick, sift up/down, and the killer apps — top-K and running median — all made visual.",
+      "sections": [
+        {
+          "title": "What a heap actually is (and isn't)",
+          "body": "A **heap** is a tree that keeps the *most extreme* element — the minimum (min-heap) or maximum (max-heap) — instantly reachable at the root. It answers one question superbly: *\"what's the best element right now, and let me remove it?\"* — in `O(log n)` per change.\n\nThe only rule is the **heap property**: every parent is ≤ both its children (min-heap) — applied at *every* node.\n\n> **The #1 misconception:** a heap is **not sorted**. Siblings have no order, left isn't smaller than right. The *only* guarantee is parent-vs-child. So you can grab the min in `O(1)` and pop it in `O(log n)`, but you **cannot** binary-search a heap or list it in order cheaply. If you need full ordering or arbitrary lookup, use a balanced BST instead.\n\nA heap is also exactly what a **priority queue** is built on: \"process items by priority, highest first\" = a max-heap keyed by priority."
+        },
+        {
+          "title": "The array trick — a tree with no pointers",
+          "body": "A heap is always a **complete binary tree** (every level full except possibly the last, filled left-to-right). That completeness lets you store it in a **flat array with no node objects at all** — the parent/child links become arithmetic:\n\n```python\nparent(i) = (i - 1) // 2\nleft(i)   = 2 * i + 1\nright(i)  = 2 * i + 2\n```\n\nSo the array `[1, 3, 6, 5, 9, 8]` *is* this tree:\n\n```text\nindex:  0   1   2   3   4   5\nvalue:  1   3   6   5   9   8\n\n              (1)              index 0  ← root = minimum\n             /   \\\n          (3)     (6)          index 1, 2\n         /  \\     /\n      (5)  (9)  (8)            index 3, 4, 5\n```\n\n> This is why heaps are cache-friendly and memory-light: no left/right pointers, just one contiguous array. Every operation below is really just **swapping array slots** while walking up or down using that index math."
+        },
+        {
+          "title": "The two core operations — sift up & sift down",
+          "body": "Every heap operation is one of two \"bubble\" moves that restore the heap property after a change. Toggle the two modes in the visualization below.\n\n**Insert (sift up).** Drop the new value at the end of the array (keeps the tree complete), then **swap it upward** while it's smaller than its parent.\n\n```python\ndef sift_up(heap, i):\n    while i > 0 and heap[i] < heap[(i - 1) // 2]:\n        par = (i - 1) // 2\n        heap[i], heap[par] = heap[par], heap[i]\n        i = par\n```\n\n**Extract-min (sift down).** The answer is `heap[0]`. Remove it, move the **last** element into the root (keeps it complete), then **sink it down**, always swapping with the *smaller* child until it sits correctly.\n\n```python\ndef sift_down(heap, i):\n    n = len(heap)\n    while True:\n        smallest, l, r = i, 2*i + 1, 2*i + 2\n        if l < n and heap[l] < heap[smallest]: smallest = l\n        if r < n and heap[r] < heap[smallest]: smallest = r\n        if smallest == i: break\n        heap[i], heap[smallest] = heap[smallest], heap[i]\n        i = smallest\n```\n\n> Both walk a single root-to-leaf path, whose length is the tree height `log n` → both are **O(log n)**. That's the whole engine; everything else is an application of these two.",
+          "viz": {
+            "type": "heapOps",
+            "heap": [
+              1,
+              3,
+              6,
+              5,
+              9,
+              8
+            ],
+            "value": 2
+          },
+          "vizTitle": "Insert vs Extract-Min — switch modes and press Play",
+          "caption": "Insert bubbles the new value UP toward the root; extract-min moves the last element to the root and sinks it DOWN past the smaller child. Each is one path, O(log n)."
+        },
+        {
+          "title": "Build-heap (heapify) in O(n), not O(n log n)",
+          "body": "Got a raw array and want a heap? Pushing all `n` elements one by one is `O(n log n)`. **Heapify** does better: sift *down* every node from the last parent up to the root.\n\n```python\ndef build_heap(arr):\n    for i in range(len(arr) // 2 - 1, -1, -1):   # last parent → root\n        sift_down(arr, i)\n    return arr\n```\n\nWhy is this only **O(n)**? Most nodes are near the bottom and barely move — the leaves (half the array) don't move at all, the next level moves at most one step, and so on. The weighted sum collapses to `O(n)`. Start at the *last parent* because all the leaves below it are already valid one-element heaps.",
+          "viz": {
+            "type": "heapify",
+            "array": [
+              9,
+              4,
+              7,
+              1,
+              2,
+              6,
+              5
+            ]
+          },
+          "vizTitle": "Heapify — sink each parent, bottom-up",
+          "caption": "Leaves (dimmed) are already valid heaps, so we start at the last parent and sift down toward the root. Cheap because deep nodes barely move."
+        },
+        {
+          "title": "Python's heapq — the practical toolkit",
+          "body": "You rarely hand-roll a heap in an interview — you use `heapq`, Python's **min-heap** on a plain list. Know these by heart:\n\n```python\nimport heapq\nheap = []\nheapq.heappush(heap, x)      # insert, O(log n)\nsmallest = heapq.heappop(heap)   # remove & return min, O(log n)\nsmallest = heap[0]           # peek min, O(1)\nheapq.heapify(arr)           # build in place, O(n)\nheapq.nlargest(k, arr)       # k largest, O(n log k)\n```\n\n**Faking a max-heap** (heapq is min-only): push **negated** values, negate on the way out.\n\n```python\nheapq.heappush(heap, -x)\nlargest = -heapq.heappop(heap)\n```\n\n**Custom priority:** push **tuples** — they compare lexicographically, so put the sort key first.\n\n```python\nheapq.heappush(pq, (priority, tie_breaker, item))\n```\n\n> **Tie-breaker tip:** if two priorities are equal, Python compares the *next* tuple element. If that's an un-comparable object it crashes — add a unique counter as a middle element to break ties safely."
+        },
+        {
+          "title": "Killer app #1 — Top-K with a size-K heap",
+          "body": "*\"Find the k largest / k most frequent / k closest.\"* Sorting the whole input is `O(n log n)`. A heap does it in **`O(n log k)`** — a big win when `k` is small.\n\nThe trick is counter-intuitive: to find the **k largest**, keep a **min-heap of size k**. Its root is the *smallest* of your current top-k, so it's exactly the element to evict when a bigger one arrives.\n\n```python\ndef k_largest(nums, k):\n    heap = []\n    for x in nums:\n        heapq.heappush(heap, x)\n        if len(heap) > k:\n            heapq.heappop(heap)      # drop the smallest survivor\n    return heap                       # heap[0] is the k-th largest\n```\n\n> **Why a *min*-heap for the *largest*?** Because you want O(1) access to the *weakest* member of your elite group, so you can kick it out the instant something better shows up. (Symmetrically: k *smallest* → size-k *max*-heap.) This powers *Kth Largest Element*, *Top K Frequent*, and *K Closest Points to Origin*.",
+          "viz": {
+            "type": "topKHeap",
+            "nums": [
+              3,
+              2,
+              1,
+              5,
+              6,
+              4
+            ],
+            "k": 2
+          },
+          "vizTitle": "Top-K — a size-K min-heap evicts its own smallest",
+          "caption": "The heap never grows past k. Each new value pushes in; if the heap overflows, the smallest is popped. The survivors are the k largest; the root is the k-th largest."
+        },
+        {
+          "title": "Killer app #2 — running median with two heaps",
+          "body": "*\"Median of a stream\"* is the classic two-heap problem. Split the numbers into a smaller half and a larger half:\n\n- a **max-heap** holds the lower half (its top = the largest of the small side),\n- a **min-heap** holds the upper half (its top = the smallest of the large side).\n\nKeep the sizes within one of each other. The two tops straddle the middle, so the median is an `O(1)` read.\n\n```python\nlow, high = [], []     # low = max-heap (store negated), high = min-heap\ndef add(x):\n    heapq.heappush(low, -x)\n    heapq.heappush(high, -heapq.heappop(low))      # push low's max into high\n    if len(high) > len(low):                       # keep low ≥ high in size\n        heapq.heappush(low, -heapq.heappop(high))\ndef median():\n    if len(low) > len(high): return -low[0]\n    return (-low[0] + high[0]) / 2\n```\n\n> **The intuition:** you never need the *whole* sorted order — only the two elements next to the middle. Two heaps give you exactly those, each insert costing `O(log n)`. Watch the two tops in the visualization converge on the median.",
+          "viz": {
+            "type": "twoHeaps",
+            "nums": [
+              5,
+              15,
+              1,
+              3,
+              8,
+              7,
+              9,
+              10
+            ]
+          },
+          "vizTitle": "Two heaps — the median lives between the two tops",
+          "caption": "The max-heap (low half) and min-heap (high half) stay balanced in size. The median is read straight from their tops — O(1) — after each O(log n) insert."
+        },
+        {
+          "title": "When to reach for a heap — and when not to",
+          "body": "**Signals that scream 'heap':**\n\n- *\"k largest / smallest / most frequent / closest\"* → size-k heap.\n- *\"median of a stream\"*, *\"balance two halves\"* → two heaps.\n- *\"merge k sorted lists/arrays\"* → min-heap of the k current heads.\n- *\"schedule by priority\"*, *\"always process the most urgent next\"* → priority queue.\n- *\"repeatedly take the current min/max, then add new items\"* (Dijkstra, Prim's, Huffman) → heap.\n\n**Heap vs the alternatives:**\n\n| Need | Use |\n|------|-----|\n| Repeated *get + remove* the best one | **Heap** — `O(log n)` |\n| Just the best one *once* (no removals) | a single `min()` / `max()` scan — `O(n)` |\n| Full sorted order, or arbitrary search | **Sorting** / **balanced BST** |\n| Membership / dedupe | **hash set** |\n\n> A heap shines when \"best element\" is a *moving target* — you keep pulling the extreme and feeding in new data. If you only need the answer once, don't build a heap; just scan."
+        },
+        {
+          "title": "Procedure, complexity & common mistakes",
+          "body": "**Procedure when a problem smells like a heap:**\n\n1. Decide **min-heap or max-heap** — do you repeatedly want the *smallest* or *largest*?\n2. Decide **what to store** — raw values, or `(priority, item)` tuples?\n3. Decide the **size** — unbounded, or capped at `k` (top-K), or two balanced heaps (median)?\n4. Reach for `heapq` (negate for a max-heap). Don't hand-roll unless asked.\n\n| Operation | Cost |\n|-----------|------|\n| Peek min/max (`heap[0]`) | `O(1)` |\n| Push / pop | `O(log n)` |\n| Build-heap (heapify) | `O(n)` |\n| Top-K over n items | `O(n log k)` |\n| Heapsort (pop all) | `O(n log n)` |\n\n**Common mistakes that cost offers:**\n\n- **Assuming a heap is sorted.** It isn't — only the root is special. No binary search, no ordered iteration.\n- **Using a max-heap of size k for the k *largest*.** Backwards — use a *min*-heap so you can evict the weakest. (And a *max*-heap for the k *smallest*.)\n- **Forgetting heapq is min-only.** Negate values for a max-heap.\n- **Un-comparable tuples.** `(priority, obj)` crashes when priorities tie and `obj` can't be compared — insert a unique counter as a tie-breaker.\n- **Building with n pushes when heapify would do.** `O(n log n)` vs `O(n)`.\n\n> **One paragraph to remember:** A heap keeps the best element at the root and restores order with one `O(log n)` sift-up (insert) or sift-down (extract). Store it as an array using `(i-1)//2`, `2i+1`, `2i+2`. Use `heapq` (negate for max). When you see *k largest/smallest*, *stream median*, *merge k lists*, or *process by priority* — that's a heap."
+        }
+      ]
     }
   ]
 };
