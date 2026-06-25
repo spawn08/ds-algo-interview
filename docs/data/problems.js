@@ -2017,6 +2017,334 @@ window.SITE_DATA = {
           "body": "Let **V** = vertices, **E** = edges.\n\n| Algorithm | Time | Space |\n|-----------|------|-------|\n| BFS / DFS | `O(V + E)` | `O(V)` |\n| Grid (R×C) | `O(R · C)` | `O(R · C)` |\n| Topological sort (Kahn's) | `O(V + E)` | `O(V)` |\n| Dijkstra (binary heap) | `O(E log V)` | `O(V)` |\n\n> **One paragraph to remember:** Step 1 is always *turn the input into a graph* — identify nodes, identify when two are connected, decide directed vs undirected. Then **classify**: connectivity → flood fill; shortest unweighted → BFS; shortest weighted → Dijkstra; dependency order or directed cycle → Kahn's; cheapest connection → MST. **Always keep a `visited` set** — the one thing trees let you skip and graphs never do."
         }
       ]
+    },
+    {
+      "id": "dynamic-programming",
+      "icon": "🧩",
+      "title": "How to Solve Dynamic Programming Problems",
+      "shortTitle": "Dynamic Programming",
+      "blurb": "DP looks like wizardry until you see the trick: it is just recursion where you stop re-solving the same subproblem. Master one 5-step framework and DP turns from 'no idea where to start' into 'fill in the blanks'.",
+      "sections": [
+        {
+          "title": "What DP actually is (the honest definition)",
+          "body": "Dynamic programming is **recursion + memory**. Nothing more mystical than that. A problem is a DP problem when it has both:\n\n1. **Overlapping subproblems** — the naive recursion solves the *same* smaller problem again and again. (Plain `fib(n) = fib(n-1) + fib(n-2)` recomputes `fib(3)` an exponential number of times.)\n2. **Optimal substructure** — the best answer to the whole is built from the best answers to its parts.\n\nDP's whole job is to compute each subproblem **once**, store it, and reuse it. That single idea collapses exponential time into polynomial time.\n\n> **The reframe that unlocks DP:** stop trying to find a clever formula. Instead, ask *\"what is the smallest piece of information I'd need from smaller versions of this problem to answer the current one?\"* That piece is your **state**, and the relationship is your **recurrence**."
+        },
+        {
+          "title": "The 5-step framework (use this on every DP problem)",
+          "body": "When you don't know where to start, answer these five questions **in order, in writing**. Filling them in *is* solving the problem.\n\n1. **Define the state.** What does `dp[i]` (or `dp[i][j]`) *mean* in one English sentence? e.g. *\"`dp[i]` = the most money I can rob from houses `0..i`.\"* If you can't say it in words, you don't have it yet.\n2. **Write the recurrence (transition).** How is `dp[i]` built from smaller states? This is the heart. e.g. *\"`dp[i] = max(dp[i-1], nums[i] + dp[i-2])`.\"*\n3. **Set the base cases.** The smallest states you can answer directly (`dp[0]`, empty input, etc.).\n4. **Decide the evaluation order.** Bottom-up: fill states so every value you depend on already exists (usually a simple `for` loop). Top-down: recurse + cache.\n5. **Read off the answer.** Which cell holds the final result? `dp[n]`? `dp[m][n]`? The max over the whole table?\n\n| Question | \"max subarray\" | \"coin change\" | \"longest common subsequence\" |\n|----------|----------------|---------------|------------------------------|\n| **State** | best sum ending at `i` | fewest coins for amount `a` | LCS of `A[..i]`, `B[..j]` |\n| **Transition** | `max(nums[i], cur+nums[i])` | `min(dp[a-c]+1)` over coins | match → `1+dp[i-1][j-1]`; else `max(up,left)` |\n| **Base** | `dp[0]=nums[0]` | `dp[0]=0` | empty string → 0 |\n| **Answer** | max over all `dp[i]` | `dp[amount]` | `dp[m][n]` |"
+        },
+        {
+          "title": "Memoization vs Tabulation — two ways to add memory",
+          "body": "There are exactly two implementation styles. They compute the same thing.\n\n**Top-down (memoization)** — write the natural recursion, then cache results so each subproblem runs once. Easiest to *derive*.\n\n```python\nfrom functools import lru_cache\n@lru_cache(maxsize=None)\ndef solve(i):\n    if i < 0: return 0                 # base case\n    return max(solve(i-1), nums[i] + solve(i-2))   # recurrence\n```\n\n**Bottom-up (tabulation)** — fill an array from the base cases up. Often faster (no recursion overhead) and lets you *space-optimize*.\n\n```python\ndp = [0] * (n + 1)\nfor i in range(n):                     # evaluation order\n    dp[i+1] = max(dp[i], nums[i] + (dp[i-1] if i else 0))\nreturn dp[n]\n```\n\n> **Practical advice:** *derive* with top-down (it mirrors your recurrence), then *convert* to bottom-up if you need the speed or the space saving. They are interchangeable."
+        },
+        {
+          "title": "Pattern A — 1D DP: best run ending here (Kadane)",
+          "body": "The simplest DP family: `dp[i]` summarises *the best answer that ends exactly at index `i`*. Maximum-subarray (Kadane) is the canonical example.\n\n*State:* `dp[i]` = largest subarray sum ending at `i`. *Transition:* either start fresh at `nums[i]`, or extend the previous run: `dp[i] = max(nums[i], dp[i-1] + nums[i])`. *Answer:* the max over all `dp[i]`.\n\nWatch the `current` value either reset or grow at each step — that single decision is the entire recurrence.",
+          "viz": {
+            "type": "kadane",
+            "nums": [
+              -2,
+              1,
+              -3,
+              4,
+              -1,
+              2,
+              1,
+              -5,
+              4
+            ]
+          },
+          "vizTitle": "Kadane — extend the run or restart, at every index",
+          "caption": "`current` = best sum ending here; `best` = the global maximum seen so far. The highlighted band at the end is the winning subarray."
+        },
+        {
+          "title": "Pattern B — 1D DP: take-or-skip decisions (House Robber)",
+          "body": "A huge DP family is *\"at each item, choose one of a few options.\"* House Robber: rob the most money without taking two adjacent houses.\n\n*State:* `dp[i]` = max money from houses `0..i`. *Transition:* `dp[i] = max(skip = dp[i-1], rob = nums[i] + dp[i-2])`. Since each state only looks back two steps, you can drop the whole array and keep **two rolling variables** — O(1) space.\n\nThis *\"take it (and jump) vs skip it\"* shape also powers Coin Change, Knapsack, Jump Game, and Decode Ways.",
+          "viz": {
+            "type": "dpRolling",
+            "nums": [
+              2,
+              7,
+              9,
+              3,
+              1
+            ]
+          },
+          "vizTitle": "House Robber — rolling DP with two variables",
+          "caption": "Each house compares `rob` (its value + dp two back) against `skip` (dp one back). The robbed houses are highlighted at the end."
+        },
+        {
+          "title": "Pattern C — 1D tabulation table (Coin Change)",
+          "body": "When the answer for `n` depends on several smaller amounts, build the **full table bottom-up**. Coin Change: fewest coins to make a target amount.\n\n*State:* `dp[a]` = fewest coins to make amount `a`. *Transition:* try every coin `c`: `dp[a] = min(dp[a], dp[a-c] + 1)`. *Base:* `dp[0] = 0`; everything else starts at ∞ (unreachable). *Answer:* `dp[amount]`.\n\n```python\ndp = [0] + [float('inf')] * amount\nfor a in range(1, amount + 1):\n    for c in coins:\n        if c <= a:\n            dp[a] = min(dp[a], dp[a - c] + 1)\nreturn dp[amount] if dp[amount] != float('inf') else -1\n```\n\nThe visualization shows each cell being filled from a *smaller already-solved cell* — that backward arrow is the recurrence made visible. This is the mental model for nearly every tabulated DP.",
+          "viz": {
+            "type": "coinChange",
+            "coins": [
+              1,
+              3,
+              4
+            ],
+            "amount": 6
+          },
+          "vizTitle": "Coin Change — filling dp[amount] from smaller subproblems",
+          "caption": "Each new amount reuses the best answer of a smaller amount (the highlighted earlier cell) plus one coin. dp[0]=0 is the seed everything grows from."
+        },
+        {
+          "title": "Pattern D — 2D grid DP (Longest Common Subsequence)",
+          "body": "When the state needs **two indices** — two strings, a grid, or an item-and-capacity pair — use a 2D table. Longest Common Subsequence is the archetype.\n\n*State:* `dp[i][j]` = LCS length of `A[..i]` and `B[..j]`. *Transition:* if the characters match, `dp[i][j] = 1 + dp[i-1][j-1]` (diagonal); otherwise `dp[i][j] = max(dp[i-1][j], dp[i][j-1])` (drop one char). *Answer:* bottom-right cell.\n\nThe same grid shape solves Edit Distance, Unique Paths, 0/1 Knapsack, and Regex Matching — only the transition changes.",
+          "viz": {
+            "type": "dpGrid",
+            "a": "ABCBDAB",
+            "b": "BDCAB",
+            "mode": "subsequence"
+          },
+          "vizTitle": "LCS — each cell looks diagonal (match) or up/left (mismatch)",
+          "caption": "Green cells are character matches that extend the diagonal; others copy the better of the neighbour above or to the left. The answer accumulates into the bottom-right corner."
+        },
+        {
+          "title": "Pattern D variant — when a mismatch resets (substring)",
+          "body": "A tiny change to the transition gives a completely different problem. **Longest common *substring*** (contiguous) must reset to 0 on a mismatch, because a substring can't have gaps:\n\n```python\nif a[i-1] == b[j-1]:\n    dp[i][j] = 1 + dp[i-1][j-1]\nelse:\n    dp[i][j] = 0          # subsequence would do max(up, left) instead\nbest = max(best, dp[i][j])\n```\n\nCompare this visualization to the previous one: same grid, one line different, and the answer is now *the largest cell anywhere*, not the corner. Recognising which transition a problem wants is the real DP skill.",
+          "viz": {
+            "type": "dpGrid",
+            "a": "ABABC",
+            "b": "BABCA",
+            "mode": "substring"
+          },
+          "vizTitle": "Longest common substring — mismatches reset the streak to 0",
+          "caption": "Unlike subsequence, a mismatch wipes the running streak. The answer is the maximum value found anywhere in the grid."
+        },
+        {
+          "title": "How to recognise a DP problem in the wild",
+          "body": "Reach for DP when you see these signals:\n\n- The problem asks for an **optimum** — *maximum / minimum / longest / fewest / how many ways* — over a set of choices.\n- At each step you make a **choice** (take/skip, which coin, which character) and choices interact.\n- A brute-force recursion would **recompute** the same situation. (Draw the recursion tree — repeated nodes = DP.)\n- The answer for size `n` can be expressed using answers for **smaller sizes**.\n\nAnti-signals (probably *not* DP): you just need any one valid answer fast (greedy/BFS), or each element is independent (a simple scan)."
+        },
+        {
+          "title": "Procedure + complexity",
+          "body": "**When you blank out, run this:**\n\n1. Write the **brute-force recursion** first — don't optimise yet.\n2. Spot the **repeated subproblems** in its recursion tree → that's your signal + your state.\n3. Name `dp[...]` in **one English sentence**.\n4. Write the **recurrence** and **base cases**.\n5. Add a cache (top-down) **or** flip to a bottom-up loop.\n6. **Space-optimise** only if the recurrence looks back a fixed number of rows/cells.\n\n**Complexity rule of thumb:** `time = (number of states) × (work per transition)`; `space = number of states` (minus any dimension you roll away).\n\n| DP shape | States | Time | Space (optimised) |\n|----------|--------|------|-------------------|\n| 1D rolling (House Robber) | `n` | `O(n)` | `O(1)` |\n| 1D table (Coin Change) | `amount` | `O(amount · coins)` | `O(amount)` |\n| 2D grid (LCS) | `m·n` | `O(m · n)` | `O(min(m, n))` |\n\n> **One paragraph to remember:** DP is recursion that refuses to re-solve the same subproblem. For any problem, write the state in one sentence, the transition that builds it from smaller states, the base cases, and where the answer lives. Derive it top-down, convert to bottom-up for speed, and only then think about shaving space."
+        }
+      ]
+    },
+    {
+      "id": "strings",
+      "icon": "🔤",
+      "title": "How to Solve String Problems",
+      "shortTitle": "Strings",
+      "blurb": "A string is just an array of characters — so the same handful of techniques (frequency counts, two pointers, sliding windows, and DP) cover almost every string problem. Learn to map the question to the technique and you're done.",
+      "sections": [
+        {
+          "title": "The mental model",
+          "body": "A string is an **array of characters**, so everything you know about arrays applies — plus a few string-specific habits. Almost every string problem is one of these four:\n\n1. **Counting / frequency** — anagrams, \"can we rearrange…\", character histograms → **hash map or a size-26 array**.\n2. **Two pointers** — palindromes, reversing, comparing from both ends → **converging pointers**.\n3. **Sliding window** — longest/shortest substring with a property → **a moving range with running state**.\n4. **String DP** — edit distance, longest common subsequence, matching → **a 2D table** (see the DP guide).\n\n> Your first move on any string problem: ask *\"am I counting characters, walking from both ends, sliding a window, or comparing two strings cell-by-cell?\"* That one question picks your technique."
+        },
+        {
+          "title": "Technique 1 — frequency counting",
+          "body": "The workhorse for anagrams, permutations, and \"can these characters form X\". Count occurrences in a hash map (or a fixed `int[26]` for lowercase letters — faster and O(1) space).\n\n```python\nfrom collections import Counter\n\ndef is_anagram(s, t):\n    return Counter(s) == Counter(t)          # same multiset of chars\n\ndef group_anagrams(words):\n    groups = {}\n    for w in words:\n        key = tuple(sorted(w))               # anagrams share a sorted key\n        groups.setdefault(key, []).append(w)\n    return list(groups.values())\n```\n\n> **Two canonical keys for \"same letters\":** the **sorted string** (`O(k log k)`) or the **26-length count signature** (`O(k)`). Both make anagrams collide in a hash map."
+        },
+        {
+          "title": "Technique 2 — two pointers (palindromes)",
+          "body": "For symmetry problems, walk one pointer from each end toward the middle. Palindrome check: compare `s[left]` and `s[right]`, step inward, stop on the first mismatch.\n\n```python\ndef is_palindrome(s):\n    s = [c.lower() for c in s if c.isalnum()]   # clean first\n    l, r = 0, len(s) - 1\n    while l < r:\n        if s[l] != s[r]: return False\n        l += 1; r -= 1\n    return True\n```\n\nThe same two-pointer idea drives reversing words, merging, and \"expand around center\" for *longest palindromic substring*.",
+          "viz": {
+            "type": "stringTwoPointer",
+            "s": "A man, a plan, a canal: Panama"
+          },
+          "vizTitle": "Palindrome — compare from both ends inward",
+          "caption": "After cleaning to letters/digits, the two pointers march toward the center; a single mismatch ends it. Matches turn green."
+        },
+        {
+          "title": "Technique 3 — fixed sliding window",
+          "body": "When the problem fixes the window *size* (e.g. \"any substring of length k with all-distinct characters\"), slide a window of exactly `k`: add the entering character, drop the leaving one, and keep running state (a frequency map) instead of recomputing.\n\n```python\ndef has_distinct_window(s, k):\n    freq, l = {}, 0\n    for r, ch in enumerate(s):\n        freq[ch] = freq.get(ch, 0) + 1\n        if r - l + 1 > k:                    # shrink to size k\n            freq[s[l]] -= 1\n            if freq[s[l]] == 0: del freq[s[l]]\n            l += 1\n        if r - l + 1 == k and len(freq) == k:\n            return True\n    return False\n```\n\nThe point of the window: each character enters and leaves **once**, so the whole scan is O(n) instead of O(n·k).",
+          "viz": {
+            "type": "fixedWindow",
+            "nums": [
+              1,
+              2,
+              1,
+              3,
+              4,
+              2,
+              3
+            ],
+            "k": 3,
+            "distinct": true
+          },
+          "vizTitle": "Fixed window of size k — slide, don't rescan",
+          "caption": "As the window slides one step, exactly one element enters and one leaves; the running state updates in O(1). Here it checks whether all k entries are distinct."
+        },
+        {
+          "title": "Technique 4 — variable sliding window",
+          "body": "The most powerful string technique. When you want the *longest* (or shortest) substring satisfying a property, grow the window with the right pointer and **shrink from the left only when the property breaks**.\n\n*Longest substring without repeating characters:* expand `right`; if the new char is already in the window, jump `left` past its previous position. Track the best length.\n\n```python\ndef longest_unique(s):\n    last, l, best = {}, 0, 0\n    for r, ch in enumerate(s):\n        if ch in last and last[ch] >= l:\n            l = last[ch] + 1            # jump left past the duplicate\n        last[ch] = r\n        best = max(best, r - l + 1)\n    return best\n```\n\n> **The window invariant** is the secret: define what must always be true inside the window (here: \"no duplicates\"), expand greedily, and shrink the moment the invariant is violated.",
+          "viz": {
+            "type": "slidingWindow",
+            "s": "abcabcbb"
+          },
+          "vizTitle": "Variable window — grow right, jump left on a repeat",
+          "caption": "The window expands until a duplicate appears, then the left edge jumps just past the earlier copy — never re-scanning. The longest valid window is the answer."
+        },
+        {
+          "title": "Technique 5 — string DP (compare two strings)",
+          "body": "When a problem compares or transforms **two** strings — edit distance, longest common subsequence, regex/wildcard matching, interleaving — it's a 2D DP. `dp[i][j]` answers the subproblem for the first `i` chars of one string and first `j` of the other; matches extend the diagonal, mismatches take the best neighbour.\n\nThis is the bridge to the DP guide — the grid below is the exact same engine. If you see \"minimum edits\", \"longest common…\", or \"does pattern match\", reach for this table.",
+          "viz": {
+            "type": "dpGrid",
+            "a": "intention",
+            "b": "execution",
+            "mode": "subsequence"
+          },
+          "vizTitle": "Two-string DP — the longest common subsequence grid",
+          "caption": "Each cell combines smaller subproblems: a character match extends the diagonal; a mismatch inherits the larger of up/left. The corner holds the final answer."
+        },
+        {
+          "title": "Pattern recognition + procedure",
+          "body": "| The problem says… | Reach for |\n|--------------------|-----------|\n| \"anagram\", \"permutation\", \"rearrange\", \"same characters\" | **frequency count** (Counter or `int[26]`) |\n| \"palindrome\", \"reverse\", \"from both ends\" | **two pointers** |\n| \"substring of length k\", \"window of size k\" | **fixed sliding window** |\n| \"longest/shortest substring with property\", \"at most k distinct\" | **variable sliding window** |\n| \"edit distance\", \"longest common…\", \"does pattern match\" | **2D string DP** |\n| \"prefix\", \"starts with\", many lookups | **trie / hashing** |\n\n**Procedure:**\n\n1. Clarify the alphabet (lowercase only? unicode?) — it decides hash map vs `int[26]`.\n2. Map the question to a technique using the table above.\n3. For windows, state the **invariant** (what's always true inside the window) before coding.\n4. Watch the edges: empty string, single char, all-same characters, case/spacing.\n\n**Complexity:** counting and both window styles are **O(n)** time; sorting-based anagram keys add a `log k` per word; two-string DP is **O(m·n)**.\n\n> **One paragraph to remember:** A string is an array of characters. Decide up front whether you're *counting characters*, *walking from both ends*, *sliding a window*, or *comparing two strings in a grid*. Name the window invariant, reuse running state instead of rescanning, and most string problems collapse to a clean O(n) pass."
+        }
+      ]
+    },
+    {
+      "id": "arrays",
+      "icon": "📊",
+      "title": "Array Patterns & Techniques",
+      "shortTitle": "Array Patterns",
+      "blurb": "Arrays are where interviews start, and a small toolbox — hashing, two pointers, prefix sums, sliding windows, Kadane, and binary search — solves the vast majority. This guide teaches you to recognise which tool a problem is asking for.",
+      "sections": [
+        {
+          "title": "The mental model — a toolbox, not a pile of tricks",
+          "body": "Most array problems are a brute-force `O(n²)` scan in disguise, and each technique is a specific way to **knock that down to O(n) or O(n log n)**. There are really only a handful of tools:\n\n| Technique | Turns this… | …into this | Trigger |\n|-----------|-------------|-----------|---------|\n| **Hashing** | re-scanning for a value | O(1) lookup | \"have I seen…\", \"complement\", \"duplicate\" |\n| **Two pointers** | nested loops on sorted data | one pass | sorted array, pair/triplet, \"from both ends\" |\n| **Prefix sums** | recomputing range sums | O(1) per query | \"sum of range\", \"subarray sums\" |\n| **Sliding window** | recomputing each window | one pass | \"subarray of size k\", \"longest/shortest subarray\" |\n| **Kadane / running aggregate** | trying every subarray | one pass | \"maximum subarray / product\" |\n| **Binary search** | linear scan of sorted data | O(log n) | sorted input, or a monotonic answer space |\n\n> Your job on any array problem: figure out **which row of this table** it belongs to. The rest of this guide is one visual per row."
+        },
+        {
+          "title": "Technique 1 — hashing for O(1) lookup (Two Sum)",
+          "body": "The space-for-time trade that shows up everywhere. Instead of re-scanning the array to find a needed value, remember what you've seen in a hash map and look it up in O(1).\n\n*Two Sum:* for each `x`, the only partner is `target - x`. Keep a map of `value → index`; check it before storing the current number.\n\n```python\ndef two_sum(nums, target):\n    seen = {}\n    for i, x in enumerate(nums):\n        if target - x in seen:\n            return [seen[target - x], i]\n        seen[x] = i\n```\n\nSame idea powers \"contains duplicate\", \"first unique element\", subarray-sum-equals-k (hashing prefix sums), and group-by problems.",
+          "viz": {
+            "type": "twoSumHash",
+            "nums": [
+              2,
+              7,
+              11,
+              15
+            ],
+            "target": 9
+          },
+          "vizTitle": "Two Sum — one pass, O(1) complement lookups",
+          "caption": "For each number we ask the map 'have I seen your complement?' — an O(1) question. Storing as we go avoids reusing the same element."
+        },
+        {
+          "title": "Technique 2 — two pointers on sorted data",
+          "body": "On a **sorted** array, two converging pointers replace a nested loop. To find a pair summing to a target: start `L` at the smallest and `R` at the largest; if the sum is too small move `L` right, too big move `R` left.\n\n```python\ndef two_sum_sorted(nums, target):\n    l, r = 0, len(nums) - 1\n    while l < r:\n        s = nums[l] + nums[r]\n        if s == target: return [l, r]\n        if s < target: l += 1          # need a bigger sum\n        else:           r -= 1          # need a smaller sum\n```\n\nThis is the backbone of 3Sum/4Sum, container-with-most-water, merging sorted arrays, and removing duplicates in place.",
+          "viz": {
+            "type": "twoPointers",
+            "nums": [
+              2,
+              7,
+              11,
+              15
+            ],
+            "target": 18
+          },
+          "vizTitle": "Two pointers — converging on a sorted array",
+          "caption": "Sortedness guarantees that moving L up only increases the sum and moving R down only decreases it — so one pass suffices, no nested loop."
+        },
+        {
+          "title": "Technique 3 — prefix sums (range queries in O(1))",
+          "body": "When you need the sum of many sub-ranges, precompute a running total once. Then any range sum is a single subtraction: `sum(l..r) = prefix[r] - prefix[l-1]`.\n\n```python\nprefix = [0] * len(nums)\nrun = 0\nfor i, x in enumerate(nums):\n    run += x\n    prefix[i] = run\n# sum of nums[l..r]:\nrange_sum = prefix[r] - (prefix[l-1] if l > 0 else 0)\n```\n\nCombine prefix sums with a **hash map** and you get the classic \"count subarrays summing to k\" in O(n). The idea generalises to 2D (sub-matrix sums) and to prefix XOR / prefix product.",
+          "viz": {
+            "type": "prefixSum",
+            "nums": [
+              3,
+              1,
+              4,
+              1,
+              5,
+              9,
+              2
+            ],
+            "queryL": 2,
+            "queryR": 5
+          },
+          "vizTitle": "Prefix sums — build once, then answer any range instantly",
+          "caption": "The prefix row is filled in one pass. Afterwards a range sum is just prefix[R] minus prefix[L-1] — no matter how many queries you get."
+        },
+        {
+          "title": "Technique 4 — sliding window (fixed size)",
+          "body": "For \"best subarray of size k\", don't recompute each window from scratch. Slide it: add the new element, subtract the one that fell off. Each element is touched twice total → O(n).\n\n```python\ndef max_sum_window(nums, k):\n    s = sum(nums[:k]); best = s\n    for r in range(k, len(nums)):\n        s += nums[r] - nums[r - k]      # add entering, drop leaving\n        best = max(best, s)\n    return best\n```\n\nThe same machinery handles \"max average subarray\", \"count of windows meeting a condition\", and fixed-length pattern matching.",
+          "viz": {
+            "type": "fixedWindow",
+            "nums": [
+              2,
+              1,
+              5,
+              1,
+              3,
+              2
+            ],
+            "k": 3
+          },
+          "vizTitle": "Fixed window — running sum, one add and one drop per step",
+          "caption": "The window sum updates in O(1) each slide. No element is ever summed twice, so the whole scan is linear."
+        },
+        {
+          "title": "Technique 5 — Kadane / running aggregate",
+          "body": "When you must consider *all subarrays* for a max/min, a running aggregate avoids the O(n²) blowup. Kadane's: keep the best subarray ending at the current index, and either extend it or start fresh.\n\n*State (it's a tiny DP):* `cur = max(nums[i], cur + nums[i])`; the answer is the max `cur` ever reached. (Maximum-product variant tracks both a running max and min, because a negative flips them.)",
+          "viz": {
+            "type": "kadane",
+            "nums": [
+              5,
+              -3,
+              5,
+              -2,
+              8,
+              -10,
+              4
+            ]
+          },
+          "vizTitle": "Kadane — the running 'best ending here' aggregate",
+          "caption": "Whenever the running sum would do better by restarting, it does. The maximum value it ever reaches is the answer — one pass, O(1) extra space."
+        },
+        {
+          "title": "Technique 6 — binary search (sorted data & answer spaces)",
+          "body": "On sorted data, halve the search space each step: `O(log n)`. The deeper skill is **binary search on the answer** — when you can ask a yes/no question that flips monotonically (e.g. \"can we finish in ≤ X days?\"), binary-search the smallest X that works.\n\n```python\ndef binary_search(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = lo + (hi - lo) // 2\n        if nums[mid] == target: return mid\n        if nums[mid] < target:  lo = mid + 1\n        else:                    hi = mid - 1\n    return -1\n```\n\n> **`lo + (hi - lo) // 2`** avoids overflow and is the habit to keep. Variants: first/last occurrence, rotated-array search, \"minimum capacity / speed\" optimisation.",
+          "viz": {
+            "type": "binarySearch",
+            "nums": [
+              1,
+              3,
+              5,
+              7,
+              9,
+              11,
+              13,
+              15
+            ],
+            "target": 11
+          },
+          "vizTitle": "Binary search — discard half the array every step",
+          "caption": "Each comparison eliminates half the remaining range, so even a million elements take ~20 steps. The dimmed cells are the discarded halves."
+        },
+        {
+          "title": "Technique 7 — in-place & cyclic manipulation",
+          "body": "Some array problems are about *rearranging in O(1) extra space*: reverse tricks, cyclic swaps, and index-as-hash. Rotating a matrix 90° clockwise = **transpose, then reverse each row** — all in place.\n\n```python\ndef rotate(matrix):\n    n = len(matrix)\n    for i in range(n):                       # transpose\n        for j in range(i + 1, n):\n            matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]\n    for row in matrix:                       # reverse each row\n        row.reverse()\n```\n\nRelated in-place ideas: Dutch-national-flag (3-way partition), moving zeroes, cyclic sort for \"find the missing/duplicate number\", and reversing to rotate a 1D array.",
+          "viz": {
+            "type": "matrixRotate",
+            "matrix": [
+              [
+                1,
+                2,
+                3
+              ],
+              [
+                4,
+                5,
+                6
+              ],
+              [
+                7,
+                8,
+                9
+              ]
+            ]
+          },
+          "vizTitle": "Rotate a matrix in place — transpose, then reverse rows",
+          "caption": "No second matrix is allocated: swapping across the diagonal then reversing each row yields the 90° rotation with O(1) extra space."
+        },
+        {
+          "title": "Procedure + complexity cheat-sheet",
+          "body": "**When you blank out on an array problem:**\n\n1. **Is the array sorted (or can sorting help)?** → two pointers or binary search.\n2. **Am I asked about a range/subarray sum?** → prefix sums (± a hash map).\n3. **Am I asked about a contiguous window?** → sliding window (fixed or variable).\n4. **Am I re-scanning to find a value?** → a hash map / set for O(1) lookup.\n5. **Max/min over all subarrays?** → Kadane / running aggregate.\n6. **O(1) space required?** → in-place swaps, cyclic sort, index-as-hash.\n\nAlways sanity-check the brute force first, then pick the technique that removes the redundant work.\n\n| Technique | Time | Extra space |\n|-----------|------|-------------|\n| Hashing | `O(n)` | `O(n)` |\n| Two pointers | `O(n)` (`O(n log n)` if you sort) | `O(1)` |\n| Prefix sums | `O(n)` build, `O(1)` query | `O(n)` |\n| Sliding window | `O(n)` | `O(1)`–`O(k)` |\n| Kadane | `O(n)` | `O(1)` |\n| Binary search | `O(log n)` | `O(1)` |\n\n> **One paragraph to remember:** Most array problems are a hidden `O(n²)` scan. Identify the redundant work, then pick the tool that removes it — hashing for repeated lookups, two pointers for sorted data, prefix sums for range queries, a sliding window for contiguous ranges, Kadane for best-subarray, and binary search for sorted or monotonic answer spaces."
+        }
+      ]
     }
   ]
 };

@@ -1097,6 +1097,103 @@
     };
   };
 
+  // ---------- Prefix sums (range-sum in O(1)) ----------
+  Visualizers.prefixSum = function (p) {
+    const nums = p.nums, L = p.queryL, R = p.queryR;
+    return {
+      kind: "2d",
+      build() {
+        const n = nums.length;
+        const prefix = new Array(n).fill(null);
+        const snap = (cls) => {
+          cls = cls || {};
+          const header = [{ v: "idx", cls: "water" }];
+          for (let i = 0; i < n; i++) header.push({ v: i, cls: "land" + (cls["h" + i] ? " active" : "") });
+          const r1 = [{ v: "nums", cls: "land" }];
+          for (let i = 0; i < n; i++) r1.push({ v: nums[i], cls: cls["n" + i] || "" });
+          const r2 = [{ v: "prefix", cls: "land" }];
+          for (let i = 0; i < n; i++) r2.push({ v: prefix[i] == null ? "·" : prefix[i], cls: cls["p" + i] || (prefix[i] == null ? "water" : "") });
+          return [header, r1, r2];
+        };
+        const steps = [];
+        steps.push({
+          narration: `A <strong>prefix-sum</strong> array answers any range-sum in O(1). Define <code>prefix[i] = nums[0] + … + nums[i]</code>.`,
+          grid: snap(),
+        });
+        let run = 0;
+        for (let i = 0; i < n; i++) {
+          run += nums[i]; prefix[i] = run;
+          const cls = {}; cls["n" + i] = "active"; cls["p" + i] = "fill-match";
+          if (i > 0) cls["p" + (i - 1)] = "window";
+          steps.push({
+            narration: `prefix[${hl(i)}] = ${i > 0 ? "prefix[" + (i - 1) + "]" : "0"} + nums[${i}] = ${i > 0 ? prefix[i - 1] : 0} + ${nums[i]} = ${hl(run)}.`,
+            grid: snap(cls),
+          });
+        }
+        const before = L > 0 ? prefix[L - 1] : 0;
+        const ans = prefix[R] - before;
+        const cls = {};
+        cls["p" + R] = "active";
+        if (L > 0) cls["p" + (L - 1)] = "bad";
+        for (let i = L; i <= R; i++) cls["n" + i] = "window";
+        steps.push({
+          narration: `Range sum of [${hl(L)}..${hl(R)}] = prefix[${R}] − prefix[${L > 0 ? L - 1 : "∅"}] = ${prefix[R]} − ${before} = ${hl(ans)}. One subtraction — no re-scanning.`,
+          grid: snap(cls),
+          side: [{ title: "O(1) query", type: "kv", rows: [{ k: `sum[${L}..${R}]`, v: ans }] }],
+        });
+        return steps;
+      },
+    };
+  };
+
+  // ---------- Coin change (1D bottom-up tabulation) ----------
+  Visualizers.coinChange = function (p) {
+    const coins = p.coins, amount = p.amount;
+    return {
+      kind: "2d",
+      build() {
+        const INF = Infinity;
+        const dp = new Array(amount + 1).fill(INF); dp[0] = 0;
+        const show = (v) => (v === INF ? "∞" : v);
+        const snap = (cls) => {
+          cls = cls || {};
+          const header = [{ v: "amount", cls: "water" }];
+          for (let a = 0; a <= amount; a++) header.push({ v: a, cls: "land" + (cls["h" + a] ? " active" : "") });
+          const row = [{ v: "min coins", cls: "land" }];
+          for (let a = 0; a <= amount; a++) row.push({ v: show(dp[a]), cls: cls["d" + a] || (dp[a] === INF ? "water" : "") });
+          return [header, row];
+        };
+        const steps = [];
+        steps.push({
+          narration: `<strong>Coin change</strong>: fewest coins to make each amount. Build a table bottom-up. <code>dp[0]=0</code>; the rest start at ∞ (unreachable).`,
+          grid: snap(), side: [{ title: "coins", type: "kv", rows: coins.map((c) => ({ k: "coin", v: c })) }],
+        });
+        for (let a = 1; a <= amount; a++) {
+          let used = null;
+          for (const c of coins) {
+            if (c <= a && dp[a - c] + 1 < dp[a]) { dp[a] = dp[a - c] + 1; used = c; }
+          }
+          const cls = {}; cls["d" + a] = dp[a] === INF ? "active" : "fill-match";
+          if (used != null) cls["d" + (a - used)] = "active";
+          steps.push({
+            narration: dp[a] === INF
+              ? `Amount ${hl(a)}: no coin fits a reachable smaller amount → stays ∞.`
+              : `Amount ${hl(a)}: take coin ${hl(used)} on top of dp[${a - used}] = 1 + ${dp[a - used]} = ${hl(dp[a])}.`,
+            grid: snap(cls),
+          });
+        }
+        steps.push({
+          narration: dp[amount] === INF
+            ? `Amount ${hl(amount)} can't be formed → answer is −1.`
+            : `Fewest coins to make ${hl(amount)} = ${hl(dp[amount])} (read straight off the table).`,
+          grid: snap({ ["d" + amount]: "fill-match" }),
+          side: [{ title: "result", type: "kv", rows: [{ k: "min coins", v: dp[amount] === INF ? "-1" : dp[amount] }] }],
+        });
+        return steps;
+      },
+    };
+  };
+
   // =========================================================================
   // PLAYER
   // =========================================================================
