@@ -307,6 +307,7 @@ a:hover { text-decoration: underline; }
 .node-circle.bad { stroke: var(--red); fill: rgba(248,81,73,.18); }
 .edge-line { stroke: var(--border); stroke-width: 2; transition: stroke .25s ease; }
 .edge-line.active { stroke: var(--accent); }
+.edge-weight { fill: var(--cyan); font-family: var(--mono); font-size: 12px; font-weight: 700; text-anchor: middle; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
 .output-strip { font-family: var(--mono); font-size: 14px; color: var(--text); letter-spacing: .04em; }
 .output-strip .muted { color: var(--text-faint); }
 

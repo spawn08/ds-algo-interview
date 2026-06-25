@@ -124,6 +124,15 @@
       line.setAttribute("x1", x1); line.setAttribute("y1", y1);
       line.setAttribute("x2", x2); line.setAttribute("y2", y2);
       svg.appendChild(line);
+      // optional edge weight label (for weighted graphs like Dijkstra)
+      if (e.weight != null) {
+        const mx = (a.x + b.x) / 2 + ox, my = (a.y + b.y) / 2 + oy;
+        const wt = document.createElementNS(NS, "text");
+        wt.setAttribute("class", "edge-weight");
+        wt.setAttribute("x", mx); wt.setAttribute("y", my - 4);
+        wt.textContent = e.weight;
+        svg.appendChild(wt);
+      }
     });
     layout.nodes.forEach((n) => {
       const g = document.createElementNS(NS, "g");
@@ -1189,6 +1198,140 @@
           grid: snap({ ["d" + amount]: "fill-match" }),
           side: [{ title: "result", type: "kv", rows: [{ k: "min coins", v: dp[amount] === INF ? "-1" : dp[amount] }] }],
         });
+        return steps;
+      },
+    };
+  };
+
+  // ---------- BST search (descend left/right by comparison) ----------
+  Visualizers.bstSearch = function (p) {
+    const layout = buildTreeLayout(p.tree);
+    const target = p.target;
+    return {
+      kind: "tree",
+      layout,
+      build() {
+        const steps = [];
+        const cls = {};
+        const snap = (narration) => steps.push({ narration, nodeCls: { ...cls } });
+        snap(`Search for ${hl(target)} in a <strong>BST</strong>. At each node compare and go left (smaller) or right (larger) — each step discards half the remaining tree.`);
+        let node = layout.root;
+        while (node) {
+          cls[node.id] = "active";
+          if (target === node.val) {
+            cls[node.id] = "done";
+            snap(`${hl(node.val)} == ${hl(target)} ✅ — found it in O(height) steps.`);
+            return steps;
+          }
+          if (target < node.val) {
+            snap(`${hl(target)} &lt; ${hl(node.val)} → go LEFT (everything to the right is even larger).`);
+            cls[node.id] = "visited";
+            node = node.left;
+          } else {
+            snap(`${hl(target)} &gt; ${hl(node.val)} → go RIGHT (everything to the left is even smaller).`);
+            cls[node.id] = "visited";
+            node = node.right;
+          }
+        }
+        snap(`Fell off the tree (reached an empty child) → ${hl(target)} is ${hl("not present")}.`);
+        return steps;
+      },
+    };
+  };
+
+  // ---------- Dijkstra (weighted shortest path with a min-heap) ----------
+  Visualizers.dijkstra = function (p) {
+    const ids = p.nodes.map(String);
+    const nodes = circleLayout(ids);
+    const adj = {}; ids.forEach((id) => (adj[id] = []));
+    const edges = [];
+    p.edges.forEach(([u, v, w]) => {
+      const a = String(u), b = String(v);
+      edges.push({ from: a, to: b, weight: w });
+      adj[a].push([b, w]);
+      if (!p.directed) adj[b].push([a, w]);
+    });
+    const layout = { nodes, edges, directed: !!p.directed };
+    const start = String(p.start);
+    return {
+      kind: "graph",
+      layout,
+      build() {
+        const steps = [];
+        const INF = Infinity;
+        const dist = {}; ids.forEach((id) => (dist[id] = INF)); dist[start] = 0;
+        const done = {}, cls = {};
+        const badge = () => { const b = {}; ids.forEach((id) => (b[id] = dist[id] === INF ? "∞" : dist[id])); return b; };
+        const distRows = () => ids.map((id) => ({ k: id, v: dist[id] === INF ? "∞" : dist[id] }));
+        let heap = [[0, start]];
+        const heapItems = () => heap.slice().sort((a, b) => a[0] - b[0]).map(([d, n]) => n + "(" + d + ")");
+        const push = (narration, extra) => steps.push(Object.assign(
+          { narration, nodeCls: { ...cls }, nodeBadge: badge(),
+            side: [{ title: "distance", type: "kv", rows: distRows() }, { title: "min-heap", type: "stack", items: heapItems() }] }, extra || {}));
+        cls[start] = "visited";
+        push(`Dijkstra from ${hl(start)}: <code>dist[${start}]=0</code>, all others ∞. A <strong>min-heap</strong> always hands us the closest unfinished node.`);
+        while (heap.length) {
+          heap.sort((a, b) => a[0] - b[0]);
+          const [d, u] = heap.shift();
+          if (done[u] || d > dist[u]) continue;     // stale entry — lazy deletion
+          done[u] = true; cls[u] = "done";
+          const active = new Set(); adj[u].forEach(([v]) => active.add(u + "-" + v));
+          push(`Pop ${hl(u)} (dist ${hl(d)}) — the smallest in the heap, so ${hl("dist[" + u + "] is now final")}.`, { activeEdges: active });
+          for (const [v, w] of adj[u]) {
+            if (done[v]) continue;
+            const nd = d + w;
+            if (nd < dist[v]) {
+              dist[v] = nd; heap.push([nd, v]); if (cls[v] !== "done") cls[v] = "visited";
+              push(`Relax ${u}→${v} (weight ${w}): ${d}+${w} = ${hl(nd)} beats the old ${hl(v)} distance → update and push.`);
+            }
+          }
+        }
+        push(`Heap empty — every reachable node is finalized. Each node's badge is its shortest distance from ${hl(start)}.`);
+        return steps;
+      },
+    };
+  };
+
+  // ---------- Bipartite check (BFS 2-coloring) ----------
+  Visualizers.bipartite = function (p) {
+    const adj = p.graph, ids = Object.keys(adj);
+    const nodes = circleLayout(ids);
+    const seen = new Set(), edges = [];
+    ids.forEach((u) => adj[u].forEach((vv) => { const k = [u, String(vv)].sort().join("|"); if (!seen.has(k)) { seen.add(k); edges.push({ from: u, to: String(vv) }); } }));
+    const layout = { nodes, edges };
+    return {
+      kind: "graph",
+      layout,
+      build() {
+        const steps = [];
+        const color = {}, cls = {};
+        const name = (c) => (c === 0 ? "color A" : "color B");
+        const paint = (c) => (c === 0 ? "visited" : "active");
+        const push = (narration, extra) => steps.push(Object.assign({ narration, nodeCls: { ...cls } }, extra || {}));
+        push(`Bipartite = can we 2-color the graph so no edge joins same-colored nodes? Color a start node, force neighbours the opposite color. A same-color edge ⇒ not bipartite.`);
+        let ok = true;
+        for (const start of ids) {
+          if (color[start] !== undefined) continue;
+          color[start] = 0; cls[start] = paint(0);
+          const queue = [start];
+          push(`New component: paint ${hl(start)} with ${hl(name(0))}.`);
+          while (queue.length && ok) {
+            const u = queue.shift();
+            for (const vRaw of adj[u]) {
+              const v = String(vRaw);
+              if (color[v] === undefined) {
+                color[v] = 1 - color[u]; cls[v] = paint(color[v]); queue.push(v);
+                push(`${hl(v)} is uncolored → give it ${hl(name(color[v]))} (opposite of ${u}).`);
+              } else if (color[v] === color[u]) {
+                cls[u] = "bad"; cls[v] = "bad";
+                push(`Edge ${u}–${v} joins two ${hl(name(color[v]))} nodes → ${hl("NOT bipartite")}.`, { activeEdges: new Set([u + "-" + v]) });
+                ok = false; break;
+              }
+            }
+          }
+          if (!ok) break;
+        }
+        if (ok) push(`No conflicting edge anywhere → the graph ${hl("IS bipartite")}: two independent groups (A and B).`);
         return steps;
       },
     };

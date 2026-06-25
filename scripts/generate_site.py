@@ -1619,9 +1619,9 @@ GUIDES = [
         "icon": "🌳",
         "title": "How to Solve Tree Problems",
         "shortTitle": "Trees",
-        "blurb": "If you freeze when you see a tree problem, it is almost never that the "
-                 "problem is hard — you just haven't internalised the 3 building blocks and "
-                 "the 5 recurring patterns. This guide makes the recursion explicit and visual.",
+        "blurb": "From 'I freeze when I see a tree problem' to interview-ready. Master the 3 building "
+                 "blocks and 5 recurring patterns, then go deep on traversals, BSTs, LCA, construction, "
+                 "tries, and segment trees — every concept made mechanical, intuitive, and visual.",
         "sections": [
             {
                 "title": "The mental model that fixes everything",
@@ -1654,6 +1654,62 @@ GUIDES = [
                     - A node whose `left` and `right` are both `None` is a **leaf**.
                     - `None` is a legal value meaning *"no child here"*. **Half of all tree bugs are forgetting a child can be `None`.**
                     - The whole tree is one variable, `root`. If `root is None`, the tree is empty — your most common base case.
+                """),
+            },
+            {
+                "title": "Tree vocabulary — the words interviewers won't define",
+                "body": D("""
+                    A tree is formally *a connected graph with no cycles*. On `N` nodes it has exactly `N-1` edges, and there's exactly **one path between any two nodes**. One node is the **root**, which gives every other node a single parent and a sense of "above / below" that plain graphs lack.
+
+                    | Term | Meaning |
+                    |------|---------|
+                    | **Root** | the single top node (no parent) |
+                    | **Leaf** | a node with no children (`left` and `right` both `None`) |
+                    | **Parent / Child** | A points down to B ⇒ A is B's parent, B is A's child |
+                    | **Ancestor / Descendant** | every node on the root→X path is an ancestor of X |
+                    | **Depth of a node** | edges from the **root** down to it (root = depth 0) |
+                    | **Height of a node** | edges on the longest path **down** to a leaf (leaf = height 0) |
+                    | **Subtree at X** | X plus all of its descendants |
+                    | **Balanced** | every node's two subtree heights differ by ≤ 1 → operations stay `O(log n)` |
+                    | **BST** | for every node: all left values &lt; node &lt; all right values |
+
+                    > **Depth vs height** trips people up constantly. Depth counts *down from the root*; height counts *up from the leaves*. Read it as a picture:
+
+                    ```text
+                    depth 0   →          (1)            height 2   ← root
+                    depth 1   →       (2)     (3)        height 1 / 0
+                    depth 2   →    (4)   (5)             height 0   ← leaves
+                    ```
+                """),
+            },
+            {
+                "title": "Tree representations — three ways to store one",
+                "body": D("""
+                    **1. Linked nodes (the default).** The `TreeNode` above — objects with `left`/`right` pointers. This is what 95% of interview problems hand you.
+
+                    **2. Array / heap layout.** A *complete* tree can live in a flat array with no pointers: the node at index `i` has children at `2i+1` and `2i+2`, and parent at `(i-1)//2`. This is exactly how a binary heap (`heapq`) works — cache-friendly, but only valid for complete trees.
+
+                    ```python
+                    left_child  = 2 * i + 1
+                    right_child = 2 * i + 2
+                    parent      = (i - 1) // 2
+                    ```
+
+                    **3. Parent map.** Some problems (e.g. *all nodes at distance K*) need to walk **upward**. Rather than mutating nodes, build a `child → parent` dictionary in one pass, then treat the tree as an undirected graph.
+
+                    ```python
+                    def build_parent_map(root):
+                        parent = {root: None}
+                        def dfs(node):
+                            for child in (node.left, node.right):
+                                if child:
+                                    parent[child] = node
+                                    dfs(child)
+                        if root: dfs(root)
+                        return parent
+                    ```
+
+                    > Choosing the representation *is* part of the solution. "Walk upward" → parent map. "Complete tree / heap" → array indices. Everything else → linked nodes.
                 """),
             },
             {
@@ -1745,6 +1801,42 @@ GUIDES = [
                 "caption": "Each outer loop drains every node currently in the queue (one level), then enqueues their children for the next round.",
             },
             {
+                "title": "Iterative traversals — when recursion is banned (or too deep)",
+                "body": D("""
+                    Interviewers sometimes ask for an *iterative* traversal — either to test depth of understanding, or because Python's default recursion limit (~1000) overflows on a skewed tree. The recursion's call stack just becomes an **explicit stack**.
+
+                    **Iterative pre-order** is easiest because you process a node the moment you see it. Push *right before left* so left pops first:
+
+                    ```python
+                    def preorder_iterative(root):
+                        if not root: return []
+                        out, stack = [], [root]
+                        while stack:
+                            node = stack.pop()
+                            out.append(node.val)
+                            if node.right: stack.append(node.right)   # right first…
+                            if node.left:  stack.append(node.left)    # …so left is processed next
+                        return out
+                    ```
+
+                    **Iterative in-order** dives left while pushing, then pops to process, then turns right:
+
+                    ```python
+                    def inorder_iterative(root):
+                        out, stack, node = [], [], root
+                        while node or stack:
+                            while node:                 # go as far left as possible
+                                stack.append(node); node = node.left
+                            node = stack.pop()          # leftmost unvisited
+                            out.append(node.val)
+                            node = node.right           # then explore the right subtree
+                        return out
+                    ```
+
+                    > **Post-order trick:** do a modified pre-order in order *root → right → left*, then **reverse** the result — that gives *left → right → root*, which is post-order. Far easier than a true two-pass post-order stack.
+                """),
+            },
+            {
                 "title": "Pattern 1 — combine children's answers (the workhorse)",
                 "body": D("""
                     **Signs:** *maximum depth, height, count nodes, sum of…, diameter, is it balanced.* You return information **up** the tree, from children to parent — a post-order DFS.
@@ -1830,6 +1922,216 @@ GUIDES = [
                 "caption": "Each subtree reports a found target upward; the first node receiving a hit from both sides is the answer.",
             },
             {
+                "title": "Binary Search Trees — the ordered tree",
+                "body": D("""
+                    A **BST** adds one invariant to a binary tree: for *every* node, all values in its left subtree are smaller and all values in its right subtree are larger. That single rule buys two superpowers:
+
+                    1. **In-order traversal yields values in sorted order** — the source of most BST tricks.
+                    2. **Search / insert / delete in `O(height)`** — each comparison throws away half the tree.
+
+                    Search is the purest illustration: compare with the current node, then go left or right. Play it below.
+
+                    ```python
+                    def search_bst(root, target):
+                        node = root
+                        while node:
+                            if target == node.val: return node
+                            node = node.left if target < node.val else node.right
+                        return None
+                    ```
+
+                    > The `O(height)` is `O(log n)` only on a **balanced** BST. Insert sorted data into a plain BST and it degenerates into a linked list — `O(n)`. (Self-balancing AVL / Red-Black trees fix this; you rarely implement them, just name them.)
+                """),
+                "viz": {"type": "bstSearch", "tree": [8, 3, 10, 1, 6, None, 14, None, None, 4, 7, 13], "target": 7},
+                "vizTitle": "BST search — halve the tree at every comparison",
+                "caption": "Each comparison eliminates an entire subtree. Searching for 7: 7<8 go left, 7>3 go right, 7>6 go right — found. Three steps in a 7-node tree.",
+            },
+            {
+                "title": "Validate a BST — the range trick (a classic trap)",
+                "body": D("""
+                    The tempting wrong answer: check `left.val < node.val < right.val` at each node. **It's insufficient.** A node must be larger than *every* value in its left subtree, not just its immediate child. Counterexample: root 10, left child 5, but 5's right child is 15 — every parent/child pair looks fine, yet 15 sits in 10's left subtree.
+
+                    The fix: pass a valid **`(low, high)` range** down. Going left tightens the upper bound; going right tightens the lower bound.
+
+                    ```python
+                    def is_valid_bst(node, low=float('-inf'), high=float('inf')):
+                        if not node: return True
+                        if not (low < node.val < high): return False
+                        return (is_valid_bst(node.left,  low, node.val) and
+                                is_valid_bst(node.right, node.val, high))
+                    ```
+
+                    > This "carry constraints down through arguments" idea is a pattern in itself — the same shape solves *range-restricted* problems where each node inherits limits from all its ancestors.
+                """),
+            },
+            {
+                "title": "K-th smallest — a BST is a sorted stream",
+                "body": D("""
+                    Because in-order visits a BST in ascending order, the **k-th smallest** value is just the k-th node an in-order traversal emits. Use the *iterative* in-order so you can stop the instant you've counted k — no need to traverse the whole tree.
+
+                    ```python
+                    def kth_smallest(root, k):
+                        stack, node = [], root
+                        while node or stack:
+                            while node:
+                                stack.append(node); node = node.left
+                            node = stack.pop()
+                            k -= 1
+                            if k == 0: return node.val      # early exit
+                            node = node.right
+                    ```
+
+                    Whenever you see *"BST" + "k-th"* or *"BST" + "sorted"* or *"BST" + "validate"*, your first thought should be **in-order**.
+                """),
+            },
+            {
+                "title": "Path problems — state flows DOWN, plus backtracking",
+                "body": D("""
+                    Path problems are the mirror image of Pattern 1: instead of answers flowing **up**, accumulated state flows **down** as a parameter. *Does any root-to-leaf path sum to a target?*
+
+                    ```python
+                    def has_path_sum(node, target):
+                        if not node: return False
+                        if not node.left and not node.right:        # a real leaf
+                            return node.val == target
+                        rest = target - node.val
+                        return has_path_sum(node.left, rest) or has_path_sum(node.right, rest)
+                    ```
+
+                    Note the distinct **leaf** test — *both* children `None`. A one-child node is not a leaf. To return *all* qualifying paths, add **backtracking**: append on the way down, pop on the way back up, and store a **copy** when you hit a match.
+
+                    ```python
+                    def all_paths(root, target):
+                        out, path = [], []
+                        def dfs(node, rest):
+                            if not node: return
+                            path.append(node.val); rest -= node.val
+                            if not node.left and not node.right and rest == 0:
+                                out.append(path[:])         # COPY — path keeps mutating
+                            else:
+                                dfs(node.left, rest); dfs(node.right, rest)
+                            path.pop()                      # backtrack: undo the append
+                        dfs(root, target)
+                        return out
+                    ```
+
+                    > **The #1 backtracking bug:** appending `path` instead of `path[:]`. You'd store a reference that later gets mutated empty. Every `append` must be paired with a matching `pop`.
+                """),
+            },
+            {
+                "title": "Reconstruct a tree from traversals",
+                "body": D("""
+                    Classic construction: rebuild a tree from its **pre-order + in-order** lists. Two facts do all the work:
+
+                    - The **first element of pre-order is always the current root**.
+                    - That root's position in **in-order splits left subtree from right subtree**.
+
+                    Recurse on the two halves. A `value → in-order index` hashmap makes the split `O(1)`, giving `O(n)` overall.
+
+                    ```python
+                    def build_tree(preorder, inorder):
+                        idx = {v: i for i, v in enumerate(inorder)}
+                        self_pos = 0
+                        def build(lo, hi):
+                            nonlocal self_pos
+                            if lo > hi: return None
+                            root = TreeNode(preorder[self_pos]); self_pos += 1
+                            mid = idx[root.val]
+                            root.left  = build(lo, mid - 1)     # pre-order does left first
+                            root.right = build(mid + 1, hi)
+                            return root
+                        return build(0, len(inorder) - 1)
+                    ```
+
+                    > Why pre-order + in-order (and not in-order alone)? In-order by itself is ambiguous — many trees share it. Pre-order pins down each subtree's root, removing the ambiguity.
+                """),
+            },
+            {
+                "title": "Serialize & deserialize — pre-order with null markers",
+                "body": D("""
+                    To turn a tree into a string and back, use **pre-order and write explicit `None` markers**. The markers are what make the structure unambiguous — without them you can't tell where a subtree ends.
+
+                    ```python
+                    def serialize(root):
+                        out = []
+                        def go(node):
+                            if not node: out.append("#"); return
+                            out.append(str(node.val)); go(node.left); go(node.right)
+                        go(root)
+                        return ",".join(out)
+
+                    def deserialize(data):
+                        vals = iter(data.split(","))
+                        def go():
+                            v = next(vals)
+                            if v == "#": return None
+                            node = TreeNode(int(v)); node.left = go(); node.right = go()
+                            return node
+                        return go()
+                    ```
+
+                    Deserialize works because pre-order emits the root first: consume one token, then the remaining stream is *left subtree serialization followed by right subtree serialization* — exactly what the two recursive `go()` calls consume in order.
+                """),
+            },
+            {
+                "title": "Trie — the prefix tree for fast string lookup",
+                "body": D("""
+                    A **trie** is a tree specialized for strings: each edge is a character, and a root→node path spells a prefix. Prefix queries ("does any word start with…", autocomplete, spell-check) become `O(length)` regardless of how many words are stored.
+
+                    ```python
+                    class TrieNode:
+                        def __init__(self):
+                            self.children = {}            # char -> TrieNode
+                            self.is_word = False          # a word ENDS here
+
+                    class Trie:
+                        def __init__(self): self.root = TrieNode()
+                        def insert(self, word):
+                            node = self.root
+                            for ch in word:
+                                node = node.children.setdefault(ch, TrieNode())
+                            node.is_word = True
+                        def _walk(self, s):
+                            node = self.root
+                            for ch in s:
+                                if ch not in node.children: return None
+                                node = node.children[ch]
+                            return node
+                        def search(self, word):
+                            node = self._walk(word); return bool(node) and node.is_word
+                        def starts_with(self, prefix):
+                            return self._walk(prefix) is not None
+                    ```
+
+                    > **The #1 trie bug:** forgetting `is_word`. Without it you can't tell that "app" was inserted but "ap" wasn't — both are just prefixes on the path to "apple".
+                """),
+            },
+            {
+                "title": "Segment tree — range queries with live updates",
+                "body": D("""
+                    When an array is **mutable** and you need many range queries (sum / min / max), a **segment tree** does both *update* and *range query* in `O(log n)`. Each node stores the aggregate of a range; leaves are single elements; a parent combines its two children.
+
+                    The query splits the asked range against each node's range into **three cases**:
+
+                    1. **No overlap** → contribute the identity (0 for sum).
+                    2. **Total overlap** (node range fully inside the query) → return the node's stored value.
+                    3. **Partial overlap** → recurse into both children and combine.
+
+                    ```python
+                    def range_sum(self, node, seg_lo, seg_hi, q_lo, q_hi):
+                        if q_hi < seg_lo or seg_hi < q_lo:          # 1. no overlap
+                            return 0
+                        if q_lo <= seg_lo and seg_hi <= q_hi:       # 2. total overlap
+                            return self.tree[node]
+                        mid = (seg_lo + seg_hi) // 2                 # 3. partial — split
+                        return (self.range_sum(2*node,   seg_lo, mid,   q_lo, q_hi) +
+                                self.range_sum(2*node+1, mid+1, seg_hi, q_lo, q_hi))
+                    ```
+
+                    > Allocate `4 * n` for the tree array — the safe universal bound (the tighter `2 * n` only works when `n` is a power of two and invites off-by-one bugs). For pure prefix-sum-with-updates, a Fenwick (Binary Indexed) tree is a lighter alternative.
+                """),
+            },
+            {
                 "title": "Your repeatable procedure (run this when you blank out)",
                 "body": D("""
                     1. **Draw a small tree** (3–5 nodes). Always. You cannot solve what you cannot see.
@@ -1857,6 +2159,18 @@ GUIDES = [
                     > **One paragraph to remember:** Every tree problem is *traverse* or *combine children's answers*. Pick DFS (default) or BFS (levels/shortest). For DFS, decide whether info flows **up** (return values, post-order) or **down** (parameters). Write the **base case** first, then the **combine step** trusting the recursion already works. Draw a small tree. That's the whole skill.
                 """),
             },
+            {
+                "title": "Common mistakes that quietly cost offers",
+                "body": D("""
+                    - **Validating a BST with only immediate-child comparisons.** Each node faces constraints from *all* its ancestors — use the `(low, high)` range.
+                    - **Confusing depth and height.** Depth counts down from the root; height counts up from the leaves. Many problems are sensitive to which one they ask for.
+                    - **Treating a one-child node as a leaf.** A leaf has *both* children `None`. This breaks path-sum problems if you terminate early.
+                    - **Appending the path list instead of a copy.** `out.append(path)` stores a reference that later mutates to empty — always `path[:]`.
+                    - **Re-computing height at every node (`O(n²)`).** Fuse the work: one post-order pass returns the height *and* updates your global (diameter, max-path-sum).
+                    - **Recursion depth on skewed trees.** Python's ~1000-frame limit overflows on a "stick". Use an iterative traversal or raise the limit — and *say so* in the interview.
+                    - **Assuming BST ops are `O(log n)` unconditionally.** They're `O(log n)` only when balanced; degenerate BSTs are `O(n)`.
+                """),
+            },
         ],
     },
     {
@@ -1864,9 +2178,9 @@ GUIDES = [
         "icon": "🕸️",
         "title": "How to Solve Graph Problems",
         "shortTitle": "Graphs",
-        "blurb": "Graphs feel scary because the input doesn't look like a graph — it's a grid, "
-                 "a list of pairs, a matrix, or course dependencies. Step 1 is always recognising "
-                 "'this is a graph' and turning it into one. After that, BFS/DFS does the heavy lifting.",
+        "blurb": "Step 1 is always recognising 'this is a graph' and turning it into one — then the "
+                 "right algorithm does the rest. This guide goes from BFS/DFS to topological sort, "
+                 "Union-Find, Dijkstra, MST, and the compound-state BFS that senior interviews love.",
         "sections": [
             {
                 "title": "The mental model — four buckets",
@@ -1877,6 +2191,23 @@ GUIDES = [
                     2. **Shortest path** — *"fewest steps", "minimum cost", "nearest"* → **BFS** (unweighted) or **Dijkstra** (weighted).
                     3. **Ordering with dependencies** — *"course schedule", "build order", "is there a cycle?"* → **topological sort (Kahn's).**
                     4. **Minimum spanning tree** — *"connect everything as cheaply as possible"* → **Prim's / Kruskal's.**
+                """),
+            },
+            {
+                "title": "Graph vocabulary — terms interviewers use without explaining",
+                "body": D("""
+                    Formally a graph is `G = (V, E)`: a set of **vertices** (nodes) and **edges** between them. Every other structure is a restricted graph — a linked list, a tree, a grid are all graphs. Know these terms cold:
+
+                    | Term | Meaning |
+                    |------|---------|
+                    | **Directed vs undirected** | A→B implies B→A only when *undirected* (Twitter follows = directed; Facebook friends = undirected) |
+                    | **Weighted vs unweighted** | edges carry a cost (distance/time/price) vs all edges equal |
+                    | **Cycle** | a path that returns to its start; a **DAG** is a directed graph with *no* cycles |
+                    | **Connected** | every node can reach every other (for directed: *strongly* connected) |
+                    | **Degree** | edges touching a node; directed splits into **in-degree** / **out-degree** |
+                    | **Sparse vs dense** | edge count near `V` vs near `V²` — drives your representation choice |
+
+                    > Two facts decide your whole approach, so extract them first: **directed or undirected?** and **weighted or unweighted?** In-degree (number of incoming edges) is the engine of topological sort — a node with in-degree 0 has no unmet dependencies.
                 """),
             },
             {
@@ -1928,6 +2259,27 @@ GUIDES = [
                 """),
             },
             {
+                "title": "Adjacency list vs matrix — and the 'implicit graph' you build yourself",
+                "body": D("""
+                    Your representation choice decides the cost of every operation. Two explicit forms, and one you construct on the fly:
+
+                    | Representation | Space | "Are u,v adjacent?" | Best for |
+                    |----------------|-------|---------------------|----------|
+                    | **Adjacency list** | `O(V + E)` | `O(degree)` | almost everything — sparse graphs (use this 90% of the time) |
+                    | **Adjacency matrix** | `O(V²)` | `O(1)` | dense graphs, or when you constantly test edge existence / use Floyd-Warshall |
+
+                    A sparse graph of 10,000 nodes and 20,000 edges costs ~30K entries as a list but **100 million** as a matrix — that's why the list is the default.
+
+                    **Implicit graphs — the skill that separates strong candidates.** Many problems never hand you a graph; you *recognise* one:
+
+                    - **Grid:** each cell is a node, neighbours are the 4 (or 8) adjacent cells. The grid *is* the adjacency list.
+                    - **String transformation:** each word is a node; an edge is a single-character change (*Word Ladder*, *Open the Lock*).
+                    - **State space:** the node is a *compound state* like `(row, col, keys)` or `(row, col, walls_left)`; each legal transition is an edge.
+
+                    > At senior level no one says "this is a graph problem." You're given an ambiguous scenario and must *define* what a node and an edge are. Practice saying it in one sentence before you code.
+                """),
+            },
+            {
                 "title": "The two core traversals (memorise both)",
                 "body": D("""
                     **BFS** uses a queue and explores level by level — it finds the **shortest path in an unweighted graph for free**. **DFS** uses a stack (or recursion) and dives deep — great for "explore everything / is it connected?".
@@ -1955,6 +2307,39 @@ GUIDES = [
                         "start": "A"},
                 "vizTitle": "BFS vs DFS — same graph, different frontier",
                 "caption": "BFS (queue) fans out level by level; DFS (stack) plunges down one branch first. Watch the side panel switch between queue and stack.",
+            },
+            {
+                "title": "BFS for shortest paths — distance, grids, and multi-source",
+                "body": D("""
+                    BFS expands in concentric rings, so **the first time it reaches a node it has found the shortest path** (in an unweighted graph). Carry the distance alongside each node:
+
+                    ```python
+                    def bfs_distance(graph, start, target):
+                        visited = {start}
+                        queue = deque([(start, 0)])           # (node, distance)
+                        while queue:
+                            node, dist = queue.popleft()
+                            if node == target: return dist
+                            for nb in graph[node]:
+                                if nb not in visited:
+                                    visited.add(nb)
+                                    queue.append((nb, dist + 1))
+                        return -1
+                    ```
+
+                    **Multi-source BFS** is the move when distance is measured from *any* of several starts (Rotting Oranges, 01 Matrix). Don't run BFS from each source — **seed the queue with all sources at distance 0** and expand once. Because BFS processes nodes in distance order, every cell is reached first by its nearest source.
+
+                    ```python
+                    queue = deque()
+                    for r in range(rows):
+                        for c in range(cols):
+                            if grid[r][c] == SOURCE:
+                                dist[r][c] = 0
+                                queue.append((r, c))          # ALL sources start together
+                    ```
+
+                    > Reach for multi-source BFS whenever the question is "minimum distance to the *nearest* X" or "how many rounds until everything is infected/filled."
+                """),
             },
             {
                 "title": "Which traversal do I pick?",
@@ -2028,6 +2413,34 @@ GUIDES = [
                 "caption": "The cycle is flagged the instant DFS meets an already-visited node that is not the parent it arrived from.",
             },
             {
+                "title": "Cycle detection in a DIRECTED graph — three colors",
+                "body": D("""
+                    Parent-tracking *only works for undirected graphs* — direction changes what counts as a back-edge. For directed graphs, give each node one of **three colors**:
+
+                    - **White** — not visited yet.
+                    - **Gray** — *on the current DFS path* (entered, not finished).
+                    - **Black** — fully explored (all descendants done).
+
+                    A cycle exists exactly when DFS reaches a **Gray** node: you've looped back to something still on your own path. Reaching a Black node is harmless — that subtree is finished, not part of your path.
+
+                    ```python
+                    WHITE, GRAY, BLACK = 0, 1, 2
+                    def has_cycle_directed(adj, n):
+                        color = [WHITE] * n
+                        def dfs(u):
+                            color[u] = GRAY
+                            for v in adj[u]:
+                                if color[v] == GRAY: return True          # back-edge → cycle
+                                if color[v] == WHITE and dfs(v): return True
+                            color[u] = BLACK
+                            return False
+                        return any(color[u] == WHITE and dfs(u) for u in range(n))
+                    ```
+
+                    > Kahn's algorithm (next) detects directed cycles too — if it can't output all `n` nodes, a cycle blocked the rest. Use whichever the problem makes cleaner: Kahn's when you also need the *order*, 3-color when you just need *yes/no* via DFS.
+                """),
+            },
+            {
                 "title": "Dependency order — Kahn's topological sort",
                 "body": D("""
                     **Triggers:** *course schedule, prerequisites, build/compile order, "is there a cycle in a directed graph?"* Idea: repeatedly remove nodes with **no remaining prerequisites** (in-degree 0). Remove them all → valid order, no cycle. Some get stuck → cycle.
@@ -2065,14 +2478,168 @@ GUIDES = [
                 "caption": "The first time a node is seen, its clone is created and enqueued; revisits just reuse the map. One pass copies every node and re-links every edge.",
             },
             {
+                "title": "Union-Find — near-O(1) connectivity",
+                "body": D("""
+                    When the question is *"are these two connected?"* or *"connect them dynamically"* — without needing the actual path — **Union-Find** (Disjoint Set Union) beats BFS/DFS. It supports `find` (which group am I in?) and `union` (merge two groups) in *near-constant* amortised time.
+
+                    Two optimisations make it fast: **path compression** (point every node straight at its root during `find`) and **union by rank** (hang the shorter tree under the taller). Together: `O(α(n))` per op — effectively constant.
+
+                    ```python
+                    class UnionFind:
+                        def __init__(self, n):
+                            self.parent = list(range(n))
+                            self.rank = [0] * n
+                        def find(self, x):
+                            if self.parent[x] != x:
+                                self.parent[x] = self.find(self.parent[x])   # path compression
+                            return self.parent[x]
+                        def union(self, a, b):
+                            ra, rb = self.find(a), self.find(b)
+                            if ra == rb: return False        # already connected (edge is redundant)
+                            if self.rank[ra] < self.rank[rb]: ra, rb = rb, ra
+                            self.parent[rb] = ra
+                            if self.rank[ra] == self.rank[rb]: self.rank[ra] += 1
+                            return True
+                    ```
+
+                    > That `False` return is gold: it means the two endpoints were *already* connected, so this edge forms a cycle — exactly how you solve *Redundant Connection* and the cycle check inside Kruskal's MST.
+                """),
+            },
+            {
+                "title": "Dijkstra — shortest path with weights",
+                "body": D("""
+                    Dijkstra is **BFS generalised to weighted graphs**. A plain queue processes nodes in discovery order; Dijkstra swaps it for a **min-heap** that always expands the node with the smallest known distance. When a node is popped, its distance is *final* — because every alternative route goes through nodes that are already at least as far, and all weights are non-negative.
+
+                    ```python
+                    import heapq
+                    def dijkstra(adj, start, n):              # adj[u] = [(v, weight), ...]
+                        dist = [float('inf')] * n
+                        dist[start] = 0
+                        heap = [(0, start)]                   # (distance, node)
+                        while heap:
+                            d, u = heapq.heappop(heap)
+                            if d > dist[u]: continue          # stale entry — lazy deletion
+                            for v, w in adj[u]:
+                                if d + w < dist[v]:
+                                    dist[v] = d + w
+                                    heapq.heappush(heap, (dist[v], v))
+                        return dist
+                    ```
+
+                    The `if d > dist[u]: continue` guard is essential: we can't delete outdated heap entries, so we push fresh ones and skip the stale ones on pop. Play it below — watch the heap always serve the closest node, and a distance go *final* the instant it's popped.
+
+                    > **Why not BFS?** BFS treats every edge as cost 1, so a 3-hop cheap path can beat a 1-hop expensive one and BFS would miss it. **Why non-negative only?** A later negative edge could undercut a distance you already declared final — that breaks the greedy guarantee (use Bellman-Ford instead).
+                """),
+                "viz": {"type": "dijkstra", "nodes": [0, 1, 2, 3, 4],
+                        "edges": [[0, 1, 4], [0, 2, 1], [2, 1, 2], [1, 3, 1], [2, 3, 5], [3, 4, 3]],
+                        "start": 0},
+                "vizTitle": "Dijkstra — the min-heap always serves the closest node",
+                "caption": "Edge weights are labelled; node badges show the best-known distance. Popping a node finalizes it (green). Final distances from 0: [0, 3, 1, 4, 7].",
+            },
+            {
+                "title": "More shortest-path tools (know when, not just how)",
+                "body": D("""
+                    Dijkstra isn't always the answer. Match the tool to the constraints:
+
+                    | Situation | Tool | Time |
+                    |-----------|------|------|
+                    | Unweighted | **BFS** | `O(V + E)` |
+                    | Non-negative weights | **Dijkstra** | `O(E log V)` |
+                    | **Negative** weights possible | **Bellman-Ford** | `O(V · E)` |
+                    | All-pairs, small V (≤ ~400) | **Floyd-Warshall** | `O(V³)` |
+                    | Weights are only **0 or 1** | **0-1 BFS** (deque) | `O(V + E)` |
+
+                    **Bellman-Ford** relaxes every edge `V-1` times (the longest simple path has `V-1` edges); one extra round that still improves a distance proves a **negative cycle**. **Floyd-Warshall** is a 3-line DP — `dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])` with `k` as the *outermost* loop. **0-1 BFS** uses a deque: push 0-weight edges to the **front**, 1-weight edges to the **back**, keeping the deque distance-sorted without a heap.
+
+                    ```python
+                    # 0-1 BFS core
+                    if w == 0: dq.appendleft(v)     # same distance layer
+                    else:      dq.append(v)          # next distance layer
+                    ```
+                """),
+            },
+            {
+                "title": "Minimum spanning tree — Kruskal & Prim",
+                "body": D("""
+                    An **MST** connects all `V` nodes of a weighted undirected graph with `V-1` edges at minimum total cost. Two greedy algorithms, both correct by the *cut property* (the lightest edge crossing any cut is in some MST):
+
+                    **Kruskal's (edge-centric):** sort all edges by weight, add each one unless it would form a cycle — the cycle test is exactly Union-Find's `union` returning `False`.
+
+                    ```python
+                    def kruskal(n, edges):                    # edges: (u, v, weight)
+                        uf, total, used = UnionFind(n), 0, 0
+                        for u, v, w in sorted(edges, key=lambda e: e[2]):
+                            if uf.union(u, v):
+                                total += w; used += 1
+                                if used == n - 1: break
+                        return total if used == n - 1 else None    # None = disconnected
+                    ```
+
+                    **Prim's (node-centric):** grow the tree from one node, repeatedly taking the cheapest edge to a node not yet in the tree — a min-heap, almost identical in shape to Dijkstra.
+
+                    > **Pick by input:** edge list / sparse → **Kruskal's**; adjacency list / dense → **Prim's**. Either is accepted; write whichever you can produce bug-free. Trigger phrase: *"connect all nodes at minimum total cost."*
+                """),
+            },
+            {
+                "title": "Bipartite check — 2-coloring",
+                "body": D("""
+                    A graph is **bipartite** if its nodes split into two groups with edges only *between* groups, never within one. Equivalent question: *can we 2-color it with no same-colored edge?* BFS/DFS and alternate colors; a clash means an odd cycle, so it's not bipartite.
+
+                    ```python
+                    def is_bipartite(adj, n):
+                        color = [-1] * n
+                        for s in range(n):
+                            if color[s] != -1: continue
+                            color[s] = 0; queue = deque([s])
+                            while queue:
+                                u = queue.popleft()
+                                for v in adj[u]:
+                                    if color[v] == -1:
+                                        color[v] = 1 - color[u]; queue.append(v)
+                                    elif color[v] == color[u]:
+                                        return False        # same color on an edge
+                        return True
+                    ```
+
+                    Trigger phrases: *"split into two teams", "two groups with no internal conflict", "is this graph 2-colorable?"*
+                """),
+                "viz": {"type": "bipartite", "graph": {"0": [1, 3], "1": [0, 2], "2": [1, 3], "3": [0, 2]}},
+                "vizTitle": "Bipartite — force neighbours the opposite color",
+                "caption": "Color A and color B alternate across every edge. This 4-cycle 2-colors cleanly → bipartite. An odd cycle (triangle) would hit a same-color edge and fail.",
+            },
+            {
+                "title": "BFS on compound state — the senior-level pattern",
+                "body": D("""
+                    The pattern that separates strong candidates: the node isn't a plain position, it's a **tuple encoding all relevant state**, and each legal transition is an edge. *Shortest path in a grid where you may break up to `k` walls* — the state is `(row, col, walls_left)`, **not** `(row, col)`. Arriving at the same cell with a different wall budget opens different futures, so it's a different node.
+
+                    ```python
+                    start = (0, 0, k)
+                    visited = {start}
+                    queue = deque([(0, 0, k, 0)])             # row, col, walls_left, steps
+                    while queue:
+                        r, c, walls, steps = queue.popleft()
+                        if (r, c) == (rows-1, cols-1): return steps
+                        for nr, nc in neighbours(r, c):
+                            nw = walls - grid[nr][nc]         # spend a wall if cell is blocked
+                            if nw >= 0 and (nr, nc, nw) not in visited:
+                                visited.add((nr, nc, nw))
+                                queue.append((nr, nc, nw, steps + 1))
+                    ```
+
+                    BFS still gives the shortest path because every move costs 1 — the graph is just *bigger* (`R × C × (k+1)` nodes instead of `R × C`).
+
+                    > **The defining bug:** putting only `(row, col)` in `visited`. You'd collapse genuinely different states and get a wrong answer. The `visited` set must hold the **full** state tuple. This same idea powers *Shortest Path to Get All Keys* (`(pos, keys_bitmask)`) and *Cheapest Flights within K Stops* (`(city, stops_used)`).
+                """),
+            },
+            {
                 "title": "Your repeatable procedure",
                 "body": D("""
                     1. **Identify the graph.** What are the nodes? When are two connected? Say it in one sentence: *"Nodes are cells; edges connect adjacent land cells."*
                     2. **Note the input format** (edge list / matrix / grid / object) and decide whether to **build an adjacency list** or traverse the input directly.
                     3. **Directed or undirected?** This decides whether you add one direction or both.
                     4. **Classify into one of the four buckets** (connectivity, shortest path, dependency order, MST).
-                    5. **Pick the tool:** components → DFS/BFS flood fill · shortest unweighted → BFS · shortest weighted → Dijkstra · dependency order / directed cycle → Kahn's · connect-all-cheaply → MST.
-                    6. **Write the `visited` set first**, then the traversal, then the bookkeeping (counter / distance array / order list / clone map).
+                    5. **Pick the tool:** components → DFS/BFS flood fill (or Union-Find) · shortest unweighted → BFS · shortest weighted → Dijkstra (negative → Bellman-Ford) · dependency order / directed cycle → Kahn's or 3-color · connect-all-cheaply → MST · two groups → bipartite · constraints in the state → compound-state BFS.
+                    6. **Write the `visited` set first** (with the *full* state), then the traversal, then the bookkeeping (counter / distance array / order list / clone map).
                     7. **Test on a tiny example with a cycle** to confirm `visited` saves you.
                 """),
             },
@@ -2086,9 +2653,24 @@ GUIDES = [
                     | BFS / DFS | `O(V + E)` | `O(V)` |
                     | Grid (R×C) | `O(R · C)` | `O(R · C)` |
                     | Topological sort (Kahn's) | `O(V + E)` | `O(V)` |
+                    | Union-Find (per op, amortised) | `O(α(n))` ≈ `O(1)` | `O(V)` |
                     | Dijkstra (binary heap) | `O(E log V)` | `O(V)` |
+                    | Bellman-Ford | `O(V · E)` | `O(V)` |
+                    | Floyd-Warshall (all pairs) | `O(V³)` | `O(V²)` |
+                    | MST (Kruskal / Prim) | `O(E log E)` / `O(E log V)` | `O(V)` |
 
-                    > **One paragraph to remember:** Step 1 is always *turn the input into a graph* — identify nodes, identify when two are connected, decide directed vs undirected. Then **classify**: connectivity → flood fill; shortest unweighted → BFS; shortest weighted → Dijkstra; dependency order or directed cycle → Kahn's; cheapest connection → MST. **Always keep a `visited` set** — the one thing trees let you skip and graphs never do.
+                    > **One paragraph to remember:** Step 1 is always *turn the input into a graph* — identify nodes, identify when two are connected, decide directed vs undirected and weighted vs unweighted. Then **classify**: connectivity → flood fill or Union-Find; shortest unweighted → BFS; shortest weighted → Dijkstra (negative → Bellman-Ford); dependency order or directed cycle → Kahn's; cheapest connection → MST; two groups → bipartite; constraints baked into the node → compound-state BFS. **Always keep a `visited` set** — the one thing trees let you skip and graphs never do.
+                """),
+            },
+            {
+                "title": "Common mistakes that quietly cost offers",
+                "body": D("""
+                    - **Marking visited at *dequeue* instead of *enqueue* in BFS.** Multiple parents enqueue the same node before it's processed → blows `O(V+E)` up to `O(V²)`. Mark when you enqueue.
+                    - **Using DFS for a shortest-path question.** DFS can reach a node by a longer route first. If it says "minimum / shortest / fewest," use BFS (or Dijkstra).
+                    - **Not handling disconnected components.** Loop over *all* nodes as potential starts; a single `bfs(0)` misses everything not reachable from 0.
+                    - **Undirected cycle logic on a directed graph.** Parent-tracking is undirected-only; directed graphs need the 3-color method.
+                    - **Forgetting Dijkstra fails on negative weights.** A later negative edge can undercut a "finalized" distance. Switch to Bellman-Ford.
+                    - **Wrong (too small) state in `visited`.** For compound-state BFS, track the *full* tuple `(pos, constraint)` — tracking only `pos` collapses distinct states and gives wrong answers.
                 """),
             },
         ],
