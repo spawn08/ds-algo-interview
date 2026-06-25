@@ -26,6 +26,15 @@ Output: false
 
 
 class Solution:
+    """
+    Modified binary search that also handles duplicates. When
+    nums[low] == nums[mid] == nums[high] we cannot tell which half is sorted,
+    so we shrink both ends by one.
+
+    Time complexity:  O(log n) average, O(n) worst case -- duplicates (e.g.
+                      [1,1,1,1,1]) force the linear low++/high-- shrink.
+    Space complexity: O(1) -- only a few index variables.
+    """
 
     def search_target(self, nums: list[int], target: int) -> bool:
         size = len(nums)

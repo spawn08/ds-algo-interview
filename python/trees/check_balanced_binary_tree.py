@@ -17,6 +17,14 @@ from tree import TreeNode
 
 
 class Solution:
+	"""
+	Single post-order pass: each call returns the subtree height, or -1 as a
+	sentinel once any subtree is found unbalanced, short-circuiting the rest.
+
+	Time complexity:  O(n) -- height and balance computed together in one pass
+	                  (the naive recompute-height approach would be O(n^2)).
+	Space complexity: O(h) -- recursion stack, h = height of the tree.
+	"""
 
 	def is_balanced_binary_tree(self, root: Optional[TreeNode]) -> bool:
 

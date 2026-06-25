@@ -25,6 +25,15 @@ from typing import List
 
 
 class Solution:
+    """
+    Kahn's algorithm (BFS topological sort): a valid ordering exists iff every
+    course can be processed, i.e. the prerequisite graph is acyclic.
+
+    Time complexity:  O(V + E) -- V = numCourses, E = number of prerequisites;
+                      each node and edge is handled once.
+    Space complexity: O(V + E) -- adjacency list, in-degree array, and queue.
+    """
+
     def canFinish(self, numCourses: int, prerequisites: List[List[int]]) -> bool:
         if not prerequisites:
             return False

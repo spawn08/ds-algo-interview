@@ -19,6 +19,13 @@ from typing import List
 
 
 class Solution:
+	"""
+	Count connected components in an adjacency-matrix graph via iterative DFS;
+	each unvisited city starts a new province.
+
+	Time complexity:  O(n^2) -- the n x n matrix is scanned for neighbours.
+	Space complexity: O(n) -- visited array plus the explicit DFS stack.
+	"""
 
 	def dfs(self, city: int, size: int, isConnected: List[List[int]], visited_city: List[bool]):
 		visited_city[city] = True

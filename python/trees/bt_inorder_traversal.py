@@ -28,6 +28,13 @@ from typing import List, Optional
 
 
 class Solution:
+	"""
+	Recursive inorder traversal (left -> node -> right).
+
+	Time complexity:  O(n) -- every node is visited once.
+	Space complexity: O(h) -- recursion stack, h = height (plus O(n) for the
+	                  output list).
+	"""
 
 	def helper(self, root: Optional[TreeNode], traversal: list[int]):
 		if root is not None:

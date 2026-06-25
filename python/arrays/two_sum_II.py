@@ -34,6 +34,13 @@ Therefore index1 = 1, index2 = 2. We return [1, 2].
 
 
 class TwoSum:
+    """
+    Two-pointer scan over a sorted array.
+
+    Time complexity:  O(n log n) -- dominated by the sort; the two-pointer
+                      sweep that follows is O(n).
+    Space complexity: O(n) -- Timsort's working space (O(1) extra beyond it).
+    """
 
     def two_sum(self, nums: list, target: int) -> list[int]:
         nums.sort()

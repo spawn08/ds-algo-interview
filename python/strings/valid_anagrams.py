@@ -17,6 +17,13 @@ Output: false
 
 
 def valid_anagrams(str1: str, str2: str):
+    """
+    Two strings are anagrams iff they have identical character frequencies.
+
+    Time complexity:  O(n) -- building and comparing the two counters.
+    Space complexity: O(1) -- bounded by the (fixed) alphabet size, O(k) in
+                      general for k distinct characters.
+    """
     if len(str1) != len(str2):
         return False
 

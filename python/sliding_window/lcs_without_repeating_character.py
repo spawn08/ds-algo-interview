@@ -2,6 +2,14 @@ from typing import Dict
 
 
 class LCSWithOutRepeatingChar:
+    """
+    Longest substring without repeating characters via a sliding window;
+    last_seen jumps the left edge past any repeated character.
+
+    Time complexity:  O(n) -- each index is visited once by the right pointer.
+    Space complexity: O(min(n, c)) -- last_seen holds at most one entry per
+                      distinct character (c = size of the character set).
+    """
 
     def lcs(self, input_str: str) -> int:
         if not input_str:

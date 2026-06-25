@@ -32,6 +32,13 @@ Output: true
 
 
 class ValidParentheses:
+    """
+    Push opening brackets onto a stack; on a closing bracket the stack top
+    must be its matching opener. Valid iff the stack ends empty.
+
+    Time complexity:  O(n) -- each character is pushed/popped at most once.
+    Space complexity: O(n) -- worst case all openers (e.g. "(((((").
+    """
 
     def valid_parantheses(self, s: str) -> bool:
 

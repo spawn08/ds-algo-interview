@@ -19,7 +19,13 @@ Output: 0
 from collections import defaultdict
 
 class Solution:
+	"""
+	Count the letters of "balloon" in text; the answer is limited by the
+	scarcest letter (with 'l' and 'o' needed twice each).
 
+	Time complexity:  O(n) -- single pass over text; the final min() is O(1).
+	Space complexity: O(1) -- the counter holds at most 5 distinct letters.
+	"""
 
 	def maxNumberOfBalloons(self, text: str) -> int:
 

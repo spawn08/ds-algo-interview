@@ -1370,3 +1370,28 @@ class SegmentTree:
 **Forgetting the `is_end_of_word` flag in tries.** Without it, you can't distinguish "app" from "apple." This is the most common trie bug.
 
 **Building a segment tree of size `2*N` instead of `4*N`.** `2*N` only works when N is a power of 2. `4*N` is the safe universal bound. Saving the memory isn't worth the off-by-one bugs.
+
+---
+
+## 17. Learning Resources to Refer
+
+Resources are ordered roughly from foundational to advanced. Pick by where you are, not by trying to consume all of them.
+
+### Complexity reference
+- [Big-O Cheat Sheet](https://www.bigocheatsheet.com/) — quick lookup table for the time/space costs annotated throughout this repo's `.py` solutions.
+- [VisuAlgo — BST / Trees](https://visualgo.net/en/bst) — animate insert/search/delete and traversals step by step.
+
+### Foundations (traversals, recursion, BST)
+- [CSES Tree Algorithms](https://cses.fi/book/book.pdf) (Competitive Programmer's Handbook, ch. on trees) — clean, language-agnostic treatment of tree DP and traversals.
+- [GeeksforGeeks — Binary Tree](https://www.geeksforgeeks.org/binary-tree-data-structure/) and [Binary Search Tree](https://www.geeksforgeeks.org/binary-search-tree-data-structure/) — broad problem catalog with worked examples.
+- [Abdul Bari — Trees playlist (YouTube)](https://www.youtube.com/playlist?list=PLDN4rrl48XKpZkf03iYFl-O29szjTrs_O) — careful whiteboard explanations of BST operations and balancing.
+
+### Interview patterns
+- [NeetCode — Trees roadmap](https://neetcode.io/roadmap) — curated problem order with video walkthroughs; mirrors the Tier 1/2/3 progression in §15.
+- [LeetCode Explore — Binary Tree](https://leetcode.com/explore/learn/card/data-structure-tree/) — guided card that drills traversal and recursion patterns.
+- *Cracking the Coding Interview* (Gayle Laakmann McDowell), "Trees and Graphs" chapter — the canonical interview framing.
+
+### Advanced (Trie, Segment Tree, balanced trees)
+- [CP-Algorithms — Segment Tree](https://cp-algorithms.com/data_structures/segment_tree.html) and [Fenwick Tree](https://cp-algorithms.com/data_structures/fenwick.html) — the definitive reference for range-query structures (§13).
+- [USACO Guide — Trees & Tries](https://usaco.guide/) — progressively harder problems with editorial-quality solutions.
+- [Open Data Structures](https://opendatastructures.org/) — free textbook covering AVL, Red-Black, and B-Trees (the self-balancing variants referenced in §7).

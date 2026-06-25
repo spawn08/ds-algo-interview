@@ -2,7 +2,14 @@ from tree import TreeNode
 
 
 class IterativeTraversals:
+	"""
+	Iterative inorder traversal using an explicit stack (no recursion): walk
+	left pushing nodes, pop and emit, then move right.
 
+	Time complexity:  O(n) -- each node is pushed and popped exactly once.
+	Space complexity: O(h) -- the stack holds at most one root-to-leaf path
+	                  (plus O(n) for the output list).
+	"""
 
 	def in_order_traversal(self, node: TreeNode) -> list[int]:
 		if not node:

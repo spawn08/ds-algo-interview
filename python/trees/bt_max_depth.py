@@ -18,6 +18,13 @@ from typing import Optional
 
 
 class Solution:
+	"""
+	Post-order recursion: a node's depth is 1 + the deeper of its two subtrees.
+
+	Time complexity:  O(n) -- every node is visited once.
+	Space complexity: O(h) -- recursion stack, h = height (O(n) skewed,
+	                  O(log n) balanced).
+	"""
 
 	def max_depth(self, root: Optional[TreeNode]) -> int:
 		if not root:

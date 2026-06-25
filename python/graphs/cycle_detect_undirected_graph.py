@@ -21,6 +21,9 @@ class Solution:
 
 		num_nodes: number of nodes
 		graph: Adjacency list graph representation
+
+		Time complexity:  O(V + E) -- every vertex and edge is examined once.
+		Space complexity: O(V) -- visited array plus the explicit DFS stack.
 		"""
 		visited: List[bool] = [False] * num_nodes
 

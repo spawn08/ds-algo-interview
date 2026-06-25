@@ -31,6 +31,14 @@ Output: -1
 
 
 class Solution:
+    """
+    Modified binary search: one half is always sorted, so we decide which
+    half can contain the target and discard the other.
+
+    Time complexity:  O(log n) -- the search space halves each iteration
+                      (values are distinct).
+    Space complexity: O(1) -- only a few index variables.
+    """
 
     def search_target(self, nums: list[int], target: int) -> bool:
         size = len(nums)

@@ -1533,3 +1533,28 @@ def word_ladder_length(
 **Forgetting that Dijkstra fails with negative weights.** Dijkstra's greedy assumption ("the smallest tentative distance is final") breaks when negative weights can reduce a path cost after it was finalized. If you see negative costs, switch to Bellman-Ford.
 
 **Wrong state in the visited set.** If BFS has compound state `(position, constraint)`, your visited set must track the full state. Tracking only `position` collapses states that are fundamentally different and leads to wrong answers. This is the most common bug in state-space BFS problems.
+
+---
+
+## 15. Learning Resources to Refer
+
+Resources are ordered roughly from foundational to advanced. Pick by where you are, not by trying to consume all of them.
+
+### Complexity reference
+- [Big-O Cheat Sheet](https://www.bigocheatsheet.com/) — quick lookup for the O(V + E) / O(V·E) / O(E log V) costs annotated in this repo's graph `.py` solutions.
+- [VisuAlgo — Graph Traversal](https://visualgo.net/en/dfsbfs), [SSSP](https://visualgo.net/en/sssp), [MST](https://visualgo.net/en/mst) — animate BFS/DFS, Dijkstra/Bellman-Ford, and Kruskal/Prim.
+
+### Foundations (representations, BFS, DFS)
+- [GeeksforGeeks — Graph Data Structure](https://www.geeksforgeeks.org/graph-data-structure-and-algorithms/) — broad catalog covering adjacency list/matrix and traversal variants.
+- [CS Dojo / William Fiset — Graph Theory playlist (YouTube)](https://www.youtube.com/playlist?list=PLDV1Zeh2NRsDGO4--qE8yH72HFL1Km93P) — the most thorough free video series on graph algorithms.
+- [CSES Graph Algorithms problem set](https://cses.fi/problemset/) — graded practice that maps directly onto BFS/DFS/topological-sort fundamentals.
+
+### Interview patterns
+- [NeetCode — Graphs & Advanced Graphs roadmap](https://neetcode.io/roadmap) — curated problem order with video solutions; mirrors the Tier 1/2/3 progression in §13.
+- [LeetCode Explore — Graph](https://leetcode.com/explore/learn/card/graph/) — guided card on traversal, union-find, and shortest paths.
+- *Cracking the Coding Interview* (Gayle Laakmann McDowell), "Trees and Graphs" chapter — canonical interview framing for implicit-graph problems.
+
+### Advanced (shortest paths, MST, union-find, SCC)
+- [CP-Algorithms — Graph section](https://cp-algorithms.com/#graphs) — definitive references for Dijkstra, Bellman-Ford, Floyd-Warshall, Kruskal/Prim, and Tarjan's SCC/bridges (§9–§11).
+- [USACO Guide — Graphs](https://usaco.guide/) — progressively harder problems with editorial-quality solutions, including 0-1 BFS and DSU.
+- [Stanford CS161 / MIT 6.006 lecture notes](https://ocw.mit.edu/courses/6-006-introduction-to-algorithms-spring-2020/) — rigorous proofs of correctness and complexity for the shortest-path and MST algorithms.

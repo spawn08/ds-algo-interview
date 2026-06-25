@@ -1,4 +1,13 @@
 class Solution:
+    """
+    2-D DP where dp[i][j] is the length of the common substring ending exactly
+    at text1[i-1] and text2[j-1]; resets to 0 on a mismatch.
+
+    Time complexity:  O(m * n) -- every cell of the table is filled once.
+    Space complexity: O(m * n) -- the full table (reducible to O(min(m, n))
+                      with a rolling row).
+    """
+
     def longestCommonSubstring(self, text1: str, text2: str) -> int:
         m, n = len(text1), len(text2)
 

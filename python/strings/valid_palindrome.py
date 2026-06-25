@@ -25,6 +25,13 @@ Since an empty string reads the same forward and backward, it is a palindrome.
 
 
 class Solution:
+	"""
+	Strip non-alphanumerics, lowercase, then two-pointer compare ends inward.
+
+	Time complexity:  O(n) -- one pass to clean, one pass to compare.
+	Space complexity: O(n) -- the cleaned string (O(1) is possible by
+	                  two-pointering over the original and skipping in place).
+	"""
 
 	def isPanlindrome(self, s: str) -> bool:
 		cleaned = "".join(char.lower() for char in s if char.isalnum())

@@ -23,6 +23,15 @@ from collections import deque
 
 
 class Solution:
+	"""
+	BFS level by level: capture the queue size at the start of each level so
+	exactly that many nodes are grouped together.
+
+	Time complexity:  O(n) -- every node is enqueued and dequeued once.
+	Space complexity: O(n) -- the queue holds up to a full level (O(n/2) at
+	                  the widest), plus the output.
+	"""
+
 	def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
 
 		if not root:

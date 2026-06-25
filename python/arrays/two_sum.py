@@ -24,6 +24,12 @@ Output: [0,1]
 
 
 class TwoSum:
+    """
+    Single pass with a hash map of value -> index.
+
+    Time complexity:  O(n) -- one pass, O(1) average hash lookups/inserts.
+    Space complexity: O(n) -- the map holds up to n entries.
+    """
 
     def two_sum(self, nums: list, target: int) -> list[int]:
         output = {}

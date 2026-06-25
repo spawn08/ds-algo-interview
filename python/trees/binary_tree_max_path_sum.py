@@ -28,6 +28,15 @@ from typing import Optional
 
 
 class Solution:
+    """
+    Post-order DFS. Each call returns the best downward gain through a node;
+    a global max tracks the best path that bends through a node using both
+    children. Negative branches are clamped to 0.
+
+    Time complexity:  O(n) -- every node is visited once.
+    Space complexity: O(h) -- recursion stack, h = height of the tree.
+    """
+
     def maxPathSum(self, root: Optional[TreeNode]) -> int:
 
         max_sum = float('-inf')

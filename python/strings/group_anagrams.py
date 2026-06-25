@@ -3,6 +3,14 @@ from typing import List
 
 
 class Solution:
+    """
+    Group words by a canonical key (their sorted characters); anagrams share
+    the same key. Both methods are equivalent (str vs tuple key).
+
+    Let n = number of words, k = max word length.
+    Time complexity:  O(n * k log k) -- sorting each word dominates.
+    Space complexity: O(n * k) -- every word is stored in the map.
+    """
 
     def group_anagrams(self, strs: List[str]) -> List[List[str]]:
         anagram_map = defaultdict(list)

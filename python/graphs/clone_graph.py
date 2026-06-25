@@ -17,6 +17,14 @@ class Node:
 
 
 class Solution:
+    """
+    BFS over the original graph, building clones and wiring up edges as we go;
+    a dict maps each value to its already-created clone to avoid revisiting.
+
+    Time complexity:  O(V + E) -- every node and every edge is processed once.
+    Space complexity: O(V) -- the clones map plus the BFS queue.
+    """
+
     def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
 
         if not node:

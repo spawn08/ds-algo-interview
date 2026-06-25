@@ -31,6 +31,15 @@ from collections import defaultdict, deque
 from typing import List
 
 class Solution:
+    """
+    Kahn's algorithm (BFS topological sort): emit courses as their in-degree
+    drops to zero; if fewer than numCourses are emitted there is a cycle.
+
+    Time complexity:  O(V + E) -- V = numCourses, E = number of prerequisites.
+    Space complexity: O(V + E) -- adjacency list, in-degree array, queue, and
+                      the output ordering.
+    """
+
     def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -> List[int]:
         if not prerequisites:
             return []

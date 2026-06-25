@@ -24,6 +24,11 @@ from typing import List
 
 
 class Solution:
+    """
+    Time complexity:  O(n) -- each number is the start of at most one streak,
+                      and the inner while-loop walks each value at most once.
+    Space complexity: O(n) -- the hash set stores every distinct number.
+    """
 
     def longestConsecutiveSequence(self, nums: List[int]) -> int:
         num_set = set(nums)

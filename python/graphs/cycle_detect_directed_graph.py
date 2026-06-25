@@ -5,6 +5,13 @@ from collections import defaultdict, deque
 class Solution:
 
 	def detect_cycle_directed_graph(self, vertices: int, adj: List[List[int]]):
+		"""
+		Kahn's algorithm: if a topological sort cannot process every vertex,
+		the leftover vertices form a cycle.
+
+		Time complexity:  O(V + E) -- each vertex and edge is visited once.
+		Space complexity: O(V + E) -- adjacency map, in-degree array, and queue.
+		"""
 		indegree = [0] * vertices
 		graph = defaultdict(list)
 

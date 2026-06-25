@@ -29,6 +29,16 @@ from typing import List
 
 
 class Solution:
+    """
+    Iterative DFS flood fill: scan the grid, and from each unvisited '1' sink
+    the whole connected landmass (mark it '0') before counting one island.
+
+    Time complexity:  O(m * n) -- each cell is visited a constant number of
+                      times (m rows, n columns).
+    Space complexity: O(m * n) -- worst-case explicit stack when the grid is
+                      one solid island.
+    """
+
     def numIslands(self, grid: List[List[str]]) -> int:
         if not grid or not grid[0]:
             return 0

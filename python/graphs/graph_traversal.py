@@ -2,6 +2,14 @@
 from collections import deque
 
 class GraphBFS:
+    """
+    BFS and DFS traversals over an adjacency-list graph.
+
+    For each traversal (bfs / dfs_recursive / dfs_iterative):
+      Time complexity:  O(V + E) -- every vertex and edge is visited once.
+      Space complexity: O(V) -- visited set plus the queue / stack
+                        (recursion stack for dfs_recursive).
+    """
 
     def bfs(self, graph: dict[int, list[int]], start_node: int) -> list:
 

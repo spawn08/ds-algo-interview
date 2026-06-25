@@ -5,7 +5,14 @@ from typing import List
 
 
 class TreeTraversal:
+    """
+    The four canonical traversals (in/pre/post-order DFS + level-order BFS).
 
+    For every traversal:
+      Time complexity:  O(n) -- each node is visited once.
+      Space complexity: O(h) for the recursive DFS variants (recursion stack),
+                        O(n) for level-order (the queue holds a full level).
+    """
 
     def in_order_traversal(self, node: TreeNode):
         if not node:

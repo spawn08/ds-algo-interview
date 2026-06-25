@@ -31,6 +31,14 @@ from typing import List
 
 
 class Solution:
+    """
+    1-D DP collapsed to two rolling variables: dp[i] = max(dp[i-1],
+    amount[i] + dp[i-2]).
+
+    Time complexity:  O(n) -- one pass over the houses.
+    Space complexity: O(1) -- only the previous two DP states are kept.
+    """
+
     def rob(self, nums: List[int]) -> int:
         prev_one = 0  # dp[i-1]
         prev_two = 0  # dp[i-2]
