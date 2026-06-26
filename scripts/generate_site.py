@@ -851,6 +851,36 @@ PROBLEMS = [
         ],
     },
     {
+        "id": "kth-smallest-bst",
+        "title": "Kth Smallest Element in a BST",
+        "category": "trees",
+        "difficulty": "Medium",
+        "tags": ["bst", "tree", "dfs", "inorder"],
+        "link": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
+        "summary": "Find the kth smallest value (1-indexed) by an inorder traversal of the BST.",
+        "idea": D("""
+            An **inorder traversal** of a BST (left → node → right) visits values in **ascending
+            order**. So the kth node you visit is the kth smallest. Walk inorder with a countdown:
+            decrement on each visit, and when it hits the target the current node is the answer —
+            then stop early instead of traversing the rest of the tree.
+        """),
+        "why": D("""
+            **Why inorder, and why the early exit?** The BST ordering invariant makes inorder yield a
+            sorted sequence for free — no extra sorting needed. Counting down lets us short-circuit the
+            moment we reach the kth value, so we only touch the leftmost spine plus k nodes rather than
+            all n. That makes it **O(h + k)** on average (O(n) worst case on a skewed tree), with O(h)
+            recursion-stack space. If the tree is modified often and you need many such queries, augment
+            each node with its subtree size to answer in O(h).
+        """),
+        "complexity": {"time": "O(h + k)", "space": "O(h)",
+                       "note": "h = tree height. Descends the left spine (O(h)) then visits k nodes; "
+                               "O(n) worst case for a skewed tree or large k."},
+        "files": [
+            {"lang": "python", "label": "Python — inorder with countdown", "path": "python/trees/kth_smallest_element_bst.py"},
+        ],
+        "viz": {"type": "treeTraversal", "tree": [5, 3, 6, 2, 4, None, None, 1]},
+    },
+    {
         "id": "invert-tree",
         "title": "Invert Binary Tree",
         "category": "trees",

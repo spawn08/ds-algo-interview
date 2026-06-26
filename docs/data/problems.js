@@ -1170,6 +1170,49 @@ window.SITE_DATA = {
       "statement": "You are given the root of a binary search tree (BST) and an integer val. Find the node whose\nvalue equals val and return the subtree rooted at that node. If the node does not exist, return\nnull.\n\nExample 1:\n\nInput: root = [4,2,7,1,3], val = 2\nOutput: [2,1,3]\n\nExample 2:\n\nInput: root = [4,2,7,1,3], val = 5\nOutput: []"
     },
     {
+      "id": "kth-smallest-bst",
+      "title": "Kth Smallest Element in a BST",
+      "category": "trees",
+      "difficulty": "Medium",
+      "tags": [
+        "bst",
+        "tree",
+        "dfs",
+        "inorder"
+      ],
+      "link": "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
+      "summary": "Find the kth smallest value (1-indexed) by an inorder traversal of the BST.",
+      "idea": "An **inorder traversal** of a BST (left → node → right) visits values in **ascending\norder**. So the kth node you visit is the kth smallest. Walk inorder with a countdown:\ndecrement on each visit, and when it hits the target the current node is the answer —\nthen stop early instead of traversing the rest of the tree.",
+      "why": "**Why inorder, and why the early exit?** The BST ordering invariant makes inorder yield a\nsorted sequence for free — no extra sorting needed. Counting down lets us short-circuit the\nmoment we reach the kth value, so we only touch the leftmost spine plus k nodes rather than\nall n. That makes it **O(h + k)** on average (O(n) worst case on a skewed tree), with O(h)\nrecursion-stack space. If the tree is modified often and you need many such queries, augment\neach node with its subtree size to answer in O(h).",
+      "complexity": {
+        "time": "O(h + k)",
+        "space": "O(h)",
+        "note": "h = tree height. Descends the left spine (O(h)) then visits k nodes; O(n) worst case for a skewed tree or large k."
+      },
+      "files": [
+        {
+          "lang": "python",
+          "label": "Python — inorder with countdown",
+          "path": "python/trees/kth_smallest_element_bst.py",
+          "code": "\"\"\"\nGiven the root of a binary search tree, and an integer k, \nreturn the kth smallest value (1-indexed) of all the values of the nodes in the tree.\n\nExample 1:\n\nInput: root = [3,1,4,null,2], k = 1\nOutput: 1\n\nExample 2:\n\nInput: root = [5,3,6,2,4,null,null,1], k = 3\nOutput: 3\n\"\"\"\n\nfrom typing import Optional\nfrom tree import TreeNode\n\n\nclass Solution:\n\t\"\"\"\n\tKth smallest in a BST via an inorder traversal.\n\n\tAn inorder traversal of a BST (left -> node -> right) visits values in\n\tascending order, so the kth node visited is the kth smallest. We carry a\n\tcountdown in count[0]; when it reaches 1 the current node is the answer, and\n\twe stop descending right once the count is exhausted (early exit).\n\n\tTime complexity:  O(h + k) -- we descend to the smallest value (O(h)) then\n\t                  visit k nodes; O(n) worst case (skewed tree, large k).\n\tSpace complexity: O(h) -- recursion stack, h = height of the tree.\n\t\"\"\"\n\n\tdef kth_smallest_element(self, root: Optional[TreeNode], k: int) -> int:\n\t\t'''\n\t\tThis method calculates the kth smallest element present in binary search tree\n\n\t\tparam:\n\t\t\troot: TreeNode datastructure\n\t\t\tk: int value for finding smallest element at k\n\t\tTime Complexity: O(n)\n\t\tSpace Complexity: O(h) where h is height of tree\n\t\t'''\n\t\t\n\t\tcount = [k]\n\t\tans = [0]\n\n\t\tdef dfs(node: Optional[TreeNode]):\n\t\t\tif not node:\n\t\t\t\treturn\n\t\t\tdfs(node.left)\n\n\t\t\tif count[0] == 1:\n\t\t\t\tans[0] = node.val\n\n\t\t\tcount[0] = count[0] - 1\t\n\n\t\t\tif count[0] > 0:\n\t\t\t\tdfs(node.right)\n\t\tdfs(root)\n\t\treturn ans[0]\n\n\nif __name__ == '__main__':\n\tinput_list = [5, 3, 6, 2, 4, None, None, 1]\n\troot = TreeNode(5)\n\troot.left = TreeNode(3)\n\troot.right = TreeNode(6)\n\troot.left.left = TreeNode(2)\n\troot.left.right = TreeNode(4)\n\troot.left.left.left = TreeNode(1)\n\tsolution = Solution()\n\tprint(solution.kth_smallest_element(root, 3))\n"
+        }
+      ],
+      "viz": {
+        "type": "treeTraversal",
+        "tree": [
+          5,
+          3,
+          6,
+          2,
+          4,
+          null,
+          null,
+          1
+        ]
+      },
+      "statement": "Given the root of a binary search tree, and an integer k,\nreturn the kth smallest value (1-indexed) of all the values of the nodes in the tree.\n\nExample 1:\n\nInput: root = [3,1,4,null,2], k = 1\nOutput: 1\n\nExample 2:\n\nInput: root = [5,3,6,2,4,null,null,1], k = 3\nOutput: 3"
+    },
+    {
       "id": "invert-tree",
       "title": "Invert Binary Tree",
       "category": "trees",
@@ -1806,12 +1849,12 @@ window.SITE_DATA = {
     "strings": 2,
     "dynamic-programming": 3,
     "binary-search": 3,
-    "trees": 9,
+    "trees": 10,
     "graphs": 8,
     "heaps": 2,
     "misc": 3
   },
-  "total": 44,
+  "total": 45,
   "guides": [
     {
       "id": "trees",
